@@ -1,8 +1,9 @@
 ---
 project: "MovieMate"
-version: 1
+version: 2
 status: draft
 created: 2026-05-26
+updated: 2026-05-29
 context_type: greenfield
 product_type: web-app
 target_scale:
@@ -19,13 +20,13 @@ timeline_budget:
 
 MovieMate addresses decision paralysis during a shared movie night: two people want to watch something together, but the available catalogs give them too many options, so choosing a title can take around 40 minutes and sometimes ends with no film being watched.
 
-The product insight is that the useful unit is not another film catalog, but a short decision flow for a specific session: MovieMate narrows externally sourced movie candidates using both viewers' preferences, session constraints, app-generated watch history, and a simple scoring rule, then returns three justified recommendations instead of another long list. At 100x the initial user scale, the recommendation rule would probably not change.
+The product insight is that the useful unit is not another film catalog, but a short decision flow for a specific session: a single operator weighs two tastes in one session. MovieMate narrows externally sourced movie candidates using both viewer profiles, session constraints, and a simple scoring rule, then returns three justified recommendations instead of another long list. At 100x the initial user scale, the recommendation rule would probably not change.
 
 ## User & Persona
 
-Primary persona: a pair / two people who regularly watch films together and often struggle to agree on a concrete title.
+Primary persona: one logged-in operator who chooses a film for a movie night shared with a second person, weighing both tastes in a single session rather than guessing for one.
 
-Example context: Wojtek and his girlfriend want a film for the evening. One person wants something light, the other wants mystery or tension; they want to avoid horror and very heavy drama, and they have around two hours.
+Example context: Wojtek opens MovieMate and represents both his and his girlfriend's taste in one session. One taste wants something light, the other wants mystery or tension; they want to avoid horror and very heavy drama, and they have around two hours. The second person does not log in; the operator captures both tastes as two viewer profiles.
 
 ## Success Criteria
 
@@ -52,9 +53,9 @@ Example context: Wojtek and his girlfriend want a film for the evening. One pers
 #### Acceptance Criteria
 
 - The recommendation output contains no more than three films.
-- Each recommendation is labeled as safe pick, compromise pick, or wild card.
+- Each recommendation is labeled as safe pick, compromise pick, or wild card, and the wild card differs from the safe pick in genre or tone.
 - The user can select one recommendation to finish the decision flow.
-- The selected recommendation can be recorded as watched and becomes part of the app-generated watch history.
+- The selected recommendation can be marked as watched, which excludes it from future candidate retrieval for the account.
 
 ## Functional Requirements
 
@@ -74,8 +75,8 @@ Example context: Wojtek and his girlfriend want a film for the evening. One pers
 
 ### Candidate Retrieval & Scoring
 
-- FR-005: User can request movie candidates from an external movie catalog using a preference-aligned candidate strategy rather than generic popularity. Priority: must-have
-  > Socrates: Counter-argument considered: a movie catalog can produce too many random or poorly targeted candidates without a good retrieval strategy. Resolution: kept as must-have with clarified strategy; candidates should be sourced according to session preferences, not generic popularity alone.
+- FR-005: User can request movie candidates from TMDB's discover endpoint using hard filters (genres, runtime, rating, release window) derived from session preferences; semantic preference matching happens locally in the scoring step (FR-007), not in the external query. Priority: must-have
+  > Socrates: Counter-argument considered: a movie catalog can produce too many random or poorly targeted candidates without a good retrieval strategy. Resolution: kept as must-have with a realistic strategy; TMDB discover supports structured filters (genre, runtime, rating, year) but not mood or free-text matching, so candidate retrieval is filter-based and all preference-alignment is delegated to the local scoring rule rather than expected from the external API.
 - FR-006: User can have movie candidates hard-filtered for critical constraints such as runtime and strongly down-ranked for excluded genres. Priority: must-have
   > Socrates: Counter-argument considered: hard filtering can remove good films because metadata is imperfect. Resolution: revised; use hard filtering for critical constraints such as runtime, and strong scoring penalties for excluded genres.
 - FR-007: User can have movie candidates scored by both viewers' preferences, mood, runtime, rating, and popularity. Priority: must-have
@@ -85,14 +86,14 @@ Example context: Wojtek and his girlfriend want a film for the evening. One pers
 
 - FR-008: User can see at most three recommendations for a session. Priority: must-have
   > Socrates: Counter-argument considered: no stronger counter-argument selected; the three-item limit is the main response to decision paralysis. Resolution: kept as written.
-- FR-009: User can see each recommendation labeled as safe pick, compromise pick, or wild card. Priority: must-have
-  > Socrates: Counter-argument considered: no stronger counter-argument selected; the labels help the pair understand the type of decision, not only the ranking. Resolution: kept as written.
+- FR-009: User can see each recommendation labeled as safe pick, compromise pick, or wild card, and the three picks must be meaningfully distinct (the wild card differs from the safe pick in genre or tone) so the set does not collapse into three near-identical films. Priority: must-have
+  > Socrates: Counter-argument considered: with two tastes and a narrow candidate pool the three roles can come out nearly identical, making the labels cosmetic. Resolution: added a diversity guardrail; the wild card must differ from the safe pick in genre or tone, otherwise the role split adds no decision value.
 - FR-010: User can read a short AI-generated justification for each recommendation. Priority: must-have
   > Socrates: Counter-argument considered: no stronger counter-argument selected; the justification helps the user trust why a recommendation fits the session. Resolution: kept as written.
 - FR-011: User can select one recommendation. Priority: must-have
   > Socrates: Counter-argument considered: no stronger counter-argument selected; selecting one recommendation closes the decision flow. Resolution: kept as written.
-- FR-012: User can record a selected recommendation as watched so MovieMate stores only films watched because of an app recommendation. Priority: must-have
-  > Socrates: Counter-argument considered: watch history can expand MVP scope if it becomes a general film library. Resolution: kept with a strict boundary; the MVP records only films watched through MovieMate recommendations, with no manual history import or broad history management.
+- FR-012: User can mark a selected recommendation as watched; watched films are excluded from future candidate retrieval so the account does not get re-recommended a film it already saw. Priority: must-have
+  > Socrates: Counter-argument considered: a watch history feeding the scoring rule sounds valuable but, for one pair, holds only a handful of entries and contributes almost nothing as a scoring signal while costing real engineering. Resolution: scoped down; in the MVP "watched" exists only as a deduplication mechanism (exclude seen films from new candidates), not as a scoring input or a browsable history view.
 
 ## Non-Functional Requirements
 
@@ -100,26 +101,27 @@ Example context: Wojtek and his girlfriend want a film for the evening. One pers
 
 ## Business Logic
 
-MovieMate selects films that best fit the current viewing session by combining both viewers' preferences, session constraints, app-generated watch history, and externally sourced film metadata.
+MovieMate selects films that best fit the current viewing session by combining both viewer profiles, session constraints, and externally sourced film metadata.
 
-The rule consumes the current session's mood, preferred genres, excluded genres, maximum runtime, intensity, and optional text note, plus the two viewer profiles and the history of films watched because of prior MovieMate recommendations.
+The rule consumes the current session's mood, preferred genres, excluded genres, maximum runtime, intensity, and optional text note, plus the two viewer profiles. Films already marked as watched are excluded from candidate retrieval; watch history is a deduplication filter, not a scoring signal in the MVP.
 
-The output is three recommendation roles: safe pick, compromise pick, and wild card. Each role is chosen from scored movie candidates so the pair receives a small decision set instead of another catalog-like list.
+The output is three recommendation roles: safe pick, compromise pick, and wild card. Each role is chosen from scored movie candidates so the operator receives a small, varied decision set instead of another catalog-like list; the wild card differs from the safe pick in genre or tone.
 
-The user encounters the rule after submitting the movie-night preferences: MovieMate retrieves candidates, filters or penalizes them according to the session constraints, scores the remaining options, and explains why each recommendation fits.
+The user encounters the rule after submitting the movie-night preferences: MovieMate retrieves candidates from TMDB using hard filters, scores the remaining options against both tastes and the session constraints, penalizes excluded genres, and explains why each recommendation fits.
 
 ## Access Control
 
-Users access MovieMate by logging in with email/password or OAuth.
+Users access MovieMate by logging in with email and password. OAuth is deferred to later; for a single pair sharing one device it adds provider setup and redirect handling without meaningful MVP value.
 
 The MVP uses a flat access model: one logged-in user manages one account containing two viewer profiles. There are no separate roles for owner, member, guest, or invited viewer in the MVP.
 
 ## Non-Goals
 
-- No manual watch-history entry or imported watch history in the MVP; the app records only films watched because of a MovieMate recommendation.
-- No invitation link, shared account, or realtime voting flow in the MVP; one logged-in account contains the two viewer profiles.
+- No OAuth / social login in the MVP; email-and-password only. OAuth may return later.
+- No watch history as a scoring signal or browsable list in the MVP; "watched" exists only to exclude already-seen films from future candidates. No manual or imported watch history.
+- No second-person login, invitation link, shared account, or realtime voting flow in the MVP; one logged-in operator captures both tastes as two viewer profiles.
 - No full film platform in the MVP: no reviews, comments, social features, or complete movie database.
-- No full machine-learning recommendation system trained on a large user history in the MVP; recommendations use explicit session preferences, externally sourced film metadata, app-generated watch history, and transparent scoring.
+- No full machine-learning recommendation system trained on a large user history in the MVP; recommendations use explicit session preferences, externally sourced film metadata, and transparent scoring.
 - No streaming-service integration in the MVP. Where-to-watch information may be considered later as a lightweight informational feature, not as a larger streaming integration.
 
 ## Open Questions
