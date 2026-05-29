@@ -1,6 +1,6 @@
 # Repository Guidelines
 
-MovieMate is an Astro v6 (server output) + React 19 + TypeScript web app that turns two viewers' preferences into three justified movie-night recommendations. Stack: Tailwind v4, shadcn/ui, Supabase Auth, deployed to Cloudflare Workers. Product spec lives in `@context/foundation/shape-notes.md`.
+MovieMate turns two viewers' preferences into three justified movie-night recommendations. Product spec: `@context/foundation/shape-notes.md`. Stack and versions: `@package.json`, `@.nvmrc`.
 
 ## Agent Workspace
 
@@ -15,10 +15,8 @@ This repo is shared by multiple coding agents. `AGENTS.md` is the single source 
 
 ## Build, Test, and Development Commands
 
-- `npm run dev` — start dev server on the Cloudflare workerd runtime.
-- `npm run build` — production build (run `npx astro sync` first if types are stale).
-- `npm run lint` / `npm run lint:fix` — ESLint with type-checked rules.
-- `npm run format` — Prettier across the repo.
+- Scripts: `@package.json` (`dev` runs on the Cloudflare workerd runtime).
+- Run `npx astro sync` before `npm run build` if Astro types are stale.
 - Use Node `22.14.0` (`@.nvmrc`) and npm. There is no test suite yet.
 
 ## Project Structure & Module Organization
@@ -30,12 +28,11 @@ This repo is shared by multiple coding agents. `AGENTS.md` is the single source 
 
 ## Coding Style & Naming Conventions
 
-- TypeScript strict (`astro/tsconfigs/strict` + `strictTypeChecked`); avoid `any`. Config in `@eslint.config.js`.
-- 2-space indent, double quotes, formatted by Prettier (`@.prettierrc.json`).
+- TypeScript and ESLint: `@tsconfig.json`, `@eslint.config.js`. Formatting: `@.prettierrc.json`.
 - Prefix intentionally unused vars/args with `_`. Add shadcn components under `@/components/ui`.
 
 ## Commit & Pull Request Guidelines
 
-- History has a single `init` commit and no remote; commit convention is to be defined — keep messages short and imperative.
+- Use imperative commit subjects under 72 characters (e.g. `add auth middleware`, `fix supabase env leak`); body optional.
 - A `pre-commit` hook runs `lint-staged` (`@.husky/pre-commit`): ESLint on `*.{ts,tsx,astro}`, Prettier on `*.{json,css,md}`.
 - CI runs lint + build on push/PR to `master`; set `SUPABASE_URL`/`SUPABASE_KEY` as repo secrets.
