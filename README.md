@@ -127,6 +127,17 @@ SUPABASE_URL=https://<project-ref>.supabase.co
 SUPABASE_KEY=<anon-key>
 ```
 
+For production (and correct confirmation links), open **Authentication → URL Configuration** in the Supabase dashboard:
+
+| Field | Value |
+| ----- | ----- |
+| **Site URL** | Your deployed app origin, e.g. `https://moviemate.<subdomain>.workers.dev` |
+| **Redirect URLs** | Same origin + `/auth/callback`, plus local dev: `http://localhost:4321/auth/callback` |
+
+If Site URL stays at `http://localhost:3000`, confirmation emails will point users to localhost even when they signed up on production.
+
+Sign-up sends users to `/auth/callback` after they click the email link; that route exchanges the `code` query param for a session.
+
 ### Email confirmation in local development
 
 By default Supabase requires email confirmation before a user can sign in. To skip this during local development:

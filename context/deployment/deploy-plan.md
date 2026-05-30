@@ -82,3 +82,4 @@ Per the chosen approach, use Cloudflare's native Git integration (not a GitHub A
 - `.nvmrc` pins Node 22.14.0; local Node is v24 — fine for wrangler, but Workers Builds should pin Node 22 to match CI.
 - Subrequest/CPU free-tier caps and the `<10s` NFR (risk register) only bite once TMDB + AI calls land; not relevant to this static/auth-only first deploy.
 - Out of scope: TMDB/AI key provisioning, Supabase migrations.
+- **Supabase Auth (production):** dashboard **Site URL** must match the Workers URL (not `localhost`); allow redirect `https://<workers-host>/auth/callback`. Code sets `emailRedirectTo` on sign-up; `/auth/callback` exchanges `?code=` for a session.

@@ -4,6 +4,13 @@ import { createClient } from "@/lib/supabase";
 const PROTECTED_ROUTES = ["/dashboard"];
 
 export const onRequest = defineMiddleware(async (context, next) => {
+  const code = context.url.searchParams.get("code");
+  if (code && context.url.pathname === "/") {
+    const callbackUrl = new URL("/auth/callback", context.url);
+    callbackUrl.search = context.url.search;
+    return context.redirect(callbackUrl.toString());
+  }
+
   const supabase = createClient(context.request.headers, context.cookies);
 
   if (supabase) {

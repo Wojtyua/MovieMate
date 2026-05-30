@@ -1,0 +1,26 @@
+---
+import { createClient } from "@/lib/supabase";
+
+const authError = Astro.url.searchParams.get("error");
+const authErrorDescription = Astro.url.searchParams.get("error_description");
+
+if (authError) {
+  const message = authErrorDescription ?? authError;
+  return Astro.redirect(`/auth/signin?error=${encodeURIComponent(message)}`);
+}
+
+const code = Astro.url.searchParams.get("code");
+const supabase = createClient(Astro.request.headers, Astro.cookies);
+
+if (!code || !supabase) {
+  return Astro.redirect("/auth/signin");
+}
+
+const { error } = await supabase.auth.exchangeCodeForSession(code);
+
+if (error) {
+  return Astro.redirect(`/auth/signin?error=${encodeURIComponent(error.message)}`);
+}
+
+return Astro.redirect("/dashboard");
+---
