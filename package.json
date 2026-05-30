@@ -10,7 +10,12 @@
     "astro": "astro",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "db:start": "supabase start",
+    "db:stop": "supabase stop",
+    "db:new": "supabase migration new",
+    "db:reset": "supabase db reset",
+    "db:verify": "supabase test db"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.8",

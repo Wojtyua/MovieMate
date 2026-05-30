@@ -266,15 +266,15 @@ None — single tiny reference table; no app-path queries. RLS policies on `auth
 
 #### Automated
 
-- [ ] 1.1 `supabase/migrations/` exists with the example migration present
-- [ ] 1.2 Migration applies cleanly on the local stack: `npm run db:reset`
-- [ ] 1.3 Linting passes: `npm run lint`
-- [ ] 1.4 Build is unaffected: `npm run build`
+- [x] 1.1 `supabase/migrations/` exists with the example migration present
+- [x] 1.2 Migration applies cleanly on the local stack: `npm run db:reset`
+- [x] 1.3 Linting passes: `npm run lint`
+- [x] 1.4 Build is unaffected: `npm run build`
 
 #### Manual
 
-- [ ] 1.5 Example table clearly named/commented as a reference pattern, not a product entity
-- [ ] 1.6 `db:*` scripts run as expected from a clean checkout (Docker up)
+- [x] 1.5 Example table clearly named/commented as a reference pattern, not a product entity
+- [x] 1.6 `db:*` scripts run as expected from a clean checkout (Docker up)
 
 ### Phase 2: Verify own-data isolation
 

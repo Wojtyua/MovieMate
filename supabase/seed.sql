@@ -1,0 +1,3 @@
+-- Local seed data, loaded after migrations on `supabase db reset`.
+-- Intentionally empty for now; config.toml references this path
+-- ([db.seed] sql_paths = ["./seed.sql"]). Future slices add seed rows here.
