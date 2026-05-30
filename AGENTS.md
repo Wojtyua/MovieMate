@@ -35,7 +35,7 @@ This repo is shared by multiple coding agents. `AGENTS.md` is the single source 
 
 - Use imperative commit subjects under 72 characters (e.g. `add auth middleware`, `fix supabase env leak`); body optional.
 - A `pre-commit` hook runs `lint-staged` (`@.husky/pre-commit`): ESLint on `*.{ts,tsx,astro}`, Prettier on `*.{json,css,md}`.
-- CI runs lint + build on push/PR to `master`; set `SUPABASE_URL`/`SUPABASE_KEY` as repo secrets.
+- CI runs lint + build on push/PR to `main`; set `SUPABASE_URL`/`SUPABASE_KEY` as repo secrets.
 
 <!-- BEGIN @przeprogramowani/10x-cli -->
 
