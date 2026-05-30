@@ -104,7 +104,7 @@ Commands validated against the project's pinned stack (`10x-astro-starter`, npm,
 1. **Install Wrangler** (project-local, matches CI): `npm i -D wrangler` then `npx wrangler login`.
 2. **Confirm the deploy target.** Inspect the starter's `astro.config.mjs` and `wrangler.toml`/`wrangler.jsonc` — confirm whether it scaffolds Pages or Workers static-assets, and standardize on **Workers** for CLI rollback. (`npx astro sync` first if Astro types are stale.)
 3. **Set secrets** for local + remote: copy `.env.example` to `.dev.vars` (never commit it), then `npx wrangler secret put SUPABASE_URL`, `SUPABASE_KEY`, and TMDB/AI keys for the deployed environment. Mirror them as GitHub repo secrets for CI.
-4. **Build & deploy**: `npm run build` (the starter wires the Cloudflare adapter), then deploy via the project's script — Workers: `npx wrangler deploy`; Pages: `npx wrangler pages deploy ./dist`. CI is configured for auto-deploy-on-merge to `master`.
+4. **Build & deploy**: `npm run build` (the starter wires the Cloudflare adapter), then deploy via the project's script — Workers: `npx wrangler deploy`; Pages: `npx wrangler pages deploy ./dist`. CI is configured for auto-deploy-on-merge to `main`.
 5. **Verify ops loop**: `npx wrangler tail` to confirm live logs, and note the rollback command (`npx wrangler rollback`) before the first production push.
 
 ## Out of Scope
