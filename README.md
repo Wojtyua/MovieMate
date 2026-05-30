@@ -70,6 +70,8 @@ npm run dev
 │ │ └── api/ # API endpoints
 │ ├── components/ # UI components (Astro & React)
 │ └── assets/ # Static assets
+├── supabase/ # DB config, migrations/, tests/ (pgTAP), seed.sql
+├── docs/ # Reference docs (e.g. persistence conventions)
 ├── public/ # Public assets
 ├── wrangler.jsonc # Cloudflare Workers config
 ```

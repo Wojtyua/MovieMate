@@ -17,7 +17,7 @@ This repo is shared by multiple coding agents. `AGENTS.md` is the single source 
 
 - Scripts: `@package.json` (`dev` runs on the Cloudflare workerd runtime).
 - Run `npx astro sync` before `npm run build` if Astro types are stale.
-- Use Node `22.14.0` (`@.nvmrc`) and npm. There is no test suite yet.
+- Use Node `22.14.0` (`@.nvmrc`) and npm. DB tests use pgTAP under `supabase/tests/`, run via `npm run db:verify`; there is no app-level test suite yet.
 
 ## Project Structure & Module Organization
 

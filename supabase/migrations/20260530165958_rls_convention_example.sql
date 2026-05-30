@@ -22,9 +22,11 @@ create table public.rls_example (
 -- Index the owner column: RLS predicates filter on user_id on every request.
 create index rls_example_user_id_idx on public.rls_example (user_id);
 
--- Enabling RLS is deny-by-default: with no policies, ALL access is blocked
--- (including via PostgREST as the table owner). Policies below restore
--- owner-scoped access.
+-- Enabling RLS is deny-by-default: with RLS on and no policies, all access by
+-- roles subject to RLS (anon / authenticated — the roles PostgREST uses) is
+-- blocked. The table owner and superusers bypass RLS unless `force row level
+-- security` is set, but PostgREST never connects as the owner. Policies below
+-- restore owner-scoped access.
 alter table public.rls_example enable row level security;
 
 -- select: a user can read only their own rows.

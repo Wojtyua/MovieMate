@@ -39,8 +39,10 @@ user_id uuid not null references auth.users (id) on delete cascade default auth.
 
 ## RLS policy template
 
-Enabling RLS is **deny-by-default**: with RLS on and no policies, _all_ access is blocked
-(including the table owner via PostgREST). Create the policies in the **same migration**
+Enabling RLS is **deny-by-default**: with RLS on and no policies, all access by roles
+subject to RLS (`anon` / `authenticated` — the roles PostgREST uses) is blocked. The table
+owner and superusers _bypass_ RLS unless `force row level security` is set, but PostgREST
+never connects as the owner. Create the policies in the **same migration**
 or access breaks. Use four per-command policies scoped by `auth.uid() = user_id`:
 
 ```sql
@@ -96,6 +98,11 @@ reset role;
 The whole fixture runs inside one transaction that rolls back, so `db:verify` is
 idempotent (re-runnable without `db:reset`). To confirm a new table's test has teeth:
 drop one of its policies, run `db:verify` (it should fail), then `db:reset` to restore.
+
+The fixtures seed users with `insert into auth.users (id) ...`, relying on `id` being the
+only NOT-NULL column without a default on the current Postgres image. After a
+`supabase`/Postgres image bump, re-check the required `auth.users` columns (a new mandatory
+column will fail the insert) and update the fixtures' setup accordingly.
 
 ## Remote application (human-gated)
 
