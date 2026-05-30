@@ -1,10 +1,10 @@
 ---
 change_id: persistence-baseline-rls
 title: Persistence baseline — wire Supabase migrations and own-data RLS convention
-status: impl_reviewed
+status: archived
 created: 2026-05-30
 updated: 2026-05-30
-archived_at: null
+archived_at: 2026-05-30T18:10:10Z
 ---
 
 ## Notes

@@ -28,7 +28,7 @@ MovieMate fights decision paralysis on a shared movie night: a single logged-in 
 | ID | Change ID | Outcome (user can …) | Prerequisites | PRD refs | Status |
 |---|---|---|---|---|---|
 | F-01 | provision-external-apis | (foundation) external TMDB + AI access provisioned and verified | — | FR-005, FR-010 | blocked |
-| F-02 | persistence-baseline-rls | (foundation) migration tooling + "own data only" RLS convention | — | FR-001 | ready |
+| F-02 | persistence-baseline-rls | (foundation) migration tooling + "own data only" RLS convention | — | FR-001 | done |
 | S-01 | viewer-profiles | create and edit two viewer profiles, seeing only own data | F-02 | FR-001, FR-002 | proposed |
 | S-02 | movie-night-session-prefs | start a movie-night session and save its preferences | F-02 | FR-003, FR-004 | proposed |
 | S-03 | scored-recommendations | get three scored, role-labeled recommendations | F-01, S-01, S-02 | US-01, FR-005, FR-006, FR-007, FR-008, FR-009 | proposed |
@@ -83,7 +83,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** Minimal enabler only — establishes migrations plus the RLS pattern, not all tables (each entity ships with its consuming slice). Sequenced before the data slices so FR-001 enforcement isn't reinvented per table.
-- **Status:** ready
+- **Status:** done
 
 ## Slices
 
@@ -176,4 +176,4 @@ Foundations below assume these are present and do NOT re-scaffold them.
 
 ## Done
 
-(Empty on first generation. `/10x-archive` appends entries here when a matching change is archived.)
+- **F-02: (foundation) Supabase migration tooling is wired and a row-level-security convention enforces "own data only", so the first data-bearing slice can add its table and trust FR-001 at the data layer.** — Archived 2026-05-30 → `context/archive/2026-05-30-persistence-baseline-rls/`. Lesson: —.
