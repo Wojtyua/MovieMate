@@ -266,26 +266,26 @@ None — single tiny reference table; no app-path queries. RLS policies on `auth
 
 #### Automated
 
-- [x] 1.1 `supabase/migrations/` exists with the example migration present
-- [x] 1.2 Migration applies cleanly on the local stack: `npm run db:reset`
-- [x] 1.3 Linting passes: `npm run lint`
-- [x] 1.4 Build is unaffected: `npm run build`
+- [x] 1.1 `supabase/migrations/` exists with the example migration present — da8c8bd
+- [x] 1.2 Migration applies cleanly on the local stack: `npm run db:reset` — da8c8bd
+- [x] 1.3 Linting passes: `npm run lint` — da8c8bd
+- [x] 1.4 Build is unaffected: `npm run build` — da8c8bd
 
 #### Manual
 
-- [x] 1.5 Example table clearly named/commented as a reference pattern, not a product entity
-- [x] 1.6 `db:*` scripts run as expected from a clean checkout (Docker up)
+- [x] 1.5 Example table clearly named/commented as a reference pattern, not a product entity — da8c8bd
+- [x] 1.6 `db:*` scripts run as expected from a clean checkout (Docker up) — da8c8bd
 
 ### Phase 2: Verify own-data isolation
 
 #### Automated
 
-- [ ] 2.1 `npm run db:verify` passes: each user sees only their own row
-- [ ] 2.2 Check fails as expected when a policy is removed (has-teeth sanity), then restored
+- [x] 2.1 `npm run db:verify` passes: each user sees only their own row
+- [x] 2.2 Check fails as expected when a policy is removed (has-teeth sanity), then restored
 
 #### Manual
 
-- [ ] 2.3 Cross-user update/delete rejected by RLS, confirmed via SQL editor or REST with two JWTs
+- [x] 2.3 Cross-user update/delete rejected by RLS, confirmed via SQL editor or REST with two JWTs
 
 ### Phase 3: Document the convention
 
