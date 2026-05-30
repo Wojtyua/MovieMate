@@ -55,6 +55,10 @@ npm run dev
 - `npm run lint` - Run ESLint with type-checked rules
 - `npm run lint:fix` - Auto-fix ESLint issues
 - `npm run format` - Run Prettier
+- `npm run db:start` / `npm run db:stop` - Start/stop the local Supabase stack (Docker)
+- `npm run db:new <name>` - Scaffold a new migration
+- `npm run db:reset` - Re-apply all migrations + seed to the local DB
+- `npm run db:verify` - Run pgTAP tests (`supabase test db`)
 
 ## Project Structure
 
@@ -111,7 +115,14 @@ npx supabase stop
 
 The local Studio UI is available at `http://localhost:54323`.
 
-No database tables or migrations are required — this project uses Supabase Auth's built-in `auth.users` table only.
+## Database & migrations
+
+Schema lives in `supabase/migrations/` (plain SQL, applied in filename order) and is
+verified against the local stack — see the `db:*` scripts above. Every table follows an
+owner-scoped row-level-security (RLS) convention so each user can access only their own
+data. **Before adding a table, read [`docs/reference/persistence-conventions.md`](docs/reference/persistence-conventions.md)** — it
+covers the owner column, the policy template, the migration workflow, the isolation test,
+and the (human-gated) remote push procedure.
 
 ### Using a cloud Supabase project instead
 
@@ -129,9 +140,9 @@ SUPABASE_KEY=<anon-key>
 
 For production (and correct confirmation links), open **Authentication → URL Configuration** in the Supabase dashboard:
 
-| Field | Value |
-| ----- | ----- |
-| **Site URL** | Your deployed app origin, e.g. `https://moviemate.<subdomain>.workers.dev` |
+| Field             | Value                                                                                 |
+| ----------------- | ------------------------------------------------------------------------------------- |
+| **Site URL**      | Your deployed app origin, e.g. `https://moviemate.<subdomain>.workers.dev`            |
 | **Redirect URLs** | Same origin + `/auth/callback`, plus local dev: `http://localhost:4321/auth/callback` |
 
 If Site URL stays at `http://localhost:3000`, confirmation emails will point users to localhost even when they signed up on production.

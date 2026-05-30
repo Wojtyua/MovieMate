@@ -280,21 +280,21 @@ None — single tiny reference table; no app-path queries. RLS policies on `auth
 
 #### Automated
 
-- [x] 2.1 `npm run db:verify` passes: each user sees only their own row
-- [x] 2.2 Check fails as expected when a policy is removed (has-teeth sanity), then restored
+- [x] 2.1 `npm run db:verify` passes: each user sees only their own row — edb87ae
+- [x] 2.2 Check fails as expected when a policy is removed (has-teeth sanity), then restored — edb87ae
 
 #### Manual
 
-- [x] 2.3 Cross-user update/delete rejected by RLS, confirmed via SQL editor or REST with two JWTs
+- [x] 2.3 Cross-user update/delete rejected by RLS, confirmed via SQL editor or REST with two JWTs — edb87ae
 
 ### Phase 3: Document the convention
 
 #### Automated
 
-- [ ] 3.1 Prettier/lint passes on changed `*.md`; build unaffected
-- [ ] 3.2 Internal doc links resolve (paths exist)
+- [x] 3.1 Prettier/lint passes on changed `*.md`; build unaffected
+- [x] 3.2 Internal doc links resolve (paths exist)
 
 #### Manual
 
-- [ ] 3.3 A reader can create a new owner-scoped table end-to-end using only the reference doc
-- [ ] 3.4 README and AGENTS.md pointers are accurate and non-duplicative
+- [x] 3.3 A reader can create a new owner-scoped table end-to-end using only the reference doc
+- [x] 3.4 README and AGENTS.md pointers are accurate and non-duplicative
