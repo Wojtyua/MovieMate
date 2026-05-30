@@ -291,10 +291,10 @@ None — single tiny reference table; no app-path queries. RLS policies on `auth
 
 #### Automated
 
-- [x] 3.1 Prettier/lint passes on changed `*.md`; build unaffected
-- [x] 3.2 Internal doc links resolve (paths exist)
+- [x] 3.1 Prettier/lint passes on changed `*.md`; build unaffected — 2cd4ecf
+- [x] 3.2 Internal doc links resolve (paths exist) — 2cd4ecf
 
 #### Manual
 
-- [x] 3.3 A reader can create a new owner-scoped table end-to-end using only the reference doc
-- [x] 3.4 README and AGENTS.md pointers are accurate and non-duplicative
+- [x] 3.3 A reader can create a new owner-scoped table end-to-end using only the reference doc — 2cd4ecf
+- [x] 3.4 README and AGENTS.md pointers are accurate and non-duplicative — 2cd4ecf
