@@ -237,22 +237,22 @@ Expose an auth-gated endpoint that exercises both `ping*` calls and confirm it r
 
 #### Automated
 
-- [x] 2.1 Type checking passes: `npx astro sync && npm run build`
-- [x] 2.2 Linting passes: `npm run lint`
+- [x] 2.1 Type checking passes: `npx astro sync && npm run build` — 63ee6ab
+- [x] 2.2 Linting passes: `npm run lint` — 63ee6ab
 
 #### Manual
 
-- [x] 2.3 Code review confirms both clients use only `fetch` (no Node-only imports) and return `null` when unconfigured
+- [x] 2.3 Code review confirms both clients use only `fetch` (no Node-only imports) and return `null` when unconfigured — 63ee6ab
 
 ### Phase 3: Guarded Diagnostic Route & Workerd Verification
 
 #### Automated
 
-- [ ] 3.1 Type checking passes: `npx astro sync && npm run build`
-- [ ] 3.2 Linting passes: `npm run lint`
+- [x] 3.1 Type checking passes: `npx astro sync && npm run build`
+- [x] 3.2 Linting passes: `npm run lint`
 
 #### Manual
 
-- [ ] 3.3 Unauthenticated `GET /api/health/integrations` returns `401`
-- [ ] 3.4 Binding runtime gate: logged in under `astro dev` (workerd) → route returns `{ tmdb: "ok", ai: "ok" }`
+- [x] 3.3 Unauthenticated `GET /api/health/integrations` returns `401`
+- [x] 3.4 Binding runtime gate: logged in under `astro dev` (workerd) → route returns `{ tmdb: "ok", ai: "ok" }`
 - [ ] 3.5 One-time ops smoke: after remote secrets + redeploy, live Worker returns `ok` for both
