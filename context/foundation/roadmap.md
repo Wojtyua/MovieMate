@@ -153,7 +153,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 
 | Roadmap ID | Change ID | Suggested issue title | Ready for `/10x-plan` | Notes |
 |---|---|---|---|---|
-| F-01 | provision-external-apis | Provision and verify TMDB + AI provider access | in progress | Planned + Phase 1 landed (env contract + secrets); OpenRouter chosen; Phases 2–3 remaining |
+| F-01 | provision-external-apis | Provision and verify TMDB + AI provider access | done | Archived 2026-06-02 → `context/archive/2026-06-02-provision-external-apis/` |
 | F-02 | persistence-baseline-rls | Wire Supabase migrations + own-data RLS convention | yes | Run `/10x-plan persistence-baseline-rls` |
 | S-01 | viewer-profiles | Create and edit two viewer profiles | no | Ready once F-02 lands |
 | S-02 | movie-night-session-prefs | Start movie-night session and save preferences | no | Ready once F-02 lands |
