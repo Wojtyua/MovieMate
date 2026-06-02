@@ -224,25 +224,25 @@ Expose an auth-gated endpoint that exercises both `ping*` calls and confirm it r
 
 #### Automated
 
-- [x] 1.1 `npx astro sync` then `npm run build` succeeds with the expanded schema
-- [x] 1.2 Linting passes: `npm run lint`
-- [x] 1.3 `.env.example` contains the three new keys
+- [x] 1.1 `npx astro sync` then `npm run build` succeeds with the expanded schema — 4e753a4
+- [x] 1.2 Linting passes: `npm run lint` — 4e753a4
+- [x] 1.3 `.env.example` contains the three new keys — 4e753a4
 
 #### Manual
 
-- [x] 1.4 `.dev.vars` contains the three new values locally (not committed)
-- [x] 1.5 `wrangler secret put` run for all three on the deployed Worker; mirrored as GitHub repo secrets
+- [x] 1.4 `.dev.vars` contains the three new values locally (not committed) — 4e753a4
+- [x] 1.5 `wrangler secret put` run for all three on the deployed Worker; mirrored as GitHub repo secrets — 4e753a4
 
 ### Phase 2: Thin Workerd-Safe Client Modules
 
 #### Automated
 
-- [ ] 2.1 Type checking passes: `npx astro sync && npm run build`
-- [ ] 2.2 Linting passes: `npm run lint`
+- [x] 2.1 Type checking passes: `npx astro sync && npm run build`
+- [x] 2.2 Linting passes: `npm run lint`
 
 #### Manual
 
-- [ ] 2.3 Code review confirms both clients use only `fetch` (no Node-only imports) and return `null` when unconfigured
+- [x] 2.3 Code review confirms both clients use only `fetch` (no Node-only imports) and return `null` when unconfigured
 
 ### Phase 3: Guarded Diagnostic Route & Workerd Verification
 
