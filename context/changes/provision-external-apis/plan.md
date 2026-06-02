@@ -248,11 +248,11 @@ Expose an auth-gated endpoint that exercises both `ping*` calls and confirm it r
 
 #### Automated
 
-- [x] 3.1 Type checking passes: `npx astro sync && npm run build`
-- [x] 3.2 Linting passes: `npm run lint`
+- [x] 3.1 Type checking passes: `npx astro sync && npm run build` — 8006ee7
+- [x] 3.2 Linting passes: `npm run lint` — 8006ee7
 
 #### Manual
 
-- [x] 3.3 Unauthenticated `GET /api/health/integrations` returns `401`
-- [x] 3.4 Binding runtime gate: logged in under `astro dev` (workerd) → route returns `{ tmdb: "ok", ai: "ok" }`
+- [x] 3.3 Unauthenticated `GET /api/health/integrations` returns `401` — 8006ee7
+- [x] 3.4 Binding runtime gate: logged in under `astro dev` (workerd) → route returns `{ tmdb: "ok", ai: "ok" }` — 8006ee7
 - [ ] 3.5 One-time ops smoke: after remote secrets + redeploy, live Worker returns `ok` for both
