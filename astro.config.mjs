@@ -18,6 +18,9 @@ export default defineConfig({
     schema: {
       SUPABASE_URL: envField.string({ context: "server", access: "secret", optional: true }),
       SUPABASE_KEY: envField.string({ context: "server", access: "secret", optional: true }),
+      TMDB_READ_ACCESS_TOKEN: envField.string({ context: "server", access: "secret", optional: true }),
+      OPENROUTER_API_KEY: envField.string({ context: "server", access: "secret", optional: true }),
+      AI_MODEL: envField.string({ context: "server", access: "secret", optional: true }),
     },
   },
 });

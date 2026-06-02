@@ -72,6 +72,7 @@ The team shipped on Cloudflare Pages because the starter defaulted to it. Early 
 
 - **Pages is in soft-sunset for new SSR.** The starter's `cloudflare-pages` target may be the legacy path; confirm whether to scaffold onto Workers static-assets instead.
 - **`astro dev` workerd fidelity is adapter-version-dependent.** On older adapters the dev server is plain Node, so runtime-only bugs appear only after deploy.
+  - **Update (2026-06-02, verified during `provision-external-apis`):** Resolved for this repo. `@astrojs/cloudflare@13.5.0` depends on `@cloudflare/vite-plugin` (workerd binary present in `node_modules/@cloudflare/`), so `astro dev` **runs the app in real workerd locally** (reading `.dev.vars`). The "plain Node dev server" hedge does **not** apply at the pinned version — a local `astro dev` pass is a genuine workerd pass. Remote deploy is then only needed to validate secret provisioning, not runtime compatibility.
 - **The $5/mo paid jump buys CPU/limits, not requests.** Easy to misjudge budgeting when the binding limit is subrequests/CPU.
 - **`wrangler` Pages vs Workers subcommands are not interchangeable.** Agent muscle memory from Workers docs misfires on Pages.
 - **Secrets are not available at build time on Workers.** Server env must be read at runtime via `cloudflare:workers`; the starter encodes this but it's easy to break.
