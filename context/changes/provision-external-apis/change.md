@@ -1,7 +1,7 @@
 ---
 change_id: provision-external-apis
 title: Provision external apis
-status: implementing
+status: implemented
 created: 2026-06-02
 updated: 2026-06-02
 archived_at: null

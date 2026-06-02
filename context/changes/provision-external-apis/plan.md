@@ -255,4 +255,4 @@ Expose an auth-gated endpoint that exercises both `ping*` calls and confirm it r
 
 - [x] 3.3 Unauthenticated `GET /api/health/integrations` returns `401` — 8006ee7
 - [x] 3.4 Binding runtime gate: logged in under `astro dev` (workerd) → route returns `{ tmdb: "ok", ai: "ok" }` — 8006ee7
-- [ ] 3.5 One-time ops smoke: after remote secrets + redeploy, live Worker returns `ok` for both
+- [x] 3.5 One-time ops smoke: after remote secrets + redeploy, live Worker returns `ok` for both — b71f6b6
