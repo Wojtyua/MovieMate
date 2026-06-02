@@ -3,10 +3,10 @@ project: MovieMate
 version: 1
 status: draft
 created: 2026-05-30
-updated: 2026-05-30
+updated: 2026-06-02
 prd_version: 2
 main_goal: low-complexity
-top_blocker: external
+top_blocker: none
 ---
 
 # Roadmap: MovieMate
@@ -27,7 +27,7 @@ MovieMate fights decision paralysis on a shared movie night: a single logged-in 
 
 | ID | Change ID | Outcome (user can …) | Prerequisites | PRD refs | Status |
 |---|---|---|---|---|---|
-| F-01 | provision-external-apis | (foundation) external TMDB + AI access provisioned and verified | — | FR-005, FR-010 | blocked |
+| F-01 | provision-external-apis | (foundation) external TMDB + AI access provisioned and verified | — | FR-005, FR-010 | in progress |
 | F-02 | persistence-baseline-rls | (foundation) migration tooling + "own data only" RLS convention | — | FR-001 | done |
 | S-01 | viewer-profiles | create and edit two viewer profiles, seeing only own data | F-02 | FR-001, FR-002 | proposed |
 | S-02 | movie-night-session-prefs | start a movie-night session and save its preferences | F-02 | FR-003, FR-004 | proposed |
@@ -66,11 +66,11 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Unlocks:** S-03 (candidate retrieval + scoring), S-04 (AI justification); reduces the blocking unknown "which AI provider/model and cost ceiling"; establishes the `<10s` NFR verification path.
 - **Prerequisites:** — (deploy baseline already present)
 - **Parallel with:** F-02
-- **Blockers:** TMDB API key and AI-provider API key not yet provisioned — external, user must obtain them.
+- **Blockers:** — (resolved 2026-06-02: both keys obtained; secrets set on the `moviemate` Worker + GitHub repo; `.dev.vars` populated for local workerd).
 - **Unknowns:**
-  - Which AI provider/model and cost ceiling, and does the SDK run on workerd (Web-standard `fetch`, no Node streams)? — Owner: user. Block: yes.
+  - ~~Which AI provider/model and cost ceiling, and does the SDK run on workerd (Web-standard `fetch`, no Node streams)?~~ — Resolved 2026-06-02: OpenRouter (OpenAI-compatible) called over raw `fetch` (no SDK → no Node-streams risk); cheap, env-configurable model (`AI_MODEL`). See `context/changes/provision-external-apis/plan.md`.
 - **Risk:** External + runtime risk is concentrated here (`infrastructure.md` risk register: workerd ≠ Node, subrequest/CPU caps, `<10s` NFR). Sequenced first because the entire north-star path is dead without verified external access; a thin verified call de-risks before the engine is built.
-- **Status:** blocked
+- **Status:** in progress (Phase 1 of `provision-external-apis` landed: env contract + secrets; Phases 2–3 = client modules + workerd verify call)
 
 ### F-02: Persistence baseline with row-level access
 
@@ -153,7 +153,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 
 | Roadmap ID | Change ID | Suggested issue title | Ready for `/10x-plan` | Notes |
 |---|---|---|---|---|
-| F-01 | provision-external-apis | Provision and verify TMDB + AI provider access | no | Resolve AI provider/model choice and obtain both API keys first |
+| F-01 | provision-external-apis | Provision and verify TMDB + AI provider access | in progress | Planned + Phase 1 landed (env contract + secrets); OpenRouter chosen; Phases 2–3 remaining |
 | F-02 | persistence-baseline-rls | Wire Supabase migrations + own-data RLS convention | yes | Run `/10x-plan persistence-baseline-rls` |
 | S-01 | viewer-profiles | Create and edit two viewer profiles | no | Ready once F-02 lands |
 | S-02 | movie-night-session-prefs | Start movie-night session and save preferences | no | Ready once F-02 lands |
@@ -163,7 +163,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 
 ## Open Roadmap Questions
 
-1. **Which AI provider/model and cost ceiling, and does the SDK run on workerd?** — Owner: user. Block: F-01, S-04 (and the S-03 north-star path transitively).
+1. ~~**Which AI provider/model and cost ceiling, and does the SDK run on workerd?**~~ — Resolved 2026-06-02 (OpenRouter via raw `fetch`, cheap env-configurable `AI_MODEL`). No longer blocking F-01 / S-04.
 
 ## Parked
 
