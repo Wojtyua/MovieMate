@@ -1,10 +1,10 @@
 ---
 change_id: provision-external-apis
 title: Provision external apis
-status: impl_reviewed
+status: archived
 created: 2026-06-02
 updated: 2026-06-02
-archived_at: null
+archived_at: 2026-06-02T17:15:13Z
 ---
 
 ## Notes

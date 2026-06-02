@@ -27,7 +27,7 @@ MovieMate fights decision paralysis on a shared movie night: a single logged-in 
 
 | ID | Change ID | Outcome (user can …) | Prerequisites | PRD refs | Status |
 |---|---|---|---|---|---|
-| F-01 | provision-external-apis | (foundation) external TMDB + AI access provisioned and verified | — | FR-005, FR-010 | in progress |
+| F-01 | provision-external-apis | (foundation) external TMDB + AI access provisioned and verified | — | FR-005, FR-010 | done |
 | F-02 | persistence-baseline-rls | (foundation) migration tooling + "own data only" RLS convention | — | FR-001 | done |
 | S-01 | viewer-profiles | create and edit two viewer profiles, seeing only own data | F-02 | FR-001, FR-002 | proposed |
 | S-02 | movie-night-session-prefs | start a movie-night session and save its preferences | F-02 | FR-003, FR-004 | proposed |
@@ -70,7 +70,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Unknowns:**
   - ~~Which AI provider/model and cost ceiling, and does the SDK run on workerd (Web-standard `fetch`, no Node streams)?~~ — Resolved 2026-06-02: OpenRouter (OpenAI-compatible) called over raw `fetch` (no SDK → no Node-streams risk); cheap, env-configurable model (`AI_MODEL`). See `context/changes/provision-external-apis/plan.md`.
 - **Risk:** External + runtime risk is concentrated here (`infrastructure.md` risk register: workerd ≠ Node, subrequest/CPU caps, `<10s` NFR). Sequenced first because the entire north-star path is dead without verified external access; a thin verified call de-risks before the engine is built.
-- **Status:** in progress (Phase 1 of `provision-external-apis` landed: env contract + secrets; Phases 2–3 = client modules + workerd verify call)
+- **Status:** done
 
 ### F-02: Persistence baseline with row-level access
 
@@ -177,3 +177,4 @@ Foundations below assume these are present and do NOT re-scaffold them.
 ## Done
 
 - **F-02: (foundation) Supabase migration tooling is wired and a row-level-security convention enforces "own data only", so the first data-bearing slice can add its table and trust FR-001 at the data layer.** — Archived 2026-05-30 → `context/archive/2026-05-30-persistence-baseline-rls/`. Lesson: —.
+- **F-01: (foundation) TMDB and AI-provider access is provisioned and verified — keys declared via `astro:env`, set as Worker secrets, and a thin end-to-end call to each returns successfully from the workerd runtime.** — Archived 2026-06-02 → `context/archive/2026-06-02-provision-external-apis/`. Lesson: —.
