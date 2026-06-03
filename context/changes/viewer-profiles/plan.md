@@ -241,26 +241,26 @@ New table only; no existing data to migrate. Local-only application (`npm run db
 
 #### Automated
 
-- [x] 2.1 Type check / build passes: `npx astro sync && npm run build`
-- [x] 2.2 Lint passes: `npm run lint`
+- [x] 2.1 Type check / build passes: `npx astro sync && npm run build` — dbd18da
+- [x] 2.2 Lint passes: `npm run lint` — dbd18da
 
 #### Manual
 
-- [x] 2.3 Unauthenticated `/profiles` redirects to `/auth/signin`
-- [x] 2.4 Blank `display_name` POST redirects with error, persists nothing
-- [x] 2.5 Unknown genre id is rejected
+- [x] 2.3 Unauthenticated `/profiles` redirects to `/auth/signin` — dbd18da
+- [x] 2.4 Blank `display_name` POST redirects with error, persists nothing — dbd18da
+- [x] 2.5 Unknown genre id is rejected — dbd18da
 
 ### Phase 3: UI — /profiles page with two slot editors
 
 #### Automated
 
-- [ ] 3.1 Build/type check passes: `npx astro sync && npm run build`
-- [ ] 3.2 Lint passes: `npm run lint`
+- [x] 3.1 Build/type check passes: `npx astro sync && npm run build`
+- [x] 3.2 Lint passes: `npm run lint`
 
 #### Manual
 
-- [ ] 3.3 Fill + save slot 1; values persist on reload
-- [ ] 3.4 Edit slot 2 independently; slot 1 undisturbed
-- [ ] 3.5 Re-save slot 1 updates (no duplicate row)
-- [ ] 3.6 Second account sees empty slots (no cross-account leakage)
-- [ ] 3.7 Empty-name save shows error, nothing written
+- [x] 3.3 Fill + save slot 1; values persist on reload
+- [x] 3.4 Edit slot 2 independently; slot 1 undisturbed
+- [x] 3.5 Re-save slot 1 updates (no duplicate row)
+- [x] 3.6 Second account sees empty slots (no cross-account leakage)
+- [x] 3.7 Empty-name save shows error, nothing written
