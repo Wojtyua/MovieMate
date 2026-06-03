@@ -1,7 +1,7 @@
 import { defineMiddleware } from "astro:middleware";
 import { createClient } from "@/lib/supabase";
 
-const PROTECTED_ROUTES = ["/dashboard"];
+const PROTECTED_ROUTES = ["/dashboard", "/profiles"];
 
 export const onRequest = defineMiddleware(async (context, next) => {
   const code = context.url.searchParams.get("code");

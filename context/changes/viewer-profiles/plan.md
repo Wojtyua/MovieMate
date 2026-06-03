@@ -229,26 +229,26 @@ New table only; no existing data to migrate. Local-only application (`npm run db
 
 #### Automated
 
-- [x] 1.1 Migration applies cleanly: `npm run db:reset`
-- [x] 1.2 pgTAP tests pass (isolation + slot cap): `npm run db:verify`
-- [x] 1.3 Lint passes: `npm run lint`
+- [x] 1.1 Migration applies cleanly: `npm run db:reset` — 2dfa7f9
+- [x] 1.2 pgTAP tests pass (isolation + slot cap): `npm run db:verify` — 2dfa7f9
+- [x] 1.3 Lint passes: `npm run lint` — 2dfa7f9
 
 #### Manual
 
-- [x] 1.4 Teeth check: drop a policy/constraint → `db:verify` fails → `db:reset` restores green
+- [x] 1.4 Teeth check: drop a policy/constraint → `db:verify` fails → `db:reset` restores green — 2dfa7f9
 
 ### Phase 2: API + genre reference
 
 #### Automated
 
-- [ ] 2.1 Type check / build passes: `npx astro sync && npm run build`
-- [ ] 2.2 Lint passes: `npm run lint`
+- [x] 2.1 Type check / build passes: `npx astro sync && npm run build`
+- [x] 2.2 Lint passes: `npm run lint`
 
 #### Manual
 
-- [ ] 2.3 Unauthenticated `/profiles` redirects to `/auth/signin`
-- [ ] 2.4 Blank `display_name` POST redirects with error, persists nothing
-- [ ] 2.5 Unknown genre id is rejected
+- [x] 2.3 Unauthenticated `/profiles` redirects to `/auth/signin`
+- [x] 2.4 Blank `display_name` POST redirects with error, persists nothing
+- [x] 2.5 Unknown genre id is rejected
 
 ### Phase 3: UI — /profiles page with two slot editors
 
