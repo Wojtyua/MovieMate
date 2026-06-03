@@ -1,7 +1,7 @@
 ---
 change_id: viewer-profiles
 title: Create and edit two viewer profiles
-status: implemented
+status: impl_reviewed
 created: 2026-06-03
 updated: 2026-06-03
 archived_at: null
