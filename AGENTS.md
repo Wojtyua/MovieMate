@@ -52,12 +52,12 @@ Review AI-generated code before merge with the **implementation review chain**:
 
 ### Task Router - Where to start
 
-| Skill                          | Use it when                                                                                                                                                                                                                             |
-| ------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Code review (lesson focus)** |                                                                                                                                                                                                                                         |
+| Skill | Use it when |
+| --- | --- |
+| **Code review (lesson focus)** | |
 | `/10x-impl-review <change-id>` | You have implemented code and want a structured review before merge. The skill checks plan adherence, scope discipline, safety and quality, architecture, pattern consistency, and success criteria, then presents findings for triage. |
-| **Recurring lesson outcome**   |                                                                                                                                                                                                                                         |
-| `/10x-lesson`                  | A finding reveals a recurring project rule or agent failure pattern. Record it in `context/foundation/lessons.md` instead of treating it as a one-off note.                                                                             |
+| **Recurring lesson outcome** | |
+| `/10x-lesson` | A finding reveals a recurring project rule or agent failure pattern. Record it in `context/foundation/lessons.md` instead of treating it as a one-off note. |
 
 ### Triage discipline
 
