@@ -254,13 +254,13 @@ New table only; no existing data to migrate. Local-only application (`npm run db
 
 #### Automated
 
-- [x] 3.1 Build/type check passes: `npx astro sync && npm run build`
-- [x] 3.2 Lint passes: `npm run lint`
+- [x] 3.1 Build/type check passes: `npx astro sync && npm run build` — 3085309
+- [x] 3.2 Lint passes: `npm run lint` — 3085309
 
 #### Manual
 
-- [x] 3.3 Fill + save slot 1; values persist on reload
-- [x] 3.4 Edit slot 2 independently; slot 1 undisturbed
-- [x] 3.5 Re-save slot 1 updates (no duplicate row)
-- [x] 3.6 Second account sees empty slots (no cross-account leakage)
-- [x] 3.7 Empty-name save shows error, nothing written
+- [x] 3.3 Fill + save slot 1; values persist on reload — 3085309
+- [x] 3.4 Edit slot 2 independently; slot 1 undisturbed — 3085309
+- [x] 3.5 Re-save slot 1 updates (no duplicate row) — 3085309
+- [x] 3.6 Second account sees empty slots (no cross-account leakage) — 3085309
+- [x] 3.7 Empty-name save shows error, nothing written — 3085309
