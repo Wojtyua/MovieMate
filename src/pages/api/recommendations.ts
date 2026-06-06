@@ -42,7 +42,7 @@ interface SessionRow extends SessionPrefs {
   runtime_limit_minutes: number | null;
 }
 
-/** Union of session + both profiles' preferred genre ids (OR-union hint). */
+/** Union of session + core preferred genre ids (OR-union discover hint). */
 function unionGenres(...lists: number[][]): number[] {
   return [...new Set(lists.flat())];
 }
@@ -62,22 +62,19 @@ export const POST: APIRoute = async (context) => {
     return context.redirect("/auth/signin");
   }
 
-  // 1. Need two viewer profiles (US-01 / FR-008 precondition).
-  const { data: profileData } = await supabase
+  // 1. Need the remembered taste core (US-01 / FR-008 precondition).
+  const { data: coreData } = await supabase
     .from("viewer_profiles")
-    .select("slot, preferred_genre_ids, excluded_genre_ids")
-    .order("slot", { ascending: true });
-  const rawProfiles: unknown[] = Array.isArray(profileData) ? profileData : [];
-  if (rawProfiles.length < 2) {
-    return redirectError(context, "/profiles", "Add two viewer profiles before getting recommendations");
+    .select("preferred_genre_ids, excluded_genre_ids")
+    .maybeSingle();
+  if (!coreData) {
+    return redirectError(context, "/profiles", "Set your taste core before getting recommendations");
   }
-  const profiles: Profile[] = rawProfiles.map((row) => {
-    const r = row as Record<string, unknown>;
-    return {
-      preferred_genre_ids: toIntArray(r.preferred_genre_ids),
-      excluded_genre_ids: toIntArray(r.excluded_genre_ids),
-    };
-  });
+  const coreRaw = coreData as Record<string, unknown>;
+  const core: Profile = {
+    preferred_genre_ids: toIntArray(coreRaw.preferred_genre_ids),
+    excluded_genre_ids: toIntArray(coreRaw.excluded_genre_ids),
+  };
 
   // 2. Load the target session (named id when present, else the latest). RLS
   //    already scopes both queries to the owner.
@@ -113,11 +110,7 @@ export const POST: APIRoute = async (context) => {
   let candidates;
   try {
     candidates = await fetchCandidates(tmdb, {
-      genreIds: unionGenres(
-        session.preferred_genre_ids,
-        profiles[0].preferred_genre_ids,
-        profiles[1].preferred_genre_ids,
-      ),
+      genreIds: unionGenres(session.preferred_genre_ids, core.preferred_genre_ids),
       runtimeLteMinutes: session.runtime_limit_minutes,
       voteCountGte: WEIGHTS.VOTE_COUNT_FLOOR,
       pages: 3,
@@ -129,8 +122,12 @@ export const POST: APIRoute = async (context) => {
     return redirectError(context, "/sessions", "Could not reach TMDB, try again");
   }
 
-  // 5. Score + assign roles.
-  const result = recommend([profiles[0], profiles[1]], session, candidates);
+  // 5. Score + assign roles. S-01 stopgap: the engine still takes a fixed
+  //    [Profile, Profile] pair, so we feed the single core to both slots as a
+  //    degenerate duo. Passing [core, core] doubles each candidate's per-viewer
+  //    reward uniformly, leaving ranking/roles/diversity unchanged versus a
+  //    single-viewer pass. S-02 generalizes the engine and removes this shim.
+  const result = recommend([core, core], session, candidates);
   if (result.picks.length === 0) {
     return redirectError(context, "/sessions", "No matching films — broaden your preferences");
   }

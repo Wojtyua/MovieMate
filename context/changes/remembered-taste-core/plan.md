@@ -242,26 +242,26 @@ Destructive reshape on dev-only data: existing two-slot rows are **wiped** (per 
 
 #### Automated
 
-- [x] 2.1 Typecheck passes (no references to removed props/columns)
-- [x] 2.2 Linting passes: `npm run lint`
-- [x] 2.3 Build passes: `npm run build`
+- [x] 2.1 Typecheck passes (no references to removed props/columns) — 605da86
+- [x] 2.2 Linting passes: `npm run lint` — 605da86
+- [x] 2.3 Build passes: `npm run build` — 605da86
 
 #### Manual
 
-- [x] 2.4 `/profiles` shows one taste-core card; save + reload persists selection
-- [x] 2.5 Preferred/avoid overlap prevented in UI and rejected by API
-- [x] 2.6 Dashboard link + middleware guard still work (logged-out redirect)
+- [x] 2.4 `/profiles` shows one taste-core card; save + reload persists selection — 605da86
+- [x] 2.5 Preferred/avoid overlap prevented in UI and rejected by API — 605da86
+- [x] 2.6 Dashboard link + middleware guard still work (logged-out redirect) — 605da86
 
 ### Phase 3: Recommendations stopgap (degenerate duo)
 
 #### Automated
 
-- [ ] 3.1 Typecheck passes: `recommend([core, core], …)` satisfies the tuple
-- [ ] 3.2 Linting passes: `npm run lint`
-- [ ] 3.3 Build passes: `npm run build`
+- [x] 3.1 Typecheck passes: `recommend([core, core], …)` satisfies the tuple
+- [x] 3.2 Linting passes: `npm run lint`
+- [x] 3.3 Build passes: `npm run build`
 
 #### Manual
 
-- [ ] 3.4 Saved core → session → three role-labeled picks within budget
-- [ ] 3.5 No core saved → redirect to `/profiles`, no crash
-- [ ] 3.6 Picks persist (one `recommendations` run + three `recommendation_picks` rows)
+- [x] 3.4 Saved core → session → three role-labeled picks within budget
+- [x] 3.5 No core saved → redirect to `/profiles`, no crash
+- [x] 3.6 Picks persist (one `recommendations` run + three `recommendation_picks` rows)
