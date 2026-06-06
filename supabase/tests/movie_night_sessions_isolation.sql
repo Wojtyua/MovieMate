@@ -4,7 +4,8 @@
 --   FR-001 — RLS partitions sessions by owner: each user reads only their own
 --            rows and cannot update/delete the other's.
 --   S-02   — sessions are UNBOUNDED per user: a user can insert many sessions
---            (the deliberate difference from viewer_profiles, which is slot-capped).
+--            (the deliberate difference from viewer_profiles, which is capped at
+--            one remembered taste core per user).
 --
 -- Mechanism: the postgres/superuser role and the table owner BYPASS RLS, so every
 -- assertion impersonates a real user via `set local role authenticated` plus a
@@ -83,8 +84,9 @@ select is(
 );
 reset role;
 
--- No slot cap (S-02): a user can hold many sessions. User A already owns one;
--- two more inserts must succeed and bring their visible total to three.
+-- No per-user cap (S-02): a user can hold many sessions (unlike the single
+-- remembered taste core). User A already owns one; two more inserts must succeed
+-- and bring their visible total to three.
 set local role authenticated;
 set local request.jwt.claims = '{"sub":"11111111-1111-1111-1111-111111111111","role":"authenticated"}';
 select lives_ok(
@@ -93,7 +95,7 @@ select lives_ok(
 );
 select lives_ok(
   $$ insert into public.movie_night_sessions (mood, intensity, note) values ('epic', 'high', 'A session 3') $$,
-  'user A can start a third session (no slot cap)'
+  'user A can start a third session (no per-user cap)'
 );
 select is(
   (select count(*) from public.movie_night_sessions)::int,
