@@ -42,7 +42,9 @@ export const INTENSITIES: readonly SessionOption<Intensity>[] = [
 export const DEFAULT_INTENSITY: Intensity = "medium";
 
 const MOOD_IDS = new Set(MOODS.map((m) => m.id));
-const INTENSITY_IDS = new Set(INTENSITIES.map((i) => i.id));
+// Typed as ReadonlySet<string> (not Set<Intensity>) so the `id: string` guards
+// below can call `.has(id)`; the return annotation still narrows to Intensity.
+const INTENSITY_IDS: ReadonlySet<string> = new Set(INTENSITIES.map((i) => i.id));
 
 /** True when `id` is one of the known session moods. */
 export function isKnownMood(id: string): boolean {
