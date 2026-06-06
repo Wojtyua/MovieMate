@@ -2,180 +2,155 @@
 project: MovieMate
 version: 1
 status: draft
-created: 2026-05-30
-updated: 2026-06-03
-prd_version: 2
+created: 2026-06-06
+updated: 2026-06-06
+prd_version: 1
 main_goal: low-complexity
 top_blocker: none
 ---
 
-# Roadmap: MovieMate
+# Roadmap: MovieMate — Session-First Flow Reshape
 
-> Derived from `context/foundation/prd.md` (v2) + auto-researched codebase baseline.
+> Derived from `context/foundation/prd.md` (v1, brownfield) + auto-researched codebase baseline.
+> Supersedes the pre-reshape roadmap archived at `context/foundation/archive/2026-06-06-roadmap.md`.
 > Edit-in-place; archive when superseded.
 > Slices below are listed in dependency order. The "At a glance" table is the index.
 
 ## Vision recap
 
-MovieMate fights decision paralysis on a shared movie night: a single logged-in operator captures two people's tastes plus the evening's constraints, and the app returns three justified recommendations instead of another long catalog. The core hypothesis (the one claim that, if false, makes the product pointless) is that filtering TMDB candidates, scoring them against both profiles, and labeling three distinct roles produces a genuinely useful decision set — not three near-identical films.
+MovieMate fights movie-night decision paralysis by returning three scored, role-labeled film picks for a specific evening instead of another long catalog. This reshape corrects the shipped flow along three lines: it collapses the mandatory two-profile model into **one remembered taste core** (ending the double-entry of stable taste), adds an **optional inline second viewer plus a real solo path**, and **redirects AI from cosmetic per-pick justifications to parsing the free-text note** into search parameters that sharpen the candidate set. The core hypothesis being corrected — the one claim that, if false, sinks the reshape — is that removing upfront double-entry and supporting solo makes the nightly flow lighter without losing pick quality.
 
 ## North star
 
-**S-03: user can submit session preferences and receive three scored, role-labeled recommendations** — this is the validation milestone, the smallest end-to-end flow whose success proves the core hypothesis; everything else (profiles, AI justification, watched-dedup) only matters if this engine produces a good three-pick set. It is placed as early as its data and external-API prerequisites allow.
+**S-02: user can start a session from home, stay solo, and get three role-labeled picks** — this is the validation milestone, tied to the primary Success Criterion (complete the reshaped flow end to end). It proves the heart of the reshape: tonight's genres pre-fill from the remembered core (no double-entry) and the solo path works, using deterministic genre retrieval. Placed as early as its one prerequisite (S-01) allows.
+
+> "North star" here means the smallest end-to-end slice whose successful delivery proves the core product hypothesis — placed as early as Prerequisites allow because everything else only matters if this works.
 
 ## At a glance
 
-| ID | Change ID | Outcome (user can …) | Prerequisites | PRD refs | Status |
-|---|---|---|---|---|---|
-| F-01 | provision-external-apis | (foundation) external TMDB + AI access provisioned and verified | — | FR-005, FR-010 | done |
-| F-02 | persistence-baseline-rls | (foundation) migration tooling + "own data only" RLS convention | — | FR-001 | done |
-| S-01 | viewer-profiles | create and edit two viewer profiles, seeing only own data | F-02 | FR-001, FR-002 | done |
-| S-02 | movie-night-session-prefs | start a movie-night session and save its preferences | F-02 | FR-003, FR-004 | implemented |
-| S-03 | scored-recommendations | get three scored, role-labeled recommendations | F-01, S-01, S-02 | US-01, FR-005, FR-006, FR-007, FR-008, FR-009 | proposed |
-| S-04 | ai-justifications | read an AI justification for each recommendation | S-03, F-01 | FR-010 | proposed |
-| S-05 | select-and-mark-watched | select one recommendation and mark it watched | S-03, F-02 | US-01, FR-011, FR-012 | proposed |
+| ID   | Change ID                     | Outcome (user can …)                                             | Prerequisites | PRD refs                          | Status   |
+| ---- | ----------------------------- | ---------------------------------------------------------------- | ------------- | --------------------------------- | -------- |
+| S-01 | remembered-taste-core         | maintain one remembered taste core (replaces two profiles)       | —             | FR-001, FR-002                    | ready    |
+| S-02 | session-first-solo-flow       | start a session from home, solo, and get three role-labeled picks | S-01          | US-01, FR-003, FR-004, FR-008, FR-009 | proposed |
+| S-03 | optional-inline-second-viewer | add a second viewer's taste inline and get duo picks             | S-02          | US-01, FR-005, FR-008, FR-009     | proposed |
+| S-04 | ai-note-understanding         | have a free-text note sharpen the candidate set                  | S-02          | FR-006, FR-007                    | proposed |
+| S-05 | select-and-mark-watched       | select one pick and mark it watched (excluded from future picks) | S-02          | US-01, FR-011, FR-012             | proposed |
 
 ## Streams
 
 Navigation aid — groups items that share a Prerequisites chain. Canonical ordering still lives in the dependency graph below; this table is the proposed reading order across parallel tracks.
 
-| Stream | Theme | Chain | Note |
-|---|---|---|---|
-| A | Recommendation engine | `F-01` → `S-03` → `S-04` / `S-05` | North-star path; `S-03` also consumes data from Stream B (`S-01`, `S-02`); gated by external API keys (`F-01`). |
-| B | Data: profiles & session | `F-02` → `S-01` / `S-02` | Independent data entities, plannable in parallel; both feed `S-03` in Stream A. |
+| Stream | Theme                  | Chain                          | Note                                                                                  |
+| ------ | ---------------------- | ------------------------------ | ------------------------------------------------------------------------------------- |
+| A      | Model & solo flow      | `S-01` → `S-02`                | The reshape backbone and the north-star path; everything else hangs off `S-02`.       |
+| B      | Flow extensions        | `S-03` / `S-04` / `S-05`       | Three independent extensions, all join Stream A at `S-02`; plannable in parallel.      |
 
 ## Baseline
 
-What's already in place in the codebase as of `2026-05-30` (auto-researched + user-confirmed).
+What's already in place in the codebase as of `2026-06-06` (auto-researched + user-confirmed).
 Foundations below assume these are present and do NOT re-scaffold them.
 
-- **Frontend:** present — Astro 6 SSR + React + Tailwind v4, file-based routing, shadcn configured (`astro.config.mjs:10-16`).
-- **Backend / API:** partial — only four auth `APIRoute` handlers (signin/signup/signout/callback); no domain endpoints (`src/pages/api/auth/signin.ts`).
-- **Data:** partial — Supabase SSR client for auth only; no app tables, no `supabase/migrations/` (`src/lib/supabase.ts:5-24`).
-- **Auth:** present — Supabase email/password, middleware guards `/dashboard`, signin/signup/callback wired (`src/middleware.ts:14-28`).
-- **Deploy / infra:** present — Cloudflare Workers; first deploy live, CI lints+builds; auto-deploy-on-merge pending a one-time dashboard gate (`context/deployment/deploy-plan.md`).
-- **Observability:** partial — Wrangler platform observability enabled; no app-level logging or error tracking (`wrangler.jsonc:12-14`).
+- **Frontend:** present — Astro 6 SSR + React + Tailwind v4, shadcn; pages `index` (home), `dashboard`, `profiles`, `sessions`, `sessions/[id]/recommendations`.
+- **Backend / API:** present — domain endpoints `src/pages/api/{profiles,sessions,recommendations}.ts` (+ `health/integrations`, auth routes).
+- **Data:** present — migrations for `viewer_profiles` (two-slot: `slot in (1,2)` + `unique(user_id, slot)`), `movie_night_sessions` (incl. `note`), `recommendations` + `recommendation_picks` (`role` CHECK `'safe'/'compromise'/'wild_card'`); owner-scoped RLS convention. No watched table.
+- **Auth:** present — Supabase email/password, middleware guards (per `tech-stack.md`).
+- **Deploy / infra:** present — Cloudflare Workers; CI lint+build (per `tech-stack.md`).
+- **Observability:** partial — Wrangler platform observability; no app-level logging/error tracking.
 
 ## Foundations
 
-### F-01: Provision external API integrations
-
-- **Outcome:** (foundation) TMDB and AI-provider access is provisioned and verified — keys declared via `astro:env`, set as Worker secrets, and a thin end-to-end call to each returns successfully from the workerd runtime.
-- **Change ID:** provision-external-apis
-- **PRD refs:** FR-005, FR-010, NFR (recommendations within 10s)
-- **Unlocks:** S-03 (candidate retrieval + scoring), S-04 (AI justification); reduces the blocking unknown "which AI provider/model and cost ceiling"; establishes the `<10s` NFR verification path.
-- **Prerequisites:** — (deploy baseline already present)
-- **Parallel with:** F-02
-- **Blockers:** — (resolved 2026-06-02: both keys obtained; secrets set on the `moviemate` Worker + GitHub repo; `.dev.vars` populated for local workerd).
-- **Unknowns:**
-  - ~~Which AI provider/model and cost ceiling, and does the SDK run on workerd (Web-standard `fetch`, no Node streams)?~~ — Resolved 2026-06-02: OpenRouter (OpenAI-compatible) called over raw `fetch` (no SDK → no Node-streams risk); cheap, env-configurable model (`AI_MODEL`). See `context/changes/provision-external-apis/plan.md`.
-- **Risk:** External + runtime risk is concentrated here (`infrastructure.md` risk register: workerd ≠ Node, subrequest/CPU caps, `<10s` NFR). Sequenced first because the entire north-star path is dead without verified external access; a thin verified call de-risks before the engine is built.
-- **Status:** done
-
-### F-02: Persistence baseline with row-level access
-
-- **Outcome:** (foundation) Supabase migration tooling is wired and a row-level-security convention enforces "own data only", so the first data-bearing slice can add its table and trust FR-001 at the data layer.
-- **Change ID:** persistence-baseline-rls
-- **PRD refs:** FR-001
-- **Unlocks:** S-01 (viewer profiles), S-02 (session + preferences), S-05 (watched-dedup table).
-- **Prerequisites:** — (auth already present in baseline)
-- **Parallel with:** F-01
-- **Blockers:** —
-- **Unknowns:** —
-- **Risk:** Minimal enabler only — establishes migrations plus the RLS pattern, not all tables (each entity ships with its consuming slice). Sequenced before the data slices so FR-001 enforcement isn't reinvented per table.
-- **Status:** done
+**None.** The baseline already provides every cross-cutting enabler this reshape needs: migration tooling and the owner-scoped RLS convention (F-02, archived), provisioned + verified external API access — TMDB + OpenRouter via raw `fetch` (F-01, archived), and a live deploy. The reshape's three small schema deltas (two-slot → single taste core; widen the `recommendation_picks.role` CHECK for solo labels; a new watched table) each ship **inside** their consuming slice (progressive disclosure), so no standalone foundation is justified. The unused `src/lib/ai.ts` OpenRouter client (scaffolded for the now-removed FR-010) is repurposed in S-04 rather than re-scaffolded.
 
 ## Slices
 
-### S-01: Create and edit two viewer profiles
+### S-01: One remembered taste core
 
-- **Outcome:** user can log in and create/edit exactly two viewer profiles holding each person's taste, seeing only their own data.
-- **Change ID:** viewer-profiles
+- **Outcome:** user can maintain exactly **one** remembered taste core (stable preferred + excluded genres), replacing the two-profile model, seeing only their own data.
+- **Change ID:** remembered-taste-core
 - **PRD refs:** FR-001, FR-002
-- **Prerequisites:** F-02
-- **Parallel with:** S-02
-- **Blockers:** —
-- **Unknowns:**
-  - What taste fields a viewer profile captures (preferred genres, keywords, etc.) that the S-03 scoring rule will consume — Owner: user/team. Block: no.
-- **Risk:** Profile shape must align with what S-03 scoring consumes; deciding the fields now avoids rework, but it's a design choice, not a blocker.
-- **Status:** done
-
-### S-02: Start a movie-night session and save preferences
-
-- **Outcome:** user can start a movie-night session and save its preferences — mood, preferred genres, excluded genres, runtime limit, intensity, and an extra note.
-- **Change ID:** movie-night-session-prefs
-- **PRD refs:** FR-003, FR-004
-- **Prerequisites:** F-02
-- **Parallel with:** S-01
-- **Blockers:** —
-- **Unknowns:** —
-- **Risk:** These preference fields are the input contract for S-03; keep them aligned with TMDB hard-filter capabilities (genre, runtime, rating, year) so candidate retrieval stays feasible.
-- **Status:** proposed
-
-### S-03: Get three scored, role-labeled recommendations
-
-- **Outcome:** user can submit session preferences and receive three meaningfully distinct recommendations — labeled safe pick, compromise pick, and wild card — drawn from TMDB candidates scored against both viewer profiles and the session constraints.
-- **Change ID:** scored-recommendations
-- **PRD refs:** US-01, FR-005, FR-006, FR-007, FR-008, FR-009
-- **Prerequisites:** F-01, S-01, S-02
+- **Prerequisites:** —
 - **Parallel with:** —
 - **Blockers:** —
 - **Unknowns:**
-  - Scoring weights and the diversity threshold that guarantees the wild card differs from the safe pick in genre or tone — Owner: user/team. Block: no (tunable during `/10x-plan`).
-- **Risk:** The validation milestone and the densest slice: TMDB retrieval + hard-filter + dual-profile scoring + role diversity must cohere into one output within `<10s`. Likely to spawn more than one change in `/10x-plan`. Sequenced immediately after its data and external prerequisites.
+  - Where the operator edits the stored core — a slim settings screen vs. first-run vs. a "save tonight's genres as my core" affordance (PRD OQ-3) — Owner: user/team. Block: no.
+- **Risk:** Touches the shipped `viewer_profiles` model — migrating two slots to a single core (and dropping the two-profile constraint) is the load-bearing model change every later slice assumes. Sequenced first because S-02's pre-fill reads this core. Dev-only data keeps migration risk low; migrations stay additive/reversible per convention.
+- **Status:** ready
+
+### S-02: Session-first solo flow → three role-labeled picks
+
+- **Outcome:** user can start a movie-night session from the home entry point, see tonight's genres pre-filled from their remembered core (editable for tonight without overwriting it), set mood/runtime/intensity, stay solo, and receive three role-labeled picks (adapted solo role set) from deterministic genre retrieval.
+- **Change ID:** session-first-solo-flow
+- **PRD refs:** US-01, FR-003, FR-004, FR-008, FR-009
+- **Prerequisites:** S-01
+- **Parallel with:** —
+- **Blockers:** —
+- **Unknowns:**
+  - The three solo role labels (duo keeps safe/compromise/wild card; solo drops "compromise") (PRD OQ-1, also tracked roadmap-wide as it widens the `recommendation_picks.role` CHECK) — Owner: user/team. Block: no.
+- **Risk:** The north star and the densest reshape slice: home entry + pre-fill + tonight-only genre edits + generalizing the scoring engine from "exactly two profiles" to a single taste + a solo role set must cohere into one end-to-end flow within `<10s`. Likely to spawn more than one change in `/10x-plan`. Sequenced immediately after the taste core; deterministic-only (the AI note lands in S-04) so the engine is verifiable without AI.
 - **Status:** proposed
 
-### S-04: Read an AI justification for each recommendation
+### S-03: Optional inline second viewer (duo path)
 
-- **Outcome:** user can read a short, understandable AI-generated justification explaining why each of the three recommendations fits the session.
-- **Change ID:** ai-justifications
-- **PRD refs:** FR-010
-- **Prerequisites:** S-03, F-01
-- **Parallel with:** S-05
+- **Outcome:** user can optionally add a second viewer's taste (genres) inline for tonight (or stay solo) and receive duo picks labeled safe / compromise / wild card, scored against both present tastes.
+- **Change ID:** optional-inline-second-viewer
+- **PRD refs:** US-01, FR-005, FR-008, FR-009
+- **Prerequisites:** S-02
+- **Parallel with:** S-04, S-05
 - **Blockers:** —
 - **Unknowns:** —
-- **Risk:** Secondary success criterion and the only AI-dependent slice; AI is feature-flagged (`infrastructure.md`), so it must degrade gracefully if the upstream is slow or down, protecting the `<10s` NFR. Layered after deterministic scoring so the engine is verifiable without AI.
+- **Risk:** Extends the solo engine to blend a second, ephemeral taste and restores the duo role set (safe/compromise/wild card) on the cardinality branch. The second viewer is captured on-device and never persisted (honors "no second-person login"). Layered after the solo flow so the one-taste path is proven before the two-taste branch is added.
 - **Status:** proposed
 
-### S-05: Select a recommendation and mark it watched
+### S-04: AI note understanding sharpens the candidate set
+
+- **Outcome:** user can type a free-text note ("something dumb, maybe with Adam Sandler") and have it parsed into structured search parameters (genres, people/cast, keywords) that improve the candidate set, with graceful fallback to genre-only retrieval.
+- **Change ID:** ai-note-understanding
+- **PRD refs:** FR-006, FR-007
+- **Prerequisites:** S-02
+- **Parallel with:** S-03, S-05
+- **Blockers:** —
+- **Unknowns:**
+  - The order in which AI-derived filters (cast + keyword + genre alongside the runtime hard filter) are relaxed when the candidate pool falls below three picks (PRD OQ-2) — Owner: user/team. Block: no (tunable during `/10x-plan`).
+- **Risk:** The secondary Success Criterion and the only AI-dependent slice; AI now sits on the critical path before retrieval, so it must fit `<10s` and degrade gracefully (empty/unparseable note or slow/unavailable AI → genre-only retrieval still returns three picks). Person/keyword resolution adds external lookups that must respect the runtime's request-count budget. Repurposes the existing unused `src/lib/ai.ts` client.
+- **Status:** proposed
+
+### S-05: Select a pick and mark it watched
 
 - **Outcome:** user can select one recommendation to close the decision, mark it watched, and have watched films excluded from future candidate retrieval for the account.
 - **Change ID:** select-and-mark-watched
 - **PRD refs:** US-01, FR-011, FR-012
-- **Prerequisites:** S-03, F-02
-- **Parallel with:** S-04
+- **Prerequisites:** S-02
+- **Parallel with:** S-03, S-04
 - **Blockers:** —
 - **Unknowns:** —
-- **Risk:** Closes the decision flow; watched acts only as a dedup filter on retrieval (not a scoring signal), which keeps it small. Depends on recommendations existing and on the persistence baseline for the watched table.
+- **Risk:** Closes the decision flow (preserved scope, never built). Needs a new watched table; "watched" acts only as a dedup filter on retrieval (not a scoring signal, not a browsable list), which keeps it small. Depends on the reshaped flow producing picks.
 - **Status:** proposed
 
 ## Backlog Handoff
 
-| Roadmap ID | Change ID | Suggested issue title | Ready for `/10x-plan` | Notes |
-|---|---|---|---|---|
-| F-01 | provision-external-apis | Provision and verify TMDB + AI provider access | done | Archived 2026-06-02 → `context/archive/2026-06-02-provision-external-apis/` |
-| F-02 | persistence-baseline-rls | Wire Supabase migrations + own-data RLS convention | yes | Run `/10x-plan persistence-baseline-rls` |
-| S-01 | viewer-profiles | Create and edit two viewer profiles | done | Archived 2026-06-03 → `context/archive/2026-06-03-viewer-profiles/` |
-| S-02 | movie-night-session-prefs | Start movie-night session and save preferences | done | Implemented 2026-06-06 → `context/changes/movie-night-session-prefs/` |
-| S-03 | scored-recommendations | Generate three scored, role-labeled recommendations | no | Ready once F-01, S-01, S-02 land |
-| S-04 | ai-justifications | Add AI justification per recommendation | no | Ready once S-03 and F-01 land |
-| S-05 | select-and-mark-watched | Select a recommendation and mark it watched | no | Ready once S-03 and F-02 land |
+| Roadmap ID | Change ID                     | Suggested issue title                                  | Ready for `/10x-plan` | Notes                                   |
+| ---------- | ----------------------------- | ------------------------------------------------------ | --------------------- | --------------------------------------- |
+| S-01       | remembered-taste-core         | Collapse two profiles into one remembered taste core   | yes                   | Run `/10x-plan remembered-taste-core`   |
+| S-02       | session-first-solo-flow       | Session-first solo flow with pre-filled core genres    | no                    | Ready once S-01 lands                   |
+| S-03       | optional-inline-second-viewer | Add optional inline second viewer (duo path)           | no                    | Ready once S-02 lands                   |
+| S-04       | ai-note-understanding         | Parse the note into search params to sharpen retrieval | no                    | Ready once S-02 lands                   |
+| S-05       | select-and-mark-watched       | Select a pick and mark it watched (dedup filter)       | no                    | Ready once S-02 lands                   |
 
 ## Open Roadmap Questions
 
-1. ~~**Which AI provider/model and cost ceiling, and does the SDK run on workerd?**~~ — Resolved 2026-06-02 (OpenRouter via raw `fetch`, cheap env-configurable `AI_MODEL`). No longer blocking F-01 / S-04.
+1. **What are the three solo role labels?** (Duo keeps safe / compromise / wild card; solo drops "compromise" — e.g. safe / crowd-pleaser / wild card.) — Owner: user/team. Block: gates `S-02` and `S-03` (and widens the shared `recommendation_picks.role` CHECK); non-blocking for planning, resolve in `/10x-plan`.
+
+(Per-slice unknowns stay in their slice: the core-editing surface lives on `S-01`; the AI-filter relaxation order lives on `S-04`.)
 
 ## Parked
 
-- **OAuth / social login** — Why parked: PRD §Non-Goals; email-and-password only for a single pair on one device. May return later.
-- **Watch history as a scoring signal or browsable list** — Why parked: PRD §Non-Goals; "watched" exists only to exclude already-seen films from future candidates.
-- **Second-person login / invitation links / shared account / realtime voting** — Why parked: PRD §Non-Goals; one operator captures both tastes as two profiles.
-- **Full film platform (reviews, comments, social features, complete movie DB)** — Why parked: PRD §Non-Goals.
-- **Full ML recommendation system trained on user history** — Why parked: PRD §Non-Goals; MVP uses explicit preferences + transparent scoring.
-- **Streaming-service / where-to-watch integration** — Why parked: PRD §Non-Goals; may return later as a lightweight informational feature only.
+- **OAuth / social login** — Why parked: PRD §Non-Goals; email/password only (unchanged).
+- **Second-person login / invitation link / shared account / realtime voting** — Why parked: PRD §Non-Goals; the second viewer is inline + ephemeral on the operator's device.
+- **Persistent storage of the second viewer's taste** — Why parked: PRD §Non-Goals; captured per-session only (asymmetric model).
+- **AI-generated per-recommendation justifications (old FR-010)** — Why parked: PRD §Non-Goals; AI is redirected to note parsing. The scaffolded-but-unused `src/lib/ai.ts` is repurposed, not deleted.
+- **Watch history as a scoring signal or browsable list** — Why parked: PRD §Non-Goals; "watched" is a dedup filter only.
+- **Full film platform / full ML recommender system / streaming integration** — Why parked: PRD §Non-Goals.
 
 ## Done
 
-- **F-02: (foundation) Supabase migration tooling is wired and a row-level-security convention enforces "own data only", so the first data-bearing slice can add its table and trust FR-001 at the data layer.** — Archived 2026-05-30 → `context/archive/2026-05-30-persistence-baseline-rls/`. Lesson: —.
-- **F-01: (foundation) TMDB and AI-provider access is provisioned and verified — keys declared via `astro:env`, set as Worker secrets, and a thin end-to-end call to each returns successfully from the workerd runtime.** — Archived 2026-06-02 → `context/archive/2026-06-02-provision-external-apis/`. Lesson: —.
-- **S-01: user can log in and create/edit exactly two viewer profiles holding each person's taste, seeing only their own data.** — Archived 2026-06-03 → `context/archive/2026-06-03-viewer-profiles/`. Lesson: —.
+(Empty on first generation. `/10x-archive` appends entries here and flips an item's `Status` to `done` when a change whose `Change ID` matches is archived.)
