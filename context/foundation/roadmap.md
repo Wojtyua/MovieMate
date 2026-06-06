@@ -30,7 +30,7 @@ MovieMate fights movie-night decision paralysis by returning three scored, role-
 
 | ID   | Change ID                     | Outcome (user can …)                                             | Prerequisites | PRD refs                          | Status   |
 | ---- | ----------------------------- | ---------------------------------------------------------------- | ------------- | --------------------------------- | -------- |
-| S-01 | remembered-taste-core         | maintain one remembered taste core (replaces two profiles)       | —             | FR-001, FR-002                    | ready    |
+| S-01 | remembered-taste-core         | maintain one remembered taste core (replaces two profiles)       | —             | FR-001, FR-002                    | done     |
 | S-02 | session-first-solo-flow       | start a session from home, solo, and get three role-labeled picks | S-01          | US-01, FR-003, FR-004, FR-008, FR-009 | proposed |
 | S-03 | optional-inline-second-viewer | add a second viewer's taste inline and get duo picks             | S-02          | US-01, FR-005, FR-008, FR-009     | proposed |
 | S-04 | ai-note-understanding         | have a free-text note sharpen the candidate set                  | S-02          | FR-006, FR-007                    | proposed |
@@ -74,7 +74,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Unknowns:**
   - Where the operator edits the stored core — a slim settings screen vs. first-run vs. a "save tonight's genres as my core" affordance (PRD OQ-3) — Owner: user/team. Block: no.
 - **Risk:** Touches the shipped `viewer_profiles` model — migrating two slots to a single core (and dropping the two-profile constraint) is the load-bearing model change every later slice assumes. Sequenced first because S-02's pre-fill reads this core. Dev-only data keeps migration risk low; migrations stay additive/reversible per convention.
-- **Status:** ready
+- **Status:** done
 
 ### S-02: Session-first solo flow → three role-labeled picks
 
@@ -130,7 +130,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 
 | Roadmap ID | Change ID                     | Suggested issue title                                  | Ready for `/10x-plan` | Notes                                   |
 | ---------- | ----------------------------- | ------------------------------------------------------ | --------------------- | --------------------------------------- |
-| S-01       | remembered-taste-core         | Collapse two profiles into one remembered taste core   | yes                   | Run `/10x-plan remembered-taste-core`   |
+| S-01       | remembered-taste-core         | Collapse two profiles into one remembered taste core   | done                  | Archived → `context/archive/2026-06-06-remembered-taste-core/` |
 | S-02       | session-first-solo-flow       | Session-first solo flow with pre-filled core genres    | no                    | Ready once S-01 lands                   |
 | S-03       | optional-inline-second-viewer | Add optional inline second viewer (duo path)           | no                    | Ready once S-02 lands                   |
 | S-04       | ai-note-understanding         | Parse the note into search params to sharpen retrieval | no                    | Ready once S-02 lands                   |
@@ -153,4 +153,4 @@ Foundations below assume these are present and do NOT re-scaffold them.
 
 ## Done
 
-(Empty on first generation. `/10x-archive` appends entries here and flips an item's `Status` to `done` when a change whose `Change ID` matches is archived.)
+- **S-01: user can maintain exactly **one** remembered taste core (stable preferred + excluded genres), replacing the two-profile model, seeing only their own data.** — Archived 2026-06-06 → `context/archive/2026-06-06-remembered-taste-core/`. Lesson: —.
