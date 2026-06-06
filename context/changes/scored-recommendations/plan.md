@@ -353,25 +353,25 @@ Two new tables only; no existing data to migrate. Local-only application (`npm r
 
 #### Automated
 
-- [x] 2.1 Type check / build passes: `npx astro sync && npm run build`
-- [x] 2.2 Lint passes: `npm run lint`
+- [x] 2.1 Type check / build passes: `npx astro sync && npm run build` — 6c58c98
+- [x] 2.2 Lint passes: `npm run lint` — 6c58c98
 
 #### Manual
 
-- [x] 2.3 `fetchCandidates` returns a deduped non-empty `TmdbMovie[]` with expected fields, <10s, ≤3 subrequests (local workerd)
-- [x] 2.4 Unset token → `createTmdbClient()` null, caller degrades (no throw)
+- [x] 2.3 `fetchCandidates` returns a deduped non-empty `TmdbMovie[]` with expected fields, <10s, ≤3 subrequests (local workerd) — 6c58c98
+- [x] 2.4 Unset token → `createTmdbClient()` null, caller degrades (no throw) — 6c58c98
 
 ### Phase 3: Scoring + role/diversity engine
 
 #### Automated
 
-- [ ] 3.1 Type check / build passes: `npx astro sync && npm run build`
-- [ ] 3.2 Lint passes: `npm run lint`
+- [x] 3.1 Type check / build passes: `npx astro sync && npm run build`
+- [x] 3.2 Lint passes: `npm run lint`
 
 #### Manual
 
-- [ ] 3.3 Three distinct picks; wild card shares no genre with safe pick (Jaccard fallback if pool too narrow); compromise ≠ safe; excluded genres down-ranked
-- [ ] 3.4 Thin list (2) → 2 picks; empty list → 0 picks; no error
+- [x] 3.3 Three distinct picks; wild card shares no genre with safe pick (Jaccard fallback if pool too narrow); compromise ≠ safe; excluded genres down-ranked
+- [x] 3.4 Thin list (2) → 2 picks; empty list → 0 picks; no error
 
 ### Phase 4: API endpoint — POST /api/recommendations
 
