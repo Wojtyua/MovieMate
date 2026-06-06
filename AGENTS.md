@@ -13,6 +13,10 @@ This repo is shared by multiple coding agents. `AGENTS.md` is the single source 
 - Run `npm run lint` before pushing — CI gates on it (see `@.github/workflows/ci.yml`).
 - `no-console` is a lint warning; remove stray `console.*` before committing.
 
+## External APIs
+
+- TMDB is the movie-candidate source. API docs: https://developer.themoviedb.org/docs/getting-started — consult these for hard-filter capabilities (genre, runtime, rating, year) and endpoint shapes before designing candidate retrieval.
+
 ## Build, Test, and Development Commands
 
 - Scripts: `@package.json` (`dev` runs on the Cloudflare workerd runtime).
