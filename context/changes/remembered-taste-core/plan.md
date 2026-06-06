@@ -256,12 +256,12 @@ Destructive reshape on dev-only data: existing two-slot rows are **wiped** (per 
 
 #### Automated
 
-- [x] 3.1 Typecheck passes: `recommend([core, core], …)` satisfies the tuple
-- [x] 3.2 Linting passes: `npm run lint`
-- [x] 3.3 Build passes: `npm run build`
+- [x] 3.1 Typecheck passes: `recommend([core, core], …)` satisfies the tuple — dfd0c2b
+- [x] 3.2 Linting passes: `npm run lint` — dfd0c2b
+- [x] 3.3 Build passes: `npm run build` — dfd0c2b
 
 #### Manual
 
-- [x] 3.4 Saved core → session → three role-labeled picks within budget
-- [x] 3.5 No core saved → redirect to `/profiles`, no crash
-- [x] 3.6 Picks persist (one `recommendations` run + three `recommendation_picks` rows)
+- [x] 3.4 Saved core → session → three role-labeled picks within budget — dfd0c2b
+- [x] 3.5 No core saved → redirect to `/profiles`, no crash — dfd0c2b
+- [x] 3.6 Picks persist (one `recommendations` run + three `recommendation_picks` rows) — dfd0c2b
