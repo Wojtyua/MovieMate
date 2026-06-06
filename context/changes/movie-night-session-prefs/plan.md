@@ -252,27 +252,27 @@ New table only; no existing data to migrate. Local-only application (`npm run db
 
 #### Automated
 
-- [x] 2.1 Type check / build passes: `npx astro sync && npm run build`
-- [x] 2.2 Lint passes: `npm run lint`
+- [x] 2.1 Type check / build passes: `npx astro sync && npm run build` — 1e871ea
+- [x] 2.2 Lint passes: `npm run lint` — 1e871ea
 
 #### Manual
 
-- [x] 2.3 Unauthenticated `/sessions` redirects to `/auth/signin`
-- [x] 2.4 Unknown genre id is rejected, nothing persisted
-- [x] 2.5 Out-of-vocabulary mood or intensity is rejected
-- [x] 2.6 Overlapping preferred + excluded genre is rejected
+- [x] 2.3 Unauthenticated `/sessions` redirects to `/auth/signin` — 1e871ea
+- [x] 2.4 Unknown genre id is rejected, nothing persisted — 1e871ea
+- [x] 2.5 Out-of-vocabulary mood or intensity is rejected — 1e871ea
+- [x] 2.6 Overlapping preferred + excluded genre is rejected — 1e871ea
 
 ### Phase 3: UI — /sessions page with new-session form + edit-latest
 
 #### Automated
 
-- [x] 3.1 Build/type check passes: `npx astro sync && npm run build`
-- [x] 3.2 Lint passes: `npm run lint`
+- [x] 3.1 Build/type check passes: `npx astro sync && npm run build` — 1e871ea
+- [x] 3.2 Lint passes: `npm run lint` — 1e871ea
 
 #### Manual
 
-- [x] 3.3 Fill + save a session; values persist on reload as the latest session
-- [x] 3.4 Re-save the shown session updates it (no duplicate row)
-- [x] 3.5 "Start another session" creates a distinct new row; previous untouched
-- [x] 3.6 Fully-blank/default session saves successfully
-- [x] 3.7 Second account sees an empty form (no cross-account leakage)
+- [x] 3.3 Fill + save a session; values persist on reload as the latest session — 1e871ea
+- [x] 3.4 Re-save the shown session updates it (no duplicate row) — 1e871ea
+- [x] 3.5 "Start another session" creates a distinct new row; previous untouched — 1e871ea
+- [x] 3.6 Fully-blank/default session saves successfully — 1e871ea
+- [x] 3.7 Second account sees an empty form (no cross-account leakage) — 1e871ea
