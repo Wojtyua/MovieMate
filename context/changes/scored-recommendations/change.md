@@ -1,7 +1,7 @@
 ---
 change_id: scored-recommendations
 title: Get three scored, role-labeled movie recommendations
-status: implementing
+status: implemented
 created: 2026-06-06
 updated: 2026-06-06
 archived_at: null
