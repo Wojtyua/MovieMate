@@ -377,29 +377,29 @@ Two new tables only; no existing data to migrate. Local-only application (`npm r
 
 #### Automated
 
-- [x] 4.1 Type check / build passes: `npx astro sync && npm run build`
-- [x] 4.2 Lint passes: `npm run lint`
+- [x] 4.1 Type check / build passes: `npx astro sync && npm run build` — 8425a16
+- [x] 4.2 Lint passes: `npm run lint` — 8425a16
 
 #### Manual
 
-- [x] 4.3 2 profiles + session → redirect to results; 1 recommendation + 3 distinct picks persisted
-- [x] 4.4 <2 profiles → redirect to `/profiles`, nothing persisted
-- [x] 4.5 TMDB unconfigured → degraded redirect to `/sessions`, nothing persisted
-- [x] 4.6 Unauthenticated POST → `/auth/signin`
-- [x] 4.7 End-to-end POST completes <10s (local workerd)
+- [x] 4.3 2 profiles + session → redirect to results; 1 recommendation + 3 distinct picks persisted — 8425a16
+- [x] 4.4 <2 profiles → redirect to `/profiles`, nothing persisted — 8425a16
+- [x] 4.5 TMDB unconfigured → degraded redirect to `/sessions`, nothing persisted — 8425a16
+- [x] 4.6 Unauthenticated POST → `/auth/signin` — 8425a16
+- [x] 4.7 End-to-end POST completes <10s (local workerd) — 8425a16
 
 ### Phase 5: Results UI + entry points
 
 #### Automated
 
-- [ ] 5.1 Build / type check passes: `npx astro sync && npm run build`
-- [ ] 5.2 Lint passes: `npm run lint`
+- [x] 5.1 Build / type check passes: `npx astro sync && npm run build`
+- [x] 5.2 Lint passes: `npm run lint`
 
 #### Manual
 
-- [ ] 5.3 Results page shows three role-labeled cards (poster/title/year/rating/genres); wild card genre differs from safe
-- [ ] 5.4 Reload renders from persistence with no TMDB call (works with token unset)
-- [ ] 5.5 "Get recommendations" on `/sessions` triggers and lands on results
-- [ ] 5.6 Session with no recommendation shows friendly empty state
-- [ ] 5.7 Second account cannot view first account's results URL (RLS empty state)
-- [ ] 5.8 Unauthenticated results page → `/auth/signin`
+- [x] 5.3 Results page shows three role-labeled cards (poster/title/year/rating/genres); wild card genre differs from safe
+- [x] 5.4 Reload renders from persistence with no TMDB call (works with token unset)
+- [x] 5.5 "Get recommendations" on `/sessions` triggers and lands on results
+- [x] 5.6 Session with no recommendation shows friendly empty state
+- [x] 5.7 Second account cannot view first account's results URL (RLS empty state)
+- [x] 5.8 Unauthenticated results page → `/auth/signin`

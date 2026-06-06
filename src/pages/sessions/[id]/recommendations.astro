@@ -1,0 +1,121 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import { createClient } from "@/lib/supabase";
+import { MOVIE_GENRES } from "@/lib/genres";
+import type { Role } from "@/lib/recommend";
+
+interface PickRow {
+  role: Role;
+  tmdb_movie_id: number;
+  title: string;
+  poster_path: string | null;
+  overview: string | null;
+  genre_ids: number[];
+  release_date: string | null;
+  vote_average: number | null;
+}
+
+const { id } = Astro.params;
+const { user } = Astro.locals;
+
+// Display order: safe → compromise → wild_card (a SQL `order by role` would sort
+// alphabetically — compromise, safe, wild_card — which is wrong).
+const ROLE_RANK: Record<Role, number> = { safe: 0, compromise: 1, wild_card: 2 };
+const ROLE_LABEL: Record<Role, string> = { safe: "Safe pick", compromise: "Compromise", wild_card: "Wild card" };
+const GENRE_NAMES = new Map(MOVIE_GENRES.map((g) => [g.id, g.name]));
+const POSTER_BASE = "https://image.tmdb.org/t/p/w500";
+
+const supabase = createClient(Astro.request.headers, Astro.cookies);
+let picks: PickRow[] = [];
+if (supabase && user && id) {
+  // The most recent recommendation run for this session (RLS scopes to owner).
+  const { data: runs } = await supabase
+    .from("recommendations")
+    .select("id")
+    .eq("session_id", id)
+    .order("created_at", { ascending: false })
+    .limit(1);
+  const runId = runs && runs.length > 0 ? String((runs[0] as Record<string, unknown>).id) : null;
+  if (runId) {
+    const { data: pickData } = await supabase
+      .from("recommendation_picks")
+      .select("role, tmdb_movie_id, title, poster_path, overview, genre_ids, release_date, vote_average")
+      .eq("recommendation_id", runId);
+    picks = ((pickData ?? []) as PickRow[]).sort((a, b) => ROLE_RANK[a.role] - ROLE_RANK[b.role]);
+  }
+}
+
+const releaseYear = (date: string | null) => (date && date.length >= 4 ? date.slice(0, 4) : null);
+const genreNames = (ids: number[]) =>
+  ids.map((gid) => GENRE_NAMES.get(gid)).filter((name): name is string => Boolean(name));
+---
+
+<Layout title="Your recommendations">
+  <div class="bg-cosmic min-h-screen p-4">
+    <div class="mx-auto max-w-5xl py-8">
+      <div class="mb-6 flex items-center justify-between">
+        <h1 class="bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-3xl font-bold text-transparent">
+          Tonight's picks
+        </h1>
+        <a href="/sessions" class="text-sm text-purple-300 hover:underline">← Back to session</a>
+      </div>
+
+      {
+        picks.length === 0 ? (
+          <div class="rounded-2xl border border-white/10 bg-white/10 p-8 text-center text-white backdrop-blur-xl">
+            <p class="text-blue-100/80">No recommendations yet for this session.</p>
+            <p class="mt-2 text-sm text-blue-100/60">
+              Head back to{" "}
+              <a href="/sessions" class="text-purple-300 hover:underline">
+                your session
+              </a>{" "}
+              and click “Get recommendations” to generate three picks.
+            </p>
+          </div>
+        ) : (
+          <div class="grid gap-6 md:grid-cols-3">
+            {picks.map((pick) => (
+              <article class="flex flex-col overflow-hidden rounded-2xl border border-white/10 bg-white/10 text-white backdrop-blur-xl">
+                <div class="flex items-center justify-between px-5 pt-5">
+                  <span class="rounded-full border border-purple-300/40 bg-purple-300/10 px-3 py-1 text-xs font-semibold tracking-wide text-purple-200 uppercase">
+                    {ROLE_LABEL[pick.role]}
+                  </span>
+                  {pick.vote_average != null && pick.vote_average > 0 && (
+                    <span class="text-sm text-blue-100/70">★ {pick.vote_average.toFixed(1)}</span>
+                  )}
+                </div>
+                <div class="px-5 py-4">
+                  {pick.poster_path ? (
+                    <img
+                      src={`${POSTER_BASE}${pick.poster_path}`}
+                      alt={`Poster for ${pick.title}`}
+                      width="500"
+                      height="750"
+                      loading="lazy"
+                      class="aspect-[2/3] w-full rounded-xl object-cover"
+                    />
+                  ) : (
+                    <div class="flex aspect-[2/3] w-full items-center justify-center rounded-xl border border-white/10 bg-white/5 text-sm text-blue-100/40">
+                      No poster
+                    </div>
+                  )}
+                </div>
+                <div class="mt-auto px-5 pb-5">
+                  <h2 class="text-lg font-semibold">
+                    {pick.title}
+                    {releaseYear(pick.release_date) && (
+                      <span class="font-normal text-blue-100/60"> ({releaseYear(pick.release_date)})</span>
+                    )}
+                  </h2>
+                  {genreNames(pick.genre_ids).length > 0 && (
+                    <p class="mt-1 text-sm text-blue-100/60">{genreNames(pick.genre_ids).join(" · ")}</p>
+                  )}
+                </div>
+              </article>
+            ))}
+          </div>
+        )
+      }
+    </div>
+  </div>
+</Layout>

@@ -29,6 +29,14 @@ if (supabase && user) {
   latest = data ?? null;
 }
 
+// Does the latest saved session already have a recommendation run? Lightweight
+// existence check so we can offer a "View recommendations" link.
+let hasRecommendation = false;
+if (supabase && user && latest) {
+  const { data: runs } = await supabase.from("recommendations").select("id").eq("session_id", latest.id).limit(1);
+  hasRecommendation = Boolean(runs && runs.length > 0);
+}
+
 const error = Astro.url.searchParams.get("error");
 const savedId = Astro.url.searchParams.get("saved");
 
@@ -69,6 +77,33 @@ const editSession = latest && savedId && savedId === latest.id ? latest : null;
           justSaved={Boolean(editSession)}
         />
       </div>
+
+      {
+        latest && (
+          <div class="mt-6 rounded-2xl border border-purple-300/30 bg-purple-300/5 p-6 text-white backdrop-blur-xl">
+            <h2 class="text-lg font-semibold text-purple-100">Your saved session</h2>
+            <p class="mt-1 text-sm text-blue-100/60">
+              Recommendations use your saved preferences — save any changes above first.
+            </p>
+            <div class="mt-4 flex flex-wrap items-center gap-3">
+              <form method="POST" action="/api/recommendations">
+                <input type="hidden" name="session_id" value={latest.id} />
+                <button
+                  type="submit"
+                  class="rounded-lg bg-gradient-to-r from-blue-500 to-purple-500 px-4 py-2 text-sm font-semibold text-white hover:from-blue-400 hover:to-purple-400"
+                >
+                  Get recommendations
+                </button>
+              </form>
+              {hasRecommendation && (
+                <a href={`/sessions/${latest.id}/recommendations`} class="text-sm text-purple-300 hover:underline">
+                  View recommendations →
+                </a>
+              )}
+            </div>
+          </div>
+        )
+      }
     </div>
   </div>
 </Layout>
