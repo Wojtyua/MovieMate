@@ -341,25 +341,25 @@ Two new tables only; no existing data to migrate. Local-only application (`npm r
 
 #### Automated
 
-- [x] 1.1 Migration applies cleanly: `npm run db:reset`
-- [x] 1.2 pgTAP isolation + constraint tests pass: `npm run db:verify`
-- [x] 1.3 Lint passes: `npm run lint`
+- [x] 1.1 Migration applies cleanly: `npm run db:reset` — dea41db
+- [x] 1.2 pgTAP isolation + constraint tests pass: `npm run db:verify` — dea41db
+- [x] 1.3 Lint passes: `npm run lint` — dea41db
 
 #### Manual
 
-- [x] 1.4 Teeth check: drop a picks policy → `db:verify` fails → `db:reset` restores green
+- [x] 1.4 Teeth check: drop a picks policy → `db:verify` fails → `db:reset` restores green — dea41db
 
 ### Phase 2: TMDB discover client
 
 #### Automated
 
-- [ ] 2.1 Type check / build passes: `npx astro sync && npm run build`
-- [ ] 2.2 Lint passes: `npm run lint`
+- [x] 2.1 Type check / build passes: `npx astro sync && npm run build`
+- [x] 2.2 Lint passes: `npm run lint`
 
 #### Manual
 
-- [ ] 2.3 `fetchCandidates` returns a deduped non-empty `TmdbMovie[]` with expected fields, <10s, ≤3 subrequests (local workerd)
-- [ ] 2.4 Unset token → `createTmdbClient()` null, caller degrades (no throw)
+- [x] 2.3 `fetchCandidates` returns a deduped non-empty `TmdbMovie[]` with expected fields, <10s, ≤3 subrequests (local workerd)
+- [x] 2.4 Unset token → `createTmdbClient()` null, caller degrades (no throw)
 
 ### Phase 3: Scoring + role/diversity engine
 
