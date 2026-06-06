@@ -124,9 +124,9 @@ export const POST: APIRoute = async (context) => {
 
   // 5. Score + assign roles. S-01 stopgap: the engine still takes a fixed
   //    [Profile, Profile] pair, so we feed the single core to both slots as a
-  //    degenerate duo. Passing [core, core] doubles each candidate's per-viewer
-  //    reward uniformly, leaving ranking/roles/diversity unchanged versus a
-  //    single-viewer pass. S-02 generalizes the engine and removes this shim.
+  //    degenerate duo. With identical viewers the scorer still yields three
+  //    valid, deterministic, distinct picks (safe/compromise/wild_card), which
+  //    is all S-01 needs. S-02 generalizes the engine and removes this shim.
   const result = recommend([core, core], session, candidates);
   if (result.picks.length === 0) {
     return redirectError(context, "/sessions", "No matching films — broaden your preferences");
