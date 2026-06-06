@@ -229,28 +229,28 @@ Destructive reshape on dev-only data: existing two-slot rows are **wiped** (per 
 
 #### Automated
 
-- [x] 1.1 Migration applies cleanly via `npm run db:reset` with no errors
-- [x] 1.2 Schema check: no `slot`/`display_name`/`note` columns; `unique(user_id)` present
-- [x] 1.3 pgTAP suite passes: `npm run db:verify` (rewritten single-core isolation test)
-- [x] 1.4 Build passes: `npm run build`
+- [x] 1.1 Migration applies cleanly via `npm run db:reset` with no errors — 695b5dd
+- [x] 1.2 Schema check: no `slot`/`display_name`/`note` columns; `unique(user_id)` present — 695b5dd
+- [x] 1.3 pgTAP suite passes: `npm run db:verify` (rewritten single-core isolation test) — 695b5dd
+- [x] 1.4 Build passes: `npm run build` — 695b5dd
 
 #### Manual
 
-- [x] 1.5 Four RLS policies intact; own-data isolation still holds (also covered by db:verify)
+- [x] 1.5 Four RLS policies intact; own-data isolation still holds (also covered by db:verify) — 695b5dd
 
 ### Phase 2: Single-core editor (write + read surface)
 
 #### Automated
 
-- [ ] 2.1 Typecheck passes (no references to removed props/columns)
-- [ ] 2.2 Linting passes: `npm run lint`
-- [ ] 2.3 Build passes: `npm run build`
+- [x] 2.1 Typecheck passes (no references to removed props/columns)
+- [x] 2.2 Linting passes: `npm run lint`
+- [x] 2.3 Build passes: `npm run build`
 
 #### Manual
 
-- [ ] 2.4 `/profiles` shows one taste-core card; save + reload persists selection
-- [ ] 2.5 Preferred/avoid overlap prevented in UI and rejected by API
-- [ ] 2.6 Dashboard link + middleware guard still work (logged-out redirect)
+- [x] 2.4 `/profiles` shows one taste-core card; save + reload persists selection
+- [x] 2.5 Preferred/avoid overlap prevented in UI and rejected by API
+- [x] 2.6 Dashboard link + middleware guard still work (logged-out redirect)
 
 ### Phase 3: Recommendations stopgap (degenerate duo)
 

@@ -1,35 +1,25 @@
-import React, { useState } from "react";
-import { User, StickyNote, CheckCircle2 } from "lucide-react";
-import { FormField } from "@/components/auth/FormField";
+import { useState } from "react";
+import { Sparkles, CheckCircle2 } from "lucide-react";
 import { SubmitButton } from "@/components/auth/SubmitButton";
 import { ServerError } from "@/components/auth/ServerError";
 import { MOVIE_GENRES } from "@/lib/genres";
 import { cn } from "@/lib/utils";
 
 interface Props {
-  slot: 1 | 2;
-  displayName?: string;
   preferredGenreIds?: number[];
   excludedGenreIds?: number[];
-  note?: string;
   serverError?: string | null;
   justSaved?: boolean;
 }
 
 export default function ProfileForm({
-  slot,
-  displayName: initialName = "",
   preferredGenreIds = [],
   excludedGenreIds = [],
-  note: initialNote = "",
   serverError,
   justSaved = false,
 }: Props) {
-  const [displayName, setDisplayName] = useState(initialName);
-  const [note, setNote] = useState(initialNote);
   const [preferred, setPreferred] = useState<Set<number>>(new Set(preferredGenreIds));
   const [excluded, setExcluded] = useState<Set<number>>(new Set(excludedGenreIds));
-  const [nameError, setNameError] = useState<string | undefined>();
 
   // Genres are mutually exclusive between preferred and avoid: selecting one
   // side clears the other so the submitted sets stay disjoint (the API rejects
@@ -64,32 +54,9 @@ export default function ProfileForm({
     }
   }
 
-  function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
-    if (!displayName.trim()) {
-      setNameError("Name is required");
-      e.preventDefault();
-    }
-  }
-
   return (
-    <form method="POST" action="/api/profiles" className="space-y-4" onSubmit={handleSubmit} noValidate>
-      <input type="hidden" name="slot" value={slot} />
-
-      <h2 className="text-lg font-semibold text-white">Profile {slot}</h2>
-
-      <FormField
-        id={`display_name_${slot}`}
-        name="display_name"
-        label="Name"
-        value={displayName}
-        onChange={(v) => {
-          setDisplayName(v);
-          if (nameError) setNameError(undefined);
-        }}
-        placeholder="e.g. Wojtek"
-        error={nameError}
-        icon={<User className="size-4" />}
-      />
+    <form method="POST" action="/api/profiles" className="space-y-4" noValidate>
+      <h2 className="text-lg font-semibold text-white">Remembered taste core</h2>
 
       <GenrePicker label="Preferred genres" kind="preferred" selected={preferred} onToggle={toggle} />
       <GenrePicker label="Avoid genres" kind="excluded" selected={excluded} onToggle={toggle} />
@@ -103,39 +70,17 @@ export default function ProfileForm({
         <input key={`e-${id}`} type="hidden" name="excluded_genre_ids" value={id} />
       ))}
 
-      <div>
-        <label htmlFor={`note_${slot}`} className="mb-1 block text-sm text-blue-100/80">
-          Note
-        </label>
-        <div className="relative">
-          <span className="absolute top-3 left-3 size-4 text-white/40">
-            <StickyNote className="size-4" />
-          </span>
-          <textarea
-            id={`note_${slot}`}
-            name="note"
-            value={note}
-            onChange={(e) => {
-              setNote(e.target.value);
-            }}
-            placeholder="Favorite films, actors, anything that captures their taste"
-            rows={3}
-            className="w-full rounded-lg border border-white/20 bg-white/10 px-3 py-2 pl-10 text-white placeholder-white/40 transition-colors focus:ring-2 focus:ring-purple-400 focus:outline-none"
-          />
-        </div>
-      </div>
-
       <ServerError message={serverError} />
 
       {justSaved && !serverError ? (
         <p className="flex items-center gap-2 rounded-lg border border-green-500/30 bg-green-900/30 px-3 py-2 text-sm text-green-300">
           <CheckCircle2 className="size-4 shrink-0" />
-          Profile {slot} saved.
+          Taste core saved.
         </p>
       ) : null}
 
-      <SubmitButton pendingText="Saving..." icon={<User className="size-4" />}>
-        Save profile {slot}
+      <SubmitButton pendingText="Saving..." icon={<Sparkles className="size-4" />}>
+        Save taste core
       </SubmitButton>
     </form>
   );

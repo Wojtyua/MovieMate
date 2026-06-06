@@ -3,65 +3,48 @@ import Layout from "@/layouts/Layout.astro";
 import ProfileForm from "@/components/profiles/ProfileForm";
 import { createClient } from "@/lib/supabase";
 
-interface ProfileRow {
-  slot: number;
-  display_name: string;
+interface CoreRow {
   preferred_genre_ids: number[];
   excluded_genre_ids: number[];
-  note: string | null;
 }
 
 const { user } = Astro.locals;
 
 const supabase = createClient(Astro.request.headers, Astro.cookies);
-let profiles: ProfileRow[] = [];
+let core: CoreRow | null = null;
 if (supabase && user) {
   const { data } = await supabase
     .from("viewer_profiles")
-    .select("slot, display_name, preferred_genre_ids, excluded_genre_ids, note");
-  profiles = data ?? [];
+    .select("preferred_genre_ids, excluded_genre_ids")
+    .maybeSingle();
+  core = data ?? null;
 }
 
-const bySlot = new Map(profiles.map((p) => [p.slot, p]));
-
 const error = Astro.url.searchParams.get("error");
-const errorSlot = Number(Astro.url.searchParams.get("slot"));
-const savedSlot = Number(Astro.url.searchParams.get("saved"));
+const justSaved = Astro.url.searchParams.has("saved");
 ---
 
-<Layout title="Viewer profiles">
+<Layout title="Remembered taste core">
   <div class="bg-cosmic min-h-screen p-4">
-    <div class="mx-auto max-w-4xl py-8">
+    <div class="mx-auto max-w-2xl py-8">
       <div class="mb-6 flex items-center justify-between">
         <h1 class="bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-3xl font-bold text-transparent">
-          Viewer profiles
+          Remembered taste core
         </h1>
         <a href="/dashboard" class="text-sm text-purple-300 hover:underline">← Dashboard</a>
       </div>
       <p class="mb-8 text-sm text-blue-100/60">
-        Capture each person's taste. These two profiles feed your movie-night recommendations.
+        Your stable preferred and avoid genres. This remembered core feeds every movie-night recommendation.
       </p>
 
-      <div class="grid gap-6 md:grid-cols-2">
-        {
-          ([1, 2] as const).map((slot) => {
-            const row = bySlot.get(slot);
-            return (
-              <div class="rounded-2xl border border-white/10 bg-white/10 p-6 text-white backdrop-blur-xl">
-                <ProfileForm
-                  slot={slot}
-                  client:load
-                  displayName={row?.display_name ?? ""}
-                  preferredGenreIds={row?.preferred_genre_ids ?? []}
-                  excludedGenreIds={row?.excluded_genre_ids ?? []}
-                  note={row?.note ?? ""}
-                  serverError={errorSlot === slot ? error : null}
-                  justSaved={savedSlot === slot}
-                />
-              </div>
-            );
-          })
-        }
+      <div class="rounded-2xl border border-white/10 bg-white/10 p-6 text-white backdrop-blur-xl">
+        <ProfileForm
+          client:load
+          preferredGenreIds={core?.preferred_genre_ids ?? []}
+          excludedGenreIds={core?.excluded_genre_ids ?? []}
+          serverError={error}
+          justSaved={justSaved}
+        />
       </div>
     </div>
   </div>
