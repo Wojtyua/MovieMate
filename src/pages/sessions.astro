@@ -1,0 +1,74 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import SessionForm from "@/components/sessions/SessionForm";
+import { createClient } from "@/lib/supabase";
+import { DEFAULT_INTENSITY, type Intensity } from "@/lib/session-options";
+
+interface SessionRow {
+  id: string;
+  mood: string | null;
+  preferred_genre_ids: number[];
+  excluded_genre_ids: number[];
+  runtime_limit_minutes: number | null;
+  intensity: Intensity;
+  note: string | null;
+}
+
+const { user } = Astro.locals;
+
+const supabase = createClient(Astro.request.headers, Astro.cookies);
+let latest: SessionRow | null = null;
+if (supabase && user) {
+  // The user's most recent session is what we show for in-place editing.
+  const { data } = await supabase
+    .from("movie_night_sessions")
+    .select("id, mood, preferred_genre_ids, excluded_genre_ids, runtime_limit_minutes, intensity, note")
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  latest = data ?? null;
+}
+
+const error = Astro.url.searchParams.get("error");
+const savedId = Astro.url.searchParams.get("saved");
+
+// Edit mode only when the just-saved id matches the latest row; otherwise a
+// fresh "start a session" form. "Start another session" links to /sessions
+// without ?saved, so a new submit starts from blank.
+const editSession = latest && savedId && savedId === latest.id ? latest : null;
+---
+
+<Layout title="Movie night">
+  <div class="bg-cosmic min-h-screen p-4">
+    <div class="mx-auto max-w-2xl py-8">
+      <div class="mb-6 flex items-center justify-between">
+        <h1 class="bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-3xl font-bold text-transparent">
+          Movie night
+        </h1>
+        <a href="/dashboard" class="text-sm text-purple-300 hover:underline">← Dashboard</a>
+      </div>
+      <p class="mb-8 text-sm text-blue-100/60">
+        {
+          editSession
+            ? "Tonight's session is saved. Tweak the preferences below, or start another session."
+            : "Set tonight's preferences. They tune the recommendations for this movie night."
+        }
+      </p>
+
+      <div class="rounded-2xl border border-white/10 bg-white/10 p-6 text-white backdrop-blur-xl">
+        <SessionForm
+          client:load
+          sessionId={editSession ? editSession.id : null}
+          mood={editSession ? editSession.mood : ""}
+          preferredGenreIds={editSession ? editSession.preferred_genre_ids : []}
+          excludedGenreIds={editSession ? editSession.excluded_genre_ids : []}
+          runtimeLimitMinutes={editSession ? editSession.runtime_limit_minutes : null}
+          intensity={editSession ? editSession.intensity : DEFAULT_INTENSITY}
+          note={editSession ? editSession.note : ""}
+          serverError={error}
+          justSaved={Boolean(editSession)}
+        />
+      </div>
+    </div>
+  </div>
+</Layout>

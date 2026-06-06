@@ -240,39 +240,39 @@ New table only; no existing data to migrate. Local-only application (`npm run db
 
 #### Automated
 
-- [x] 1.1 Migration applies cleanly: `npm run db:reset`
-- [x] 1.2 pgTAP tests pass (isolation + multi-insert): `npm run db:verify`
-- [x] 1.3 Lint passes: `npm run lint`
+- [x] 1.1 Migration applies cleanly: `npm run db:reset` — 71b575a
+- [x] 1.2 pgTAP tests pass (isolation + multi-insert): `npm run db:verify` — 71b575a
+- [x] 1.3 Lint passes: `npm run lint` — 71b575a
 
 #### Manual
 
-- [x] 1.4 Teeth check: drop a policy → `db:verify` fails → `db:reset` restores green
+- [x] 1.4 Teeth check: drop a policy → `db:verify` fails → `db:reset` restores green — 71b575a
 
 ### Phase 2: API + session-options reference
 
 #### Automated
 
-- [ ] 2.1 Type check / build passes: `npx astro sync && npm run build`
-- [ ] 2.2 Lint passes: `npm run lint`
+- [x] 2.1 Type check / build passes: `npx astro sync && npm run build`
+- [x] 2.2 Lint passes: `npm run lint`
 
 #### Manual
 
-- [ ] 2.3 Unauthenticated `/sessions` redirects to `/auth/signin`
-- [ ] 2.4 Unknown genre id is rejected, nothing persisted
-- [ ] 2.5 Out-of-vocabulary mood or intensity is rejected
-- [ ] 2.6 Overlapping preferred + excluded genre is rejected
+- [x] 2.3 Unauthenticated `/sessions` redirects to `/auth/signin`
+- [x] 2.4 Unknown genre id is rejected, nothing persisted
+- [x] 2.5 Out-of-vocabulary mood or intensity is rejected
+- [x] 2.6 Overlapping preferred + excluded genre is rejected
 
 ### Phase 3: UI — /sessions page with new-session form + edit-latest
 
 #### Automated
 
-- [ ] 3.1 Build/type check passes: `npx astro sync && npm run build`
-- [ ] 3.2 Lint passes: `npm run lint`
+- [x] 3.1 Build/type check passes: `npx astro sync && npm run build`
+- [x] 3.2 Lint passes: `npm run lint`
 
 #### Manual
 
-- [ ] 3.3 Fill + save a session; values persist on reload as the latest session
-- [ ] 3.4 Re-save the shown session updates it (no duplicate row)
-- [ ] 3.5 "Start another session" creates a distinct new row; previous untouched
-- [ ] 3.6 Fully-blank/default session saves successfully
-- [ ] 3.7 Second account sees an empty form (no cross-account leakage)
+- [x] 3.3 Fill + save a session; values persist on reload as the latest session
+- [x] 3.4 Re-save the shown session updates it (no duplicate row)
+- [x] 3.5 "Start another session" creates a distinct new row; previous untouched
+- [x] 3.6 Fully-blank/default session saves successfully
+- [x] 3.7 Second account sees an empty form (no cross-account leakage)
