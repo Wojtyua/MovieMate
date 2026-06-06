@@ -365,28 +365,28 @@ Two new tables only; no existing data to migrate. Local-only application (`npm r
 
 #### Automated
 
-- [x] 3.1 Type check / build passes: `npx astro sync && npm run build`
-- [x] 3.2 Lint passes: `npm run lint`
+- [x] 3.1 Type check / build passes: `npx astro sync && npm run build` — 8cd71bf
+- [x] 3.2 Lint passes: `npm run lint` — 8cd71bf
 
 #### Manual
 
-- [x] 3.3 Three distinct picks; wild card shares no genre with safe pick (Jaccard fallback if pool too narrow); compromise ≠ safe; excluded genres down-ranked
-- [x] 3.4 Thin list (2) → 2 picks; empty list → 0 picks; no error
+- [x] 3.3 Three distinct picks; wild card shares no genre with safe pick (Jaccard fallback if pool too narrow); compromise ≠ safe; excluded genres down-ranked — 8cd71bf
+- [x] 3.4 Thin list (2) → 2 picks; empty list → 0 picks; no error — 8cd71bf
 
 ### Phase 4: API endpoint — POST /api/recommendations
 
 #### Automated
 
-- [ ] 4.1 Type check / build passes: `npx astro sync && npm run build`
-- [ ] 4.2 Lint passes: `npm run lint`
+- [x] 4.1 Type check / build passes: `npx astro sync && npm run build`
+- [x] 4.2 Lint passes: `npm run lint`
 
 #### Manual
 
-- [ ] 4.3 2 profiles + session → redirect to results; 1 recommendation + 3 distinct picks persisted
-- [ ] 4.4 <2 profiles → redirect to `/profiles`, nothing persisted
-- [ ] 4.5 TMDB unconfigured → degraded redirect to `/sessions`, nothing persisted
-- [ ] 4.6 Unauthenticated POST → `/auth/signin`
-- [ ] 4.7 End-to-end POST completes <10s (local workerd)
+- [x] 4.3 2 profiles + session → redirect to results; 1 recommendation + 3 distinct picks persisted
+- [x] 4.4 <2 profiles → redirect to `/profiles`, nothing persisted
+- [x] 4.5 TMDB unconfigured → degraded redirect to `/sessions`, nothing persisted
+- [x] 4.6 Unauthenticated POST → `/auth/signin`
+- [x] 4.7 End-to-end POST completes <10s (local workerd)
 
 ### Phase 5: Results UI + entry points
 
