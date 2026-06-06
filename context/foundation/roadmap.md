@@ -30,7 +30,7 @@ MovieMate fights decision paralysis on a shared movie night: a single logged-in 
 | F-01 | provision-external-apis | (foundation) external TMDB + AI access provisioned and verified | — | FR-005, FR-010 | done |
 | F-02 | persistence-baseline-rls | (foundation) migration tooling + "own data only" RLS convention | — | FR-001 | done |
 | S-01 | viewer-profiles | create and edit two viewer profiles, seeing only own data | F-02 | FR-001, FR-002 | done |
-| S-02 | movie-night-session-prefs | start a movie-night session and save its preferences | F-02 | FR-003, FR-004 | proposed |
+| S-02 | movie-night-session-prefs | start a movie-night session and save its preferences | F-02 | FR-003, FR-004 | implemented |
 | S-03 | scored-recommendations | get three scored, role-labeled recommendations | F-01, S-01, S-02 | US-01, FR-005, FR-006, FR-007, FR-008, FR-009 | proposed |
 | S-04 | ai-justifications | read an AI justification for each recommendation | S-03, F-01 | FR-010 | proposed |
 | S-05 | select-and-mark-watched | select one recommendation and mark it watched | S-03, F-02 | US-01, FR-011, FR-012 | proposed |
@@ -156,7 +156,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 | F-01 | provision-external-apis | Provision and verify TMDB + AI provider access | done | Archived 2026-06-02 → `context/archive/2026-06-02-provision-external-apis/` |
 | F-02 | persistence-baseline-rls | Wire Supabase migrations + own-data RLS convention | yes | Run `/10x-plan persistence-baseline-rls` |
 | S-01 | viewer-profiles | Create and edit two viewer profiles | done | Archived 2026-06-03 → `context/archive/2026-06-03-viewer-profiles/` |
-| S-02 | movie-night-session-prefs | Start movie-night session and save preferences | no | Ready once F-02 lands |
+| S-02 | movie-night-session-prefs | Start movie-night session and save preferences | done | Implemented 2026-06-06 → `context/changes/movie-night-session-prefs/` |
 | S-03 | scored-recommendations | Generate three scored, role-labeled recommendations | no | Ready once F-01, S-01, S-02 land |
 | S-04 | ai-justifications | Add AI justification per recommendation | no | Ready once S-03 and F-01 land |
 | S-05 | select-and-mark-watched | Select a recommendation and mark it watched | no | Ready once S-03 and F-02 land |
