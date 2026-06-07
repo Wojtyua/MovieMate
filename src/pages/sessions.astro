@@ -44,6 +44,32 @@ const savedId = Astro.url.searchParams.get("saved");
 // fresh "start a session" form. "Start another session" links to /sessions
 // without ?saved, so a new submit starts from blank.
 const editSession = latest && savedId && savedId === latest.id ? latest : null;
+
+// New-session pre-fill (FR-004): seed tonight's genre pickers from the remembered
+// taste core. This is a page-level seed only — the session owns its own genre
+// columns, so editing tonight never writes back to the core (only /profiles does).
+// Edit mode keeps seeding from the session row, untouched.
+let prefilledPreferred: number[] = [];
+let prefilledExcluded: number[] = [];
+let prefilledFromCore = false;
+let noCore = false;
+if (supabase && user && !editSession) {
+  const { data: coreData } = await supabase
+    .from("viewer_profiles")
+    .select("preferred_genre_ids, excluded_genre_ids")
+    .maybeSingle();
+  if (coreData) {
+    // The Supabase client is untyped, so fields come back as `any`; coerce
+    // through `unknown` into concrete id arrays before they reach the form.
+    const coreRaw = coreData as Record<string, unknown>;
+    prefilledPreferred = Array.isArray(coreRaw.preferred_genre_ids) ? coreRaw.preferred_genre_ids.map(Number) : [];
+    prefilledExcluded = Array.isArray(coreRaw.excluded_genre_ids) ? coreRaw.excluded_genre_ids.map(Number) : [];
+    // The core contributed a seed only when it actually carries genres.
+    prefilledFromCore = prefilledPreferred.length > 0 || prefilledExcluded.length > 0;
+  } else {
+    noCore = true;
+  }
+}
 ---
 
 <Layout title="Movie night">
@@ -68,15 +94,28 @@ const editSession = latest && savedId && savedId === latest.id ? latest : null;
           client:load
           sessionId={editSession ? editSession.id : null}
           mood={editSession ? editSession.mood : ""}
-          preferredGenreIds={editSession ? editSession.preferred_genre_ids : []}
-          excludedGenreIds={editSession ? editSession.excluded_genre_ids : []}
+          preferredGenreIds={editSession ? editSession.preferred_genre_ids : prefilledPreferred}
+          excludedGenreIds={editSession ? editSession.excluded_genre_ids : prefilledExcluded}
           runtimeLimitMinutes={editSession ? editSession.runtime_limit_minutes : null}
           intensity={editSession ? editSession.intensity : DEFAULT_INTENSITY}
           note={editSession ? editSession.note : ""}
           serverError={error}
           justSaved={Boolean(editSession)}
+          prefilledFromCore={prefilledFromCore}
         />
       </div>
+
+      {
+        noCore && (
+          <p class="mt-4 text-sm text-blue-100/60">
+            No taste core yet —{" "}
+            <a href="/profiles" class="text-purple-300 hover:underline">
+              set one
+            </a>{" "}
+            so future nights pre-fill automatically.
+          </p>
+        )
+      }
 
       {
         latest && (

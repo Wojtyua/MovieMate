@@ -32,28 +32,29 @@ import Topbar from "@/components/Topbar.astro";
       <h1
         class="mb-6 bg-gradient-to-r from-blue-200 via-purple-200 to-pink-200 bg-clip-text text-5xl leading-tight font-bold text-transparent sm:text-6xl lg:text-7xl"
       >
-        Test test test
+        What are we watching tonight?
       </h1>
       <p class="mb-10 max-w-2xl text-lg text-blue-100/70 sm:text-xl">
-        A production-ready starter with authentication, modern tooling, and a cosmic developer experience.
+        MovieMate turns tonight's mood into three picks you can actually choose between — a safe bet, a crowd-pleaser,
+        and a wild card. No endless scrolling, no catalog to wade through.
       </p>
       <div class="flex flex-col gap-4 sm:flex-row">
         <a
-          href="/auth/signin"
+          href="/sessions"
           class="inline-flex items-center justify-center rounded-lg bg-purple-600 px-6 py-3 text-base font-medium text-white transition-colors hover:bg-purple-500"
         >
-          Sign In
+          Start a movie night
         </a>
         <a
-          href="/auth/signup"
+          href="/profiles"
           class="inline-flex items-center justify-center rounded-lg border border-white/20 px-6 py-3 text-base font-medium text-white transition-colors hover:bg-white/10"
         >
-          Sign Up
+          Edit taste core
         </a>
       </div>
     </div>
 
-    <!-- Feature cards -->
+    <!-- Product cards -->
     <div class="mx-auto grid max-w-4xl grid-cols-1 gap-6 px-4 pb-24 sm:grid-cols-3">
       <div class="rounded-xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl">
         <svg
@@ -68,12 +69,13 @@ import Topbar from "@/components/Topbar.astro";
           stroke-linejoin="round"
           class="mb-4 text-purple-300"
         >
-          <rect width="18" height="11" x="3" y="11" rx="2" ry="2"></rect>
-          <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+          <path d="M12 20a8 8 0 1 0 0-16 8 8 0 0 0 0 16Z"></path>
+          <path d="M12 14a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z"></path>
         </svg>
-        <h3 class="mb-2 text-lg font-semibold text-white">Authentication Ready</h3>
+        <h3 class="mb-2 text-lg font-semibold text-white">Your taste, remembered</h3>
         <p class="text-sm leading-relaxed text-blue-100/60">
-          Built-in Supabase auth with sign in, sign up, and protected routes out of the box.
+          Set a taste core once and every new night arrives pre-filled — tweak the genres for tonight without touching
+          the core.
         </p>
       </div>
 
@@ -90,13 +92,12 @@ import Topbar from "@/components/Topbar.astro";
           stroke-linejoin="round"
           class="mb-4 text-purple-300"
         >
-          <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
-          <polyline points="2 17 12 22 22 17"></polyline>
-          <polyline points="2 12 12 17 22 12"></polyline>
+          <path d="M16 7a4 4 0 1 0-8 0 4 4 0 0 0 8 0Z"></path>
+          <path d="M3 21v-2a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4v2"></path>
         </svg>
-        <h3 class="mb-2 text-lg font-semibold text-white">Modern Stack</h3>
+        <h3 class="mb-2 text-lg font-semibold text-white">Solo or together</h3>
         <p class="text-sm leading-relaxed text-blue-100/60">
-          Astro 5, React 19, Tailwind 4, and TypeScript — the latest tools, ready to go.
+          Pick for just yourself tonight. Two-viewer nights, balancing both tastes, are on the way.
         </p>
       </div>
 
@@ -113,12 +114,14 @@ import Topbar from "@/components/Topbar.astro";
           stroke-linejoin="round"
           class="mb-4 text-purple-300"
         >
-          <polyline points="16 18 22 12 16 6"></polyline>
-          <polyline points="8 6 2 12 8 18"></polyline>
+          <path
+            d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z"
+          ></path>
         </svg>
-        <h3 class="mb-2 text-lg font-semibold text-white">Developer Experience</h3>
+        <h3 class="mb-2 text-lg font-semibold text-white">Three labeled picks</h3>
         <p class="text-sm leading-relaxed text-blue-100/60">
-          ESLint, Prettier, and pre-commit hooks keep your codebase clean from day one.
+          A safe pick, a crowd-pleaser, and a wild card — scored from your genres, mood, and intensity, ready in
+          seconds.
         </p>
       </div>
     </div>

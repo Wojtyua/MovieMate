@@ -291,31 +291,31 @@ Additive CHECK widening only — no data movement, no rows invalidated (existing
 
 #### Automated
 
-- [x] 2.1 Migration applies cleanly: `npm run db:reset`
-- [x] 2.2 pgTAP suite passes (incl. crowd_pleaser lives_ok): `npm run db:verify`
-- [x] 2.3 Linting passes: `npm run lint`
-- [x] 2.4 Typecheck passes: `npx astro check`
-- [x] 2.5 Build passes: `npm run build`
+- [x] 2.1 Migration applies cleanly: `npm run db:reset` — a13356a
+- [x] 2.2 pgTAP suite passes (incl. crowd_pleaser lives_ok): `npm run db:verify` — a13356a
+- [x] 2.3 Linting passes: `npm run lint` — a13356a
+- [x] 2.4 Typecheck passes: `npx astro check` — a13356a
+- [x] 2.5 Build passes: `npm run build` — a13356a
 
 #### Manual
 
-- [x] 2.6 Solo end-to-end: three picks Safe / Crowd-pleaser / Wild card within budget
-- [x] 2.7 Picks persist: run + three rows, middle role = crowd_pleaser
-- [x] 2.8 No core saved: flow still returns three picks (no redirect, no crash)
-- [x] 2.9 Excluded genres still repel picks (incl. the crowd-pleaser slot)
+- [x] 2.6 Solo end-to-end: three picks Safe / Crowd-pleaser / Wild card within budget — a13356a
+- [x] 2.7 Picks persist: run + three rows, middle role = crowd_pleaser — a13356a
+- [x] 2.8 No core saved: flow still returns three picks (no redirect, no crash) — a13356a
+- [x] 2.9 Excluded genres still repel picks (incl. the crowd-pleaser slot) — a13356a
 
 ### Phase 3: Entry flow + pre-fill UX
 
 #### Automated
 
-- [ ] 3.1 Linting passes: `npm run lint`
-- [ ] 3.2 Typecheck passes: `npx astro check`
-- [ ] 3.3 Build passes: `npm run build`
+- [x] 3.1 Linting passes: `npm run lint`
+- [x] 3.2 Typecheck passes: `npx astro check`
+- [x] 3.3 Build passes: `npm run build`
 
 #### Manual
 
-- [ ] 3.4 Home hero + CTA path: logged-out → sign-in → `/sessions`; logged-in → `/sessions`
-- [ ] 3.5 Sign-in and email-confirm land on `/sessions`
-- [ ] 3.6 Pre-fill + hint with saved core; tonight edits don't change the core
-- [ ] 3.7 No core: blank form + soft nudge, recommendations still work
-- [ ] 3.8 Edit mode still seeds from the session row, not the core
+- [x] 3.4 Home hero + CTA path: logged-out → sign-in → `/sessions`; logged-in → `/sessions`
+- [x] 3.5 Sign-in and email-confirm land on `/sessions`
+- [x] 3.6 Pre-fill + hint with saved core; tonight edits don't change the core
+- [x] 3.7 No core: blank form + soft nudge, recommendations still work
+- [x] 3.8 Edit mode still seeds from the session row, not the core

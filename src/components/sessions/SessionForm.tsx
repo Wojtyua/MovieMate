@@ -19,6 +19,7 @@ interface Props {
   note?: string | null;
   serverError?: string | null;
   justSaved?: boolean;
+  prefilledFromCore?: boolean;
 }
 
 export default function SessionForm({
@@ -31,6 +32,7 @@ export default function SessionForm({
   note: initialNote = "",
   serverError,
   justSaved = false,
+  prefilledFromCore = false,
 }: Props) {
   const [mood, setMood] = useState(initialMood ?? "");
   const [intensity, setIntensity] = useState<Intensity>(initialIntensity);
@@ -145,6 +147,10 @@ export default function SessionForm({
           ))}
         </select>
       </div>
+
+      {prefilledFromCore ? (
+        <p className="text-xs text-blue-100/60">Pre-filled from your taste core — edits apply to tonight only.</p>
+      ) : null}
 
       <GenrePicker label="Preferred genres" kind="preferred" selected={preferred} onToggle={toggle} />
       <GenrePicker label="Avoid genres" kind="excluded" selected={excluded} onToggle={toggle} />
