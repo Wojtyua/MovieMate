@@ -308,14 +308,14 @@ Additive CHECK widening only — no data movement, no rows invalidated (existing
 
 #### Automated
 
-- [x] 3.1 Linting passes: `npm run lint`
-- [x] 3.2 Typecheck passes: `npx astro check`
-- [x] 3.3 Build passes: `npm run build`
+- [x] 3.1 Linting passes: `npm run lint` — 8a475d0
+- [x] 3.2 Typecheck passes: `npx astro check` — 8a475d0
+- [x] 3.3 Build passes: `npm run build` — 8a475d0
 
 #### Manual
 
-- [x] 3.4 Home hero + CTA path: logged-out → sign-in → `/sessions`; logged-in → `/sessions`
-- [x] 3.5 Sign-in and email-confirm land on `/sessions`
-- [x] 3.6 Pre-fill + hint with saved core; tonight edits don't change the core
-- [x] 3.7 No core: blank form + soft nudge, recommendations still work
-- [x] 3.8 Edit mode still seeds from the session row, not the core
+- [x] 3.4 Home hero + CTA path: logged-out → sign-in → `/sessions`; logged-in → `/sessions` — 8a475d0
+- [x] 3.5 Sign-in and email-confirm land on `/sessions` — 8a475d0
+- [x] 3.6 Pre-fill + hint with saved core; tonight edits don't change the core — 8a475d0
+- [x] 3.7 No core: blank form + soft nudge, recommendations still work — 8a475d0
+- [x] 3.8 Edit mode still seeds from the session row, not the core — 8a475d0
