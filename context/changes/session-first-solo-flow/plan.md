@@ -279,30 +279,30 @@ Additive CHECK widening only — no data movement, no rows invalidated (existing
 
 #### Automated
 
-- [x] 1.1 Linting passes: `npm run lint`
-- [x] 1.2 Typecheck passes: `npx astro check`
-- [x] 1.3 Build passes: `npm run build`
+- [x] 1.1 Linting passes: `npm run lint` — 8fb98b7
+- [x] 1.2 Typecheck passes: `npx astro check` — 8fb98b7
+- [x] 1.3 Build passes: `npm run build` — 8fb98b7
 
 #### Manual
 
-- [x] 1.4 Existing flow still returns three duo-labeled picks via the interim shim
+- [x] 1.4 Existing flow still returns three duo-labeled picks via the interim shim — 8fb98b7
 
 ### Phase 2: Role migration + solo read path
 
 #### Automated
 
-- [ ] 2.1 Migration applies cleanly: `npm run db:reset`
-- [ ] 2.2 pgTAP suite passes (incl. crowd_pleaser lives_ok): `npm run db:verify`
-- [ ] 2.3 Linting passes: `npm run lint`
-- [ ] 2.4 Typecheck passes: `npx astro check`
-- [ ] 2.5 Build passes: `npm run build`
+- [x] 2.1 Migration applies cleanly: `npm run db:reset`
+- [x] 2.2 pgTAP suite passes (incl. crowd_pleaser lives_ok): `npm run db:verify`
+- [x] 2.3 Linting passes: `npm run lint`
+- [x] 2.4 Typecheck passes: `npx astro check`
+- [x] 2.5 Build passes: `npm run build`
 
 #### Manual
 
-- [ ] 2.6 Solo end-to-end: three picks Safe / Crowd-pleaser / Wild card within budget
-- [ ] 2.7 Picks persist: run + three rows, middle role = crowd_pleaser
-- [ ] 2.8 No core saved: flow still returns three picks (no redirect, no crash)
-- [ ] 2.9 Excluded genres still repel picks (incl. the crowd-pleaser slot)
+- [x] 2.6 Solo end-to-end: three picks Safe / Crowd-pleaser / Wild card within budget
+- [x] 2.7 Picks persist: run + three rows, middle role = crowd_pleaser
+- [x] 2.8 No core saved: flow still returns three picks (no redirect, no crash)
+- [x] 2.9 Excluded genres still repel picks (incl. the crowd-pleaser slot)
 
 ### Phase 3: Entry flow + pre-fill UX
 

@@ -6,6 +6,8 @@
 --            only their own rows and cannot update/delete the other's.
 --   S-03   — the (recommendation_id, role) unique constraint and the role CHECK
 --            reject malformed picks.
+--   S-02   — the widened role CHECK admits the solo role set safe / crowd_pleaser
+--            / wild_card (FR-009) while still rejecting unknown roles.
 --
 -- Mechanism: the postgres/superuser role and the table owner BYPASS RLS, so every
 -- assertion impersonates a real user via `set local role authenticated` plus a
@@ -38,7 +40,7 @@ insert into public.recommendation_picks (user_id, recommendation_id, role, tmdb_
   ('11111111-1111-1111-1111-111111111111', 'cccccccc-cccc-cccc-cccc-cccccccccccc', 'safe', 101, 1.5, 'A safe pick'),
   ('22222222-2222-2222-2222-222222222222', 'dddddddd-dddd-dddd-dddd-dddddddddddd', 'safe', 202, 2.5, 'B safe pick');
 
-select plan(10);
+select plan(11);
 
 -- User A sees only their own recommendation + pick.
 set local role authenticated;
@@ -126,6 +128,13 @@ select lives_ok(
   $$ insert into public.recommendation_picks (recommendation_id, role, tmdb_movie_id, score, title)
      values ('dddddddd-dddd-dddd-dddd-dddddddddddd', 'wild_card', 303, 1.0, 'B wild card') $$,
   'user B can add a second pick with a distinct role'
+);
+
+-- The widened CHECK admits the solo middle role crowd_pleaser (S-02, FR-009).
+select lives_ok(
+  $$ insert into public.recommendation_picks (recommendation_id, role, tmdb_movie_id, score, title)
+     values ('dddddddd-dddd-dddd-dddd-dddddddddddd', 'crowd_pleaser', 404, 1.0, 'B crowd-pleaser') $$,
+  'the widened role CHECK admits an owner-scoped crowd_pleaser pick'
 );
 reset role;
 
