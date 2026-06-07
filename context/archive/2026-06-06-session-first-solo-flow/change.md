@@ -1,10 +1,10 @@
 ---
 change_id: session-first-solo-flow
 title: Session first solo flow
-status: impl_reviewed
+status: archived
 created: 2026-06-06
 updated: 2026-06-07
-archived_at: null
+archived_at: 2026-06-07T08:00:50Z
 ---
 
 ## Notes

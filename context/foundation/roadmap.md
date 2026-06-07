@@ -3,7 +3,7 @@ project: MovieMate
 version: 1
 status: draft
 created: 2026-06-06
-updated: 2026-06-06
+updated: 2026-06-07
 prd_version: 1
 main_goal: low-complexity
 top_blocker: none
@@ -31,7 +31,7 @@ MovieMate fights movie-night decision paralysis by returning three scored, role-
 | ID   | Change ID                     | Outcome (user can …)                                             | Prerequisites | PRD refs                          | Status   |
 | ---- | ----------------------------- | ---------------------------------------------------------------- | ------------- | --------------------------------- | -------- |
 | S-01 | remembered-taste-core         | maintain one remembered taste core (replaces two profiles)       | —             | FR-001, FR-002                    | done     |
-| S-02 | session-first-solo-flow       | start a session from home, solo, and get three role-labeled picks | S-01          | US-01, FR-003, FR-004, FR-008, FR-009 | proposed |
+| S-02 | session-first-solo-flow       | start a session from home, solo, and get three role-labeled picks | S-01          | US-01, FR-003, FR-004, FR-008, FR-009 | done     |
 | S-03 | optional-inline-second-viewer | add a second viewer's taste inline and get duo picks             | S-02          | US-01, FR-005, FR-008, FR-009     | proposed |
 | S-04 | ai-note-understanding         | have a free-text note sharpen the candidate set                  | S-02          | FR-006, FR-007                    | proposed |
 | S-05 | select-and-mark-watched       | select one pick and mark it watched (excluded from future picks) | S-02          | US-01, FR-011, FR-012             | proposed |
@@ -87,7 +87,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Unknowns:**
   - The three solo role labels (duo keeps safe/compromise/wild card; solo drops "compromise") (PRD OQ-1, also tracked roadmap-wide as it widens the `recommendation_picks.role` CHECK) — Owner: user/team. Block: no.
 - **Risk:** The north star and the densest reshape slice: home entry + pre-fill + tonight-only genre edits + generalizing the scoring engine from "exactly two profiles" to a single taste + a solo role set must cohere into one end-to-end flow within `<10s`. Likely to spawn more than one change in `/10x-plan`. Sequenced immediately after the taste core; deterministic-only (the AI note lands in S-04) so the engine is verifiable without AI.
-- **Status:** proposed
+- **Status:** done
 
 ### S-03: Optional inline second viewer (duo path)
 
@@ -131,7 +131,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 | Roadmap ID | Change ID                     | Suggested issue title                                  | Ready for `/10x-plan` | Notes                                   |
 | ---------- | ----------------------------- | ------------------------------------------------------ | --------------------- | --------------------------------------- |
 | S-01       | remembered-taste-core         | Collapse two profiles into one remembered taste core   | done                  | Archived → `context/archive/2026-06-06-remembered-taste-core/` |
-| S-02       | session-first-solo-flow       | Session-first solo flow with pre-filled core genres    | no                    | Ready once S-01 lands                   |
+| S-02       | session-first-solo-flow       | Session-first solo flow with pre-filled core genres    | done                  | Archived → `context/archive/2026-06-06-session-first-solo-flow/` |
 | S-03       | optional-inline-second-viewer | Add optional inline second viewer (duo path)           | no                    | Ready once S-02 lands                   |
 | S-04       | ai-note-understanding         | Parse the note into search params to sharpen retrieval | no                    | Ready once S-02 lands                   |
 | S-05       | select-and-mark-watched       | Select a pick and mark it watched (dedup filter)       | no                    | Ready once S-02 lands                   |
@@ -154,3 +154,4 @@ Foundations below assume these are present and do NOT re-scaffold them.
 ## Done
 
 - **S-01: user can maintain exactly **one** remembered taste core (stable preferred + excluded genres), replacing the two-profile model, seeing only their own data.** — Archived 2026-06-06 → `context/archive/2026-06-06-remembered-taste-core/`. Lesson: —.
+- **S-02: user can start a movie-night session from the home entry point, see tonight's genres pre-filled from their remembered core (editable for tonight without overwriting it), set mood/runtime/intensity, stay solo, and receive three role-labeled picks (adapted solo role set) from deterministic genre retrieval.** — Archived 2026-06-07 → `context/archive/2026-06-06-session-first-solo-flow/`. Lesson: —.
