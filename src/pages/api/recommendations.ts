@@ -2,7 +2,7 @@ import type { APIRoute } from "astro";
 import { createClient } from "@/lib/supabase";
 import { createTmdbClient } from "@/lib/tmdb";
 import { fetchCandidates } from "@/lib/tmdb-discover";
-import { recommend, WEIGHTS, type Profile, type SessionPrefs } from "@/lib/recommend";
+import { recommend, WEIGHTS, type Taste, type SessionPrefs } from "@/lib/recommend";
 import { DEFAULT_INTENSITY, isKnownIntensity, type Intensity } from "@/lib/session-options";
 
 /** Read a text field from FormData, treating files/absent values as empty. */
@@ -36,9 +36,12 @@ function toIntensity(value: unknown): Intensity {
   return typeof value === "string" && isKnownIntensity(value) ? value : DEFAULT_INTENSITY;
 }
 
-/** A loaded session — scoring inputs plus the runtime hard-filter + id. */
+/** A loaded session — scoring inputs plus the genre fields (now a Taste, not a
+ *  SessionPrefs block), the runtime hard-filter, and id. */
 interface SessionRow extends SessionPrefs {
   id: string;
+  preferred_genre_ids: number[];
+  excluded_genre_ids: number[];
   runtime_limit_minutes: number | null;
 }
 
@@ -71,7 +74,7 @@ export const POST: APIRoute = async (context) => {
     return redirectError(context, "/profiles", "Set your taste core before getting recommendations");
   }
   const coreRaw = coreData as Record<string, unknown>;
-  const core: Profile = {
+  const core: Taste = {
     preferred_genre_ids: toIntArray(coreRaw.preferred_genre_ids),
     excluded_genre_ids: toIntArray(coreRaw.excluded_genre_ids),
   };

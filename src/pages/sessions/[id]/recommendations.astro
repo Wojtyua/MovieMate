@@ -18,10 +18,16 @@ interface PickRow {
 const { id } = Astro.params;
 const { user } = Astro.locals;
 
-// Display order: safe → compromise → wild_card (a SQL `order by role` would sort
-// alphabetically — compromise, safe, wild_card — which is wrong).
-const ROLE_RANK: Record<Role, number> = { safe: 0, compromise: 1, wild_card: 2 };
-const ROLE_LABEL: Record<Role, string> = { safe: "Safe pick", compromise: "Compromise", wild_card: "Wild card" };
+// Display order: safe → middle (compromise | crowd_pleaser) → wild_card (a SQL
+// `order by role` would sort alphabetically, which is wrong). The middle slot
+// shares rank 1 across both taxonomies — duo compromises, solo crowd-pleases.
+const ROLE_RANK: Record<Role, number> = { safe: 0, compromise: 1, crowd_pleaser: 1, wild_card: 2 };
+const ROLE_LABEL: Record<Role, string> = {
+  safe: "Safe pick",
+  compromise: "Compromise",
+  crowd_pleaser: "Crowd-pleaser",
+  wild_card: "Wild card",
+};
 const GENRE_NAMES = new Map(MOVIE_GENRES.map((g) => [g.id, g.name]));
 const POSTER_BASE = "https://image.tmdb.org/t/p/w500";
 

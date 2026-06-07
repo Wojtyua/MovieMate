@@ -11,14 +11,10 @@ import { moodGenres, intensityBias } from "@/lib/recommend/affinity";
  * a hard query filter).
  */
 export const WEIGHTS = {
-  /** Per-viewer preferred-genre reward. */
+  /** Per-taste preferred-genre reward. */
   W_PREF: 2,
-  /** Per-viewer excluded-genre penalty (strong, ~2× preferred). */
+  /** Per-taste excluded-genre penalty (strong, ~2× preferred). */
   W_EXCL: 4,
-  /** Session preferred-genre reward. */
-  W_SPREF: 2,
-  /** Session excluded-genre penalty (strong, ~2× preferred). */
-  W_SEXCL: 4,
   /** Mood-affinity reward. */
   W_MOOD: 2,
   /** Intensity-bias reward. */
@@ -27,21 +23,24 @@ export const WEIGHTS = {
   W_QUALITY: 3,
   /** Pool-relative popularity reward (light). */
   W_POP: 1,
+  /** Crowd-pleaser popularity reward (heavier than W_POP — popularity is the
+   *  point of the solo middle role). */
+  W_CROWD: 3,
   /** Minimum vote count, applied at the discover query (keeps outliers out). */
   VOTE_COUNT_FLOOR: 100,
 } as const;
 
-/** A viewer's genre taste — matches the loaded `viewer_profiles` row shape. */
-export interface Profile {
+/** One genre taste — matches the loaded `viewer_profiles` / session row shape. */
+export interface Taste {
   preferred_genre_ids: number[];
   excluded_genre_ids: number[];
 }
 
-/** Session constraints — matches the loaded `movie_night_sessions` row shape. */
+/** Session constraints — matches the loaded `movie_night_sessions` row shape.
+ *  Genre fields are NOT here: tonight's session genres are a {@link Taste}, not
+ *  a parallel scoring block (frame D2 — no double-scoring). */
 export interface SessionPrefs {
   mood: string | null;
-  preferred_genre_ids: number[];
-  excluded_genre_ids: number[];
   intensity: Intensity;
 }
 
@@ -61,64 +60,73 @@ function overlap(a: number[], b: number[]): number {
 }
 
 /**
- * Viewer affinity `A_v(c) = W_PREF·|G(c) ∩ pref| − W_EXCL·|G(c) ∩ excl|`.
+ * Taste affinity `A_t(c) = W_PREF·|G(c) ∩ pref| − W_EXCL·|G(c) ∩ excl|`.
  */
-export function viewerAffinity(candidate: TmdbMovie, profile: Profile): number {
+export function tasteAffinity(candidate: TmdbMovie, taste: Taste): number {
   const genres = candidate.genre_ids;
   return (
-    WEIGHTS.W_PREF * overlap(genres, profile.preferred_genre_ids) -
-    WEIGHTS.W_EXCL * overlap(genres, profile.excluded_genre_ids)
+    WEIGHTS.W_PREF * overlap(genres, taste.preferred_genre_ids) -
+    WEIGHTS.W_EXCL * overlap(genres, taste.excluded_genre_ids)
   );
 }
 
 /**
- * Session alignment
- * `S(c) = W_SPREF·|G∩s.pref| − W_SEXCL·|G∩s.excl| + W_MOOD·|G∩moodGenres| + W_INT·intensityBias`.
+ * Session alignment (genre-free): `S(c) = W_MOOD·|G∩moodGenres| + W_INT·intensityBias`.
+ * Genre taste lives in {@link Taste}, not here (frame D2 — no double-scoring).
  */
 export function sessionAlignment(candidate: TmdbMovie, session: SessionPrefs): number {
   const genres = candidate.genre_ids;
   return (
-    WEIGHTS.W_SPREF * overlap(genres, session.preferred_genre_ids) -
-    WEIGHTS.W_SEXCL * overlap(genres, session.excluded_genre_ids) +
     WEIGHTS.W_MOOD * overlap(genres, moodGenres(session.mood)) +
     WEIGHTS.W_INT * intensityBias(genres, session.intensity)
   );
 }
 
-/** The three ranking signals produced for one candidate. */
+/** The ranking signals produced for one candidate. */
 export interface CandidateScore {
-  /** Safe ranking: both viewers + shared terms. */
+  /** Safe ranking: every taste's affinity + shared terms. */
   combined: number;
-  /** Compromise ranking: serves the worse-off viewer best. */
+  /** Compromise ranking: serves the worst-off taste best (= combined when solo). */
   balance: number;
-  /** Each viewer's standalone affinity, for inspection/debugging. */
-  perViewer: [number, number];
+  /** Crowd-pleaser ranking (solo middle role): quality + popularity − excluded overlap. */
+  crowd: number;
+  /** Each taste's standalone affinity, for inspection/debugging. */
+  perTaste: number[];
 }
 
 /**
- * Score one candidate against both viewer profiles + the session.
+ * Score one candidate against one-or-two tastes + the session.
  *
  * - `Q = vote_average/10`, `P = popularity / maxPopularity` (pool-relative).
  * - `shared = S(c) + W_QUALITY·Q + W_POP·P`.
- * - `combined = A_A + A_B + shared` (safe ranking).
- * - `balance = min(A_A + shared, A_B + shared)` (compromise: rewards the film
- *   that best serves the worse-off viewer — structurally distinct from combined).
+ * - `combined = Σ A_t + shared` (safe ranking).
+ * - `balance = min_t(A_t + shared)` (compromise: rewards the film that best
+ *   serves the worst-off taste — for one taste, `balance === combined`).
+ * - `crowd = W_QUALITY·Q + W_CROWD·P − W_EXCL·|G(c) ∩ excluded(all tastes)|`
+ *   (crowd-pleaser: a broadly loved film, guarded against avoided genres).
  */
 export function scoreCandidate(
   candidate: TmdbMovie,
-  profiles: [Profile, Profile],
+  tastes: [Taste] | [Taste, Taste],
   session: SessionPrefs,
   maxPopularity: number,
 ): CandidateScore {
-  const affinityA = viewerAffinity(candidate, profiles[0]);
-  const affinityB = viewerAffinity(candidate, profiles[1]);
+  const perTaste = tastes.map((taste) => tasteAffinity(candidate, taste));
 
   const quality = candidate.vote_average / 10;
   const popularity = maxPopularity > 0 ? candidate.popularity / maxPopularity : 0;
   const shared = sessionAlignment(candidate, session) + WEIGHTS.W_QUALITY * quality + WEIGHTS.W_POP * popularity;
 
-  const combined = affinityA + affinityB + shared;
-  const balance = Math.min(affinityA + shared, affinityB + shared);
+  const combined = perTaste.reduce((sum, a) => sum + a, 0) + shared;
+  const balance = Math.min(...perTaste.map((a) => a + shared));
 
-  return { combined, balance, perViewer: [affinityA, affinityB] };
+  // Crowd-pleaser: reward quality + popularity, but subtract the excluded-genre
+  // penalty across all present tastes so an avoided genre can't win this slot.
+  const excludedOverlap = tastes.reduce(
+    (count, taste) => count + overlap(candidate.genre_ids, taste.excluded_genre_ids),
+    0,
+  );
+  const crowd = WEIGHTS.W_QUALITY * quality + WEIGHTS.W_CROWD * popularity - WEIGHTS.W_EXCL * excludedOverlap;
+
+  return { combined, balance, crowd, perTaste };
 }

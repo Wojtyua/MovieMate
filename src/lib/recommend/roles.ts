@@ -1,8 +1,14 @@
 import type { TmdbMovie } from "@/lib/tmdb-discover";
-import { scoreCandidate, type Profile, type SessionPrefs, type CandidateScore } from "@/lib/recommend/scoring";
+import { scoreCandidate, type Taste, type SessionPrefs, type CandidateScore } from "@/lib/recommend/scoring";
 
-/** The three role labels (FR-009). Matches the DB CHECK on recommendation_picks.role. */
-export type Role = "safe" | "compromise" | "wild_card";
+/**
+ * Role labels (FR-009). Matches the DB CHECK on recommendation_picks.role.
+ *
+ * The middle pick branches on taste cardinality: a duo session compromises
+ * (`compromise`), a solo session surfaces a broadly loved `crowd_pleaser`.
+ * Safe and wild-card bookend both role sets.
+ */
+export type Role = "safe" | "compromise" | "wild_card" | "crowd_pleaser";
 
 /** One role-labeled pick with the movie it landed on and the score that earned it. */
 export interface Pick {
@@ -70,10 +76,17 @@ function jaccard(a: number[], b: number[]): number {
 }
 
 /**
- * Select three meaningfully distinct, role-labeled picks (US-01, FR-008/FR-009):
+ * Select three meaningfully distinct, role-labeled picks (US-01, FR-008/FR-009)
+ * from one-or-two tastes:
  *
  * - **safe**       = argmax `combined`.
- * - **compromise** = argmax `balance` among the rest (best serves the worse-off viewer).
+ * - **middle pick** branches on taste cardinality:
+ *   - duo (2 tastes): **compromise** = argmax `balance` (best serves the
+ *     worse-off taste). Preserved intact for S-03.
+ *   - solo (1 taste): **crowd_pleaser** = argmax `crowd` (a broadly loved film —
+ *     quality + popularity, guarded against the taste's excluded genres;
+ *     tie-break toward `combined`). The solo role set is safe / crowd_pleaser /
+ *     wild_card (FR-009).
  * - **wild card**  = argmax `combined` among remaining candidates whose `genre_ids`
  *   set is FULLY disjoint from the safe pick's (the robust "differs in genre"
  *   enforcement — TMDB genre_ids are categorical, not relevance-ranked, so a
@@ -82,10 +95,10 @@ function jaccard(a: number[], b: number[]): number {
  *   back to the minimum-Jaccard-overlap candidate.
  *
  * All three picks have distinct movie ids. With fewer than 3 distinct candidates,
- * returns as many roles as can be filled (safe, then compromise) — never fabricates.
+ * returns as many roles as can be filled (safe, then middle) — never fabricates.
  */
 export function recommend(
-  profiles: [Profile, Profile],
+  tastes: [Taste] | [Taste, Taste],
   session: SessionPrefs,
   candidates: TmdbMovie[],
 ): RecommendationResult {
@@ -97,13 +110,13 @@ export function recommend(
   const maxPopularity = pool.reduce((max, c) => Math.max(max, c.popularity), 0);
   const scored: Scored[] = pool.map((movie) => ({
     movie,
-    score: scoreCandidate(movie, profiles, session, maxPopularity),
+    score: scoreCandidate(movie, tastes, session, maxPopularity),
   }));
 
   const picks: Pick[] = [];
   const usedIds = new Set<number>();
 
-  // safe — best overall for both viewers.
+  // safe — best overall across all tastes.
   const safe = argmax(scored, (s) => s.score.combined);
   if (!safe) {
     return { picks: [] };
@@ -111,12 +124,25 @@ export function recommend(
   picks.push({ role: "safe", movie: safe.movie, score: safe.score.combined });
   usedIds.add(safe.movie.id);
 
-  // compromise — best for the worse-off viewer, distinct from safe.
+  // middle pick — duo compromises (argmax balance); solo surfaces a crowd-pleaser
+  // (argmax crowd, tie-break combined). Distinct from safe.
   const afterSafe = scored.filter((s) => !usedIds.has(s.movie.id));
-  const compromise = argmax(afterSafe, (s) => s.score.balance);
-  if (compromise) {
-    picks.push({ role: "compromise", movie: compromise.movie, score: compromise.score.balance });
-    usedIds.add(compromise.movie.id);
+  if (tastes.length === 2) {
+    const compromise = argmax(afterSafe, (s) => s.score.balance);
+    if (compromise) {
+      picks.push({ role: "compromise", movie: compromise.movie, score: compromise.score.balance });
+      usedIds.add(compromise.movie.id);
+    }
+  } else {
+    const crowd = argmax(
+      afterSafe,
+      (s) => s.score.crowd,
+      (s) => s.score.combined,
+    );
+    if (crowd) {
+      picks.push({ role: "crowd_pleaser", movie: crowd.movie, score: crowd.score.crowd });
+      usedIds.add(crowd.movie.id);
+    }
   }
 
   // wild card — provably differs in genre from the safe pick.
