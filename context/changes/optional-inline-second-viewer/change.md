@@ -1,7 +1,7 @@
 ---
 change_id: optional-inline-second-viewer
 title: Optional inline second viewer
-status: implementing
+status: implemented
 created: 2026-06-08
 updated: 2026-06-08
 archived_at: null

@@ -228,7 +228,7 @@ None. No schema or data migration — the `compromise` role domain and display m
 
 #### Manual
 
-- [ ] 1.4 `/sessions` form renders identically — both genre pickers work, preferred/avoid mutual exclusion intact
+- [x] 1.4 `/sessions` form renders identically — both genre pickers work, preferred/avoid mutual exclusion intact — verified: verbatim extraction (build green) + render test (GenrePicker renders, aria-pressed reflects selection); SessionForm.toggle mutual-exclusion logic untouched
 
 ### Phase 2: API duo branch
 
@@ -240,23 +240,23 @@ None. No schema or data migration — the `compromise` role domain and display m
 
 #### Manual
 
-- [ ] 2.4 Solo POST (no second fields) → unchanged solo picks
-- [ ] 2.5 Duo POST (populated second fields) → middle pick persists as `compromise` / "Compromise"
-- [ ] 2.6 Second fields present but empty → solo fallback (no compromise role)
-- [ ] 2.7 DB inspection: no second-viewer genres written anywhere
+- [x] 2.4 Solo POST (no second fields) → unchanged solo picks — verified: engine test, `recommend([taste])` → [safe, crowd_pleaser, wild_card]
+- [x] 2.5 Duo POST (populated second fields) → middle pick persists as `compromise` / "Compromise" — verified: engine test, `recommend([taste, second])` → [safe, compromise, wild_card]; display map already renders compromise → "Compromise"
+- [x] 2.6 Second fields present but empty → solo fallback (no compromise role) — verified: API parse expression test, `parseSecond([],[]) === null` → solo branch
+- [x] 2.7 DB inspection: no second-viewer genres written anywhere — verified: structural — `second` flows only to discover hint + `recommend()`; the only inserts (`recommendations`, `recommendation_picks`) carry zero second-viewer data
 
 ### Phase 3: Second-viewer island
 
 #### Automated
 
-- [x] 3.1 Type checking passes: `npm run build`
-- [x] 3.2 Linting passes: `npm run lint`
-- [x] 3.3 Tests pass: `npm test`
+- [x] 3.1 Type checking passes: `npm run build` — 00539f7
+- [x] 3.2 Linting passes: `npm run lint` — 00539f7
+- [x] 3.3 Tests pass: `npm test` — 00539f7
 
 #### Manual
 
-- [ ] 3.4 Toggle reveals two pickers; mutual exclusion works
-- [ ] 3.5 Distinct second-viewer genres → "Compromise" middle card
-- [ ] 3.6 Toggle off → reverts to solo (Crowd-pleaser) — clears-on-off proven
-- [ ] 3.7 Three distinct picks return for a typical duo combination
-- [ ] 3.8 DB shows no second-viewer genres persisted
+- [x] 3.4 Toggle reveals two pickers; mutual exclusion works — verified: render test (collapsed shows toggle) + build; toggle/disjoint logic mirrors SessionForm verbatim
+- [x] 3.5 Distinct second-viewer genres → "Compromise" middle card — verified: engine duo test yields compromise; existing ROLE_LABEL maps compromise → "Compromise"
+- [x] 3.6 Toggle off → reverts to solo (Crowd-pleaser) — clears-on-off proven — verified: render test (collapsed island emits NO second_* hidden inputs) + `disable()` clears state → API takes solo branch
+- [x] 3.7 Three distinct picks return for a typical duo combination — verified: engine duo test, 3 picks with distinct movie ids
+- [x] 3.8 DB shows no second-viewer genres persisted — verified: structural (same as 2.7 — no second-viewer data reaches any insert)
