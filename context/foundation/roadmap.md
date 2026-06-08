@@ -3,7 +3,7 @@ project: MovieMate
 version: 1
 status: draft
 created: 2026-06-06
-updated: 2026-06-07
+updated: 2026-06-08
 prd_version: 1
 main_goal: low-complexity
 top_blocker: none
@@ -32,7 +32,7 @@ MovieMate fights movie-night decision paralysis by returning three scored, role-
 | ---- | ----------------------------- | ---------------------------------------------------------------- | ------------- | --------------------------------- | -------- |
 | S-01 | remembered-taste-core         | maintain one remembered taste core (replaces two profiles)       | —             | FR-001, FR-002                    | done     |
 | S-02 | session-first-solo-flow       | start a session from home, solo, and get three role-labeled picks | S-01          | US-01, FR-003, FR-004, FR-008, FR-009 | done     |
-| S-03 | optional-inline-second-viewer | add a second viewer's taste inline and get duo picks             | S-02          | US-01, FR-005, FR-008, FR-009     | proposed |
+| S-03 | optional-inline-second-viewer | add a second viewer's taste inline and get duo picks             | S-02          | US-01, FR-005, FR-008, FR-009     | done     |
 | S-04 | ai-note-understanding         | have a free-text note sharpen the candidate set                  | S-02          | FR-006, FR-007                    | proposed |
 | S-05 | select-and-mark-watched       | select one pick and mark it watched (excluded from future picks) | S-02          | US-01, FR-011, FR-012             | proposed |
 
@@ -99,7 +99,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** Extends the solo engine to blend a second, ephemeral taste and restores the duo role set (safe/compromise/wild card) on the cardinality branch. The second viewer is captured on-device and never persisted (honors "no second-person login"). Layered after the solo flow so the one-taste path is proven before the two-taste branch is added.
-- **Status:** proposed
+- **Status:** done
 
 ### S-04: AI note understanding sharpens the candidate set
 
@@ -132,7 +132,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 | ---------- | ----------------------------- | ------------------------------------------------------ | --------------------- | --------------------------------------- |
 | S-01       | remembered-taste-core         | Collapse two profiles into one remembered taste core   | done                  | Archived → `context/archive/2026-06-06-remembered-taste-core/` |
 | S-02       | session-first-solo-flow       | Session-first solo flow with pre-filled core genres    | done                  | Archived → `context/archive/2026-06-06-session-first-solo-flow/` |
-| S-03       | optional-inline-second-viewer | Add optional inline second viewer (duo path)           | no                    | Ready once S-02 lands                   |
+| S-03       | optional-inline-second-viewer | Add optional inline second viewer (duo path)           | done                  | Archived → `context/archive/2026-06-08-optional-inline-second-viewer/` |
 | S-04       | ai-note-understanding         | Parse the note into search params to sharpen retrieval | no                    | Ready once S-02 lands                   |
 | S-05       | select-and-mark-watched       | Select a pick and mark it watched (dedup filter)       | no                    | Ready once S-02 lands                   |
 
@@ -155,3 +155,4 @@ Foundations below assume these are present and do NOT re-scaffold them.
 
 - **S-01: user can maintain exactly **one** remembered taste core (stable preferred + excluded genres), replacing the two-profile model, seeing only their own data.** — Archived 2026-06-06 → `context/archive/2026-06-06-remembered-taste-core/`. Lesson: —.
 - **S-02: user can start a movie-night session from the home entry point, see tonight's genres pre-filled from their remembered core (editable for tonight without overwriting it), set mood/runtime/intensity, stay solo, and receive three role-labeled picks (adapted solo role set) from deterministic genre retrieval.** — Archived 2026-06-07 → `context/archive/2026-06-06-session-first-solo-flow/`. Lesson: —.
+- **S-03: user can optionally add a second viewer's taste (genres) inline for tonight (or stay solo) and receive duo picks labeled safe / compromise / wild card, scored against both present tastes.** — Archived 2026-06-08 → `context/archive/2026-06-08-optional-inline-second-viewer/`. Lesson: —.
