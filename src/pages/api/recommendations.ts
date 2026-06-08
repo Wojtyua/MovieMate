@@ -91,6 +91,23 @@ export const POST: APIRoute = async (context) => {
     excluded_genre_ids: session.excluded_genre_ids,
   };
 
+  // 2b. Optional second viewer (duo path, FR-005). Captured on-device and POSTed
+  //     inline as repeated fields — same pattern as session genres. It is NEVER
+  //     persisted: it rides only this request and touches no table. A genre in
+  //     both lists is dropped from excluded (self-overlap sanitize, mirrors
+  //     SessionForm). `second` stays null unless at least one genre was picked,
+  //     so absent/empty fields fall back to the solo path.
+  const secondPreferred = form.getAll("second_preferred_genre_ids").map(Number).filter(Number.isInteger);
+  const secondPreferredSet = new Set(secondPreferred);
+  const secondExcluded = form
+    .getAll("second_excluded_genre_ids")
+    .map(Number)
+    .filter((id) => Number.isInteger(id) && !secondPreferredSet.has(id));
+  const second: Taste | null =
+    secondPreferred.length > 0 || secondExcluded.length > 0
+      ? { preferred_genre_ids: secondPreferred, excluded_genre_ids: secondExcluded }
+      : null;
+
   // 3. TMDB must be configured to retrieve candidates; persist nothing if not.
   const tmdb = createTmdbClient();
   if (!tmdb) {
@@ -99,11 +116,13 @@ export const POST: APIRoute = async (context) => {
 
   // 4. Retrieve candidates. Excluded genres are NOT passed to discover — they
   //    are a scoring penalty (FR-006). Only runtime is a hard filter. The
-  //    discover hint is tonight's preferred genres.
+  //    discover hint is the union of both viewers' preferred genres so the
+  //    candidate pool covers the duo (solo path: just tonight's preferred).
+  const discoverGenreIds = [...new Set([...taste.preferred_genre_ids, ...(second?.preferred_genre_ids ?? [])])];
   let candidates;
   try {
     candidates = await fetchCandidates(tmdb, {
-      genreIds: taste.preferred_genre_ids,
+      genreIds: discoverGenreIds,
       runtimeLteMinutes: session.runtime_limit_minutes,
       voteCountGte: WEIGHTS.VOTE_COUNT_FLOOR,
       pages: 3,
@@ -116,8 +135,13 @@ export const POST: APIRoute = async (context) => {
   }
 
   // 5. Score + assign roles (FR-009). Solo session → the single-taste branch
-  //    returns safe / crowd_pleaser / wild_card.
-  const result = recommend([taste], { mood: session.mood, intensity: session.intensity }, candidates);
+  //    returns safe / crowd_pleaser / wild_card. With a second viewer the engine
+  //    takes the two-taste branch and returns safe / compromise / wild_card.
+  const result = recommend(
+    second ? [taste, second] : [taste],
+    { mood: session.mood, intensity: session.intensity },
+    candidates,
+  );
   if (result.picks.length === 0) {
     return redirectError(context, "/sessions", "No matching films — broaden your preferences");
   }
