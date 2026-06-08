@@ -1,6 +1,7 @@
 ---
 import Layout from "@/layouts/Layout.astro";
 import SessionForm from "@/components/sessions/SessionForm";
+import { SecondViewer } from "@/components/sessions/SecondViewer";
 import { createClient } from "@/lib/supabase";
 import { DEFAULT_INTENSITY, type Intensity } from "@/lib/session-options";
 
@@ -125,8 +126,9 @@ if (supabase && user && !editSession) {
               Recommendations use your saved preferences — save any changes above first.
             </p>
             <div class="mt-4 flex flex-wrap items-center gap-3">
-              <form method="POST" action="/api/recommendations">
+              <form method="POST" action="/api/recommendations" class="w-full space-y-4">
                 <input type="hidden" name="session_id" value={latest.id} />
+                <SecondViewer client:load />
                 <button
                   type="submit"
                   class="rounded-lg bg-gradient-to-r from-blue-500 to-purple-500 px-4 py-2 text-sm font-semibold text-white hover:from-blue-400 hover:to-purple-400"

@@ -234,9 +234,9 @@ None. No schema or data migration — the `compromise` role domain and display m
 
 #### Automated
 
-- [x] 2.1 Type checking passes: `npm run build`
-- [x] 2.2 Linting passes: `npm run lint`
-- [x] 2.3 Existing tests pass: `npm test`
+- [x] 2.1 Type checking passes: `npm run build` — 208b7c2
+- [x] 2.2 Linting passes: `npm run lint` — 208b7c2
+- [x] 2.3 Existing tests pass: `npm test` — 208b7c2
 
 #### Manual
 
@@ -249,9 +249,9 @@ None. No schema or data migration — the `compromise` role domain and display m
 
 #### Automated
 
-- [ ] 3.1 Type checking passes: `npm run build`
-- [ ] 3.2 Linting passes: `npm run lint`
-- [ ] 3.3 Tests pass: `npm test`
+- [x] 3.1 Type checking passes: `npm run build`
+- [x] 3.2 Linting passes: `npm run lint`
+- [x] 3.3 Tests pass: `npm test`
 
 #### Manual
 
