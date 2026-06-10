@@ -31,3 +31,5 @@ pnpm-debug.log*
 .github/**/10x-*
 .agents/**/10x-*
 .agents/**/.10x-*
+
+docs/10x
