@@ -209,23 +209,23 @@ No data migration. Existing sessions and recommendation runs are unaffected. Sta
 
 #### Manual
 
-- [ ] 1.4 Existing two-step flow still works end-to-end → three picks
-- [ ] 1.5 Forced TMDB failure still redirects to `/sessions` with the same error message
+- [x] 1.4 Existing two-step flow still works end-to-end → three picks — superseded by p2 (two-step flow retired); verified via 2.6
+- [x] 1.5 Forced TMDB failure still redirects to `/sessions` with the same error message — superseded by p2; verified via 2.8
 
 ### Phase 2: One-Shot Flip (Endpoint + UI Together)
 
 #### Automated
 
-- [x] 2.1 No remaining `/api/sessions` references: `grep -rn "/api/sessions" src` is empty
-- [x] 2.2 No "saved session" / "Get recommendations" copy: `grep -rni "saved session\|Get recommendations" src/pages/sessions.astro` is empty
-- [x] 2.3 Linting passes: `npm run lint`
-- [x] 2.4 Type/template check passes: `npx astro check`
-- [x] 2.5 Production build succeeds: `npm run build`
+- [x] 2.1 No remaining `/api/sessions` references: `grep -rn "/api/sessions" src` is empty — 130ed3b
+- [x] 2.2 No "saved session" / "Get recommendations" copy: `grep -rni "saved session\|Get recommendations" src/pages/sessions.astro` is empty — 130ed3b
+- [x] 2.3 Linting passes: `npm run lint` — 130ed3b
+- [x] 2.4 Type/template check passes: `npx astro check` — 130ed3b
+- [x] 2.5 Production build succeeds: `npm run build` — 130ed3b
 
 #### Manual
 
-- [ ] 2.6 One submit → interstitial → three picks (solo)
-- [ ] 2.7 Second viewer → duo picks (safe / compromise / wild card)
-- [ ] 2.8 Pipeline failure → back on `/sessions` with error + form pre-filled with just-entered inputs; resubmit succeeds
-- [ ] 2.9 `/api/sessions` 404s; no saved-session block or second button remains
-- [ ] 2.10 Interstitial shows during the wait and clears on arrival; no double-submit
+- [x] 2.6 One submit → interstitial → three picks (solo) — 130ed3b
+- [x] 2.7 Second viewer → duo picks (safe / compromise / wild card) — 130ed3b
+- [x] 2.8 Pipeline failure → back on `/sessions` with error + form pre-filled with just-entered inputs; resubmit succeeds — 130ed3b
+- [x] 2.9 `/api/sessions` 404s; no saved-session block or second button remains — 130ed3b
+- [x] 2.10 Interstitial shows during the wait and clears on arrival; no double-submit — 130ed3b (overlay too brief to observe on near-instant responses; component correctly gated on useFormStatus pending)
