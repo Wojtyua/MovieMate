@@ -210,31 +210,31 @@ No data migration. `/dashboard` had no inbound redirects, so no users land there
 
 #### Automated
 
-- [x] 1.1 Linting passes: `npm run lint`
-- [x] 1.2 Type/template check passes: `npx astro check`
-- [x] 1.3 Production build succeeds: `npm run build`
+- [x] 1.1 Linting passes: `npm run lint` — 4eeb535
+- [x] 1.2 Type/template check passes: `npx astro check` — 4eeb535
+- [x] 1.3 Production build succeeds: `npm run build` — 4eeb535
 
 #### Manual
 
-- [x] 1.4 Navbar renders legibly on dark background across home, sessions, profiles, recommendations (Home / Movie night / Taste core / email / Sign out)
-- [x] 1.5 Active link highlighted; recommendations page highlights Movie night
-- [x] 1.6 Logged-out navbar shows Home + Sign in / Sign up on home and auth pages
-- [x] 1.7 Auth-page cards stay vertically centered below the navbar, no overflow
-- [x] 1.8 Home still shows decorative orbs / star field and hero CTAs
-- [x] 1.9 No page shows a doubled or missing background
+- [x] 1.4 Navbar renders legibly on dark background across home, sessions, profiles, recommendations (Home / Movie night / Taste core / email / Sign out) — 4eeb535
+- [x] 1.5 Active link highlighted; recommendations page highlights Movie night — 4eeb535
+- [x] 1.6 Logged-out navbar shows Home + Sign in / Sign up on home and auth pages — 4eeb535
+- [x] 1.7 Auth-page cards stay vertically centered below the navbar, no overflow — 4eeb535
+- [x] 1.8 Home still shows decorative orbs / star field and hero CTAs — 4eeb535
+- [x] 1.9 No page shows a doubled or missing background — 4eeb535
 
 ### Phase 2: Remove the Dashboard
 
 #### Automated
 
-- [ ] 2.1 No remaining `/dashboard` references: `grep -rn "/dashboard" src` is empty
-- [ ] 2.2 Linting passes: `npm run lint`
-- [ ] 2.3 Type/template check passes: `npx astro check`
-- [ ] 2.4 Production build succeeds: `npm run build`
+- [x] 2.1 No remaining `/dashboard` references: `grep -rn "/dashboard" src` is empty
+- [x] 2.2 Linting passes: `npm run lint`
+- [x] 2.3 Type/template check passes: `npx astro check`
+- [x] 2.4 Production build succeeds: `npm run build`
 
 #### Manual
 
-- [ ] 2.5 `/dashboard` returns 404
-- [ ] 2.6 `/sessions` and `/profiles` still gated (redirect to `/auth/signin` when logged out)
-- [ ] 2.7 Session and profiles headers render cleanly with no leftover back-link
-- [ ] 2.8 Full home → sign in → session → recommendations journey works via navbar + CTAs
+- [x] 2.5 `/dashboard` returns 404
+- [x] 2.6 `/sessions` and `/profiles` still gated (redirect to `/auth/signin` when logged out)
+- [x] 2.7 Session and profiles headers render cleanly with no leftover back-link
+- [x] 2.8 Full home → sign in → session → recommendations journey works via navbar + CTAs
