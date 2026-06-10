@@ -3,7 +3,7 @@ project: MovieMate
 version: 1
 status: draft
 created: 2026-06-06
-updated: 2026-06-08
+updated: 2026-06-10
 prd_version: 1
 main_goal: low-complexity
 top_blocker: none
@@ -35,6 +35,8 @@ MovieMate fights movie-night decision paralysis by returning three scored, role-
 | S-03 | optional-inline-second-viewer | add a second viewer's taste inline and get duo picks             | S-02          | US-01, FR-005, FR-008, FR-009     | done     |
 | S-04 | ai-note-understanding         | have a free-text note sharpen the candidate set                  | S-02          | FR-006, FR-007                    | proposed |
 | S-05 | select-and-mark-watched       | select one pick and mark it watched (excluded from future picks) | S-02          | US-01, FR-011, FR-012             | proposed |
+| S-06 | navigation-cleanup            | reach every page through one coherent navbar; no dashboard detour | S-02          | US-01 (UX/IA correction — no new FR) | done     |
+| S-07 | one-shot-recommend            | set tonight's preferences and get three picks in a single action | S-02, S-03    | US-01, FR-003, FR-004             | done     |
 
 ## Streams
 
@@ -44,6 +46,7 @@ Navigation aid — groups items that share a Prerequisites chain. Canonical orde
 | ------ | ---------------------- | ------------------------------ | ------------------------------------------------------------------------------------- |
 | A      | Model & solo flow      | `S-01` → `S-02`                | The reshape backbone and the north-star path; everything else hangs off `S-02`.       |
 | B      | Flow extensions        | `S-03` / `S-04` / `S-05`       | Three independent extensions, all join Stream A at `S-02`; plannable in parallel.      |
+| C      | Flow polish (post-ship)| `S-06` / `S-07`                | Corrections to the shipped flow, framed in `context/changes/<id>/frame.md`. `S-06` is independent UI/IA; `S-07` touches the recommendations pipeline (test-plan Risk #1) — sequence with/after test-plan Phase 1. |
 
 ## Baseline
 
@@ -126,6 +129,32 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Risk:** Closes the decision flow (preserved scope, never built). Needs a new watched table; "watched" acts only as a dedup filter on retrieval (not a scoring signal, not a browsable list), which keeps it small. Depends on the reshaped flow producing picks.
 - **Status:** proposed
 
+### S-06: Navigation cleanup — one coherent navbar, no dashboard detour
+
+- **Outcome:** user reaches every page through a single, coherent navbar carried by the shared layout; the redundant `/dashboard` dead-end is gone and the home page is the canonical place to start a movie night.
+- **Change ID:** navigation-cleanup
+- **PRD refs:** US-01 (UX/IA correction — no new FR)
+- **Prerequisites:** S-02
+- **Parallel with:** S-04, S-05, S-07
+- **Blockers:** —
+- **Unknowns:**
+  - The exact navbar link set and active-state treatment once `/dashboard` is gone (home / movie night / taste core) — Owner: user/team. Block: no (resolve in `/10x-plan`).
+- **Risk:** Pure UI/IA change — no recommendations-pipeline touch. The one coupling: today the navbar's *only* nav target is `/dashboard`, so removing the page forces a navbar redesign; "add a navbar to inner pages" and "remove the dashboard" are one unit of work. Also touches `PROTECTED_ROUTES` and the `← Dashboard` back-links in `sessions` + `profiles`. Framed in `context/changes/navigation-cleanup/frame.md` (Confidence HIGH).
+- **Status:** done
+
+### S-07: One-shot recommend — preferences → picks in a single action
+
+- **Outcome:** user submits tonight's preferences and receives three picks in one action — no separate "save session" step, no second "Get recommendations" click — with a short interstitial covering the work.
+- **Change ID:** one-shot-recommend
+- **PRD refs:** US-01, FR-003, FR-004
+- **Prerequisites:** S-02, S-03
+- **Parallel with:** S-04, S-05, S-06
+- **Blockers:** —
+- **Unknowns:**
+  - Chain `/api/sessions` → recommend vs. fold into one endpoint; picks inline vs. the existing redirect; how the "edit an existing session" path folds into one-shot — Owner: user/team. Block: no (resolve in `/10x-plan`).
+- **Risk:** Runs on the recommendations pipeline = **Risk #1** in `context/foundation/test-plan.md` ("fewer than three picks"). The reframe: the root is not the extra click but that "save a session" is leaked into the user's mental model as a step — collapse to one action *and* retire the save-session language, keeping the session row as an invisible server-side byproduct (FK `recommendations.session_id NOT NULL` forces persistence). **Sequence with or after test-plan Phase 1** so the merge lands against the always-three-picks safety net. Framed in `context/changes/one-shot-recommend/frame.md` (Confidence HIGH).
+- **Status:** done
+
 ## Backlog Handoff
 
 | Roadmap ID | Change ID                     | Suggested issue title                                  | Ready for `/10x-plan` | Notes                                   |
@@ -135,6 +164,8 @@ Foundations below assume these are present and do NOT re-scaffold them.
 | S-03       | optional-inline-second-viewer | Add optional inline second viewer (duo path)           | done                  | Archived → `context/archive/2026-06-08-optional-inline-second-viewer/` |
 | S-04       | ai-note-understanding         | Parse the note into search params to sharpen retrieval | no                    | Ready once S-02 lands                   |
 | S-05       | select-and-mark-watched       | Select a pick and mark it watched (dedup filter)       | no                    | Ready once S-02 lands                   |
+| S-06       | navigation-cleanup            | Navigation cleanup — remove dashboard, global navbar   | done                  | Archived → `context/archive/2026-06-10-navigation-cleanup/` |
+| S-07       | one-shot-recommend            | One-shot recommend — preferences → picks in one action | done                  | Archived → `context/archive/2026-06-10-one-shot-recommend/` |
 
 ## Open Roadmap Questions
 
@@ -156,3 +187,5 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **S-01: user can maintain exactly **one** remembered taste core (stable preferred + excluded genres), replacing the two-profile model, seeing only their own data.** — Archived 2026-06-06 → `context/archive/2026-06-06-remembered-taste-core/`. Lesson: —.
 - **S-02: user can start a movie-night session from the home entry point, see tonight's genres pre-filled from their remembered core (editable for tonight without overwriting it), set mood/runtime/intensity, stay solo, and receive three role-labeled picks (adapted solo role set) from deterministic genre retrieval.** — Archived 2026-06-07 → `context/archive/2026-06-06-session-first-solo-flow/`. Lesson: —.
 - **S-03: user can optionally add a second viewer's taste (genres) inline for tonight (or stay solo) and receive duo picks labeled safe / compromise / wild card, scored against both present tastes.** — Archived 2026-06-08 → `context/archive/2026-06-08-optional-inline-second-viewer/`. Lesson: —.
+- **S-06: user reaches every page through a single, coherent navbar carried by the shared layout; the redundant `/dashboard` dead-end is gone and the home page is the canonical place to start a movie night.** — Archived 2026-06-10 → `context/archive/2026-06-10-navigation-cleanup/`. Lesson: —.
+- **S-07: user submits tonight's preferences and receives three picks in one action — no separate "save session" step, no second "Get recommendations" click — with a short interstitial covering the work.** — Archived 2026-06-10 → `context/archive/2026-06-10-one-shot-recommend/`. Lesson: —.
