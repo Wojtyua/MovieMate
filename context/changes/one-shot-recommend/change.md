@@ -1,7 +1,7 @@
 ---
 change_id: one-shot-recommend
 title: One-shot recommend — set preferences → see picks in a single action
-status: implemented
+status: impl_reviewed
 created: 2026-06-10
 updated: 2026-06-10
 ---
