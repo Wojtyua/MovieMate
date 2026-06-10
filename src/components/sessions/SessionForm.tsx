@@ -1,15 +1,16 @@
 import React, { useState } from "react";
-import { Clapperboard, StickyNote, CheckCircle2, Plus } from "lucide-react";
+import { Clapperboard, StickyNote } from "lucide-react";
 import { SubmitButton } from "@/components/auth/SubmitButton";
 import { ServerError } from "@/components/auth/ServerError";
 import { GenrePicker } from "./GenrePicker";
+import { SecondViewer } from "./SecondViewer";
+import { Interstitial } from "./Interstitial";
 import { MOODS, INTENSITIES, DEFAULT_INTENSITY, type Intensity } from "@/lib/session-options";
 
 /** Runtime-limit presets (minutes). Empty value → "No limit" (null in the DB). */
 const RUNTIME_PRESETS = [90, 105, 120, 150, 180] as const;
 
 interface Props {
-  sessionId?: string | null;
   mood?: string | null;
   preferredGenreIds?: number[];
   excludedGenreIds?: number[];
@@ -17,12 +18,10 @@ interface Props {
   intensity?: Intensity;
   note?: string | null;
   serverError?: string | null;
-  justSaved?: boolean;
   prefilledFromCore?: boolean;
 }
 
 export default function SessionForm({
-  sessionId = null,
   mood: initialMood = "",
   preferredGenreIds = [],
   excludedGenreIds = [],
@@ -30,7 +29,6 @@ export default function SessionForm({
   intensity: initialIntensity = DEFAULT_INTENSITY,
   note: initialNote = "",
   serverError,
-  justSaved = false,
   prefilledFromCore = false,
 }: Props) {
   const [mood, setMood] = useState(initialMood ?? "");
@@ -39,8 +37,6 @@ export default function SessionForm({
   const [note, setNote] = useState(initialNote ?? "");
   const [preferred, setPreferred] = useState<Set<number>>(new Set(preferredGenreIds));
   const [excluded, setExcluded] = useState<Set<number>>(new Set(excludedGenreIds));
-
-  const editing = Boolean(sessionId);
 
   // Genres are mutually exclusive between preferred and avoid: selecting one
   // side clears the other so the submitted sets stay disjoint (mirrors
@@ -76,10 +72,7 @@ export default function SessionForm({
   }
 
   return (
-    <form method="POST" action="/api/sessions" className="space-y-5" noValidate>
-      {/* Empty when starting a new session; carries the id when editing the latest. */}
-      <input type="hidden" name="session_id" value={sessionId ?? ""} />
-
+    <form method="POST" action="/api/recommendations" className="space-y-5" noValidate>
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
           <label htmlFor="mood" className="mb-1 block text-sm text-blue-100/80">
@@ -185,28 +178,17 @@ export default function SessionForm({
         </div>
       </div>
 
+      {/* Optional second viewer rides inline on this same POST (never persisted). */}
+      <SecondViewer />
+
       <ServerError message={serverError} />
 
-      {justSaved && !serverError ? (
-        <p className="flex items-center gap-2 rounded-lg border border-green-500/30 bg-green-900/30 px-3 py-2 text-sm text-green-300">
-          <CheckCircle2 className="size-4 shrink-0" />
-          Session saved.
-        </p>
-      ) : null}
-
-      <SubmitButton pendingText="Saving..." icon={<Clapperboard className="size-4" />}>
-        {editing ? "Update session" : "Start session"}
+      <SubmitButton pendingText="Finding tonight's picks…" icon={<Clapperboard className="size-4" />}>
+        Get tonight&apos;s picks
       </SubmitButton>
 
-      {editing ? (
-        <a
-          href="/sessions"
-          className="flex items-center justify-center gap-2 rounded-lg border border-white/20 bg-white/5 px-4 py-2 text-sm text-blue-100/80 transition-colors hover:bg-white/10"
-        >
-          <Plus className="size-4" />
-          Start another session
-        </a>
-      ) : null}
+      {/* Full-screen overlay while the native POST is in flight; clears on nav. */}
+      <Interstitial />
     </form>
   );
 }

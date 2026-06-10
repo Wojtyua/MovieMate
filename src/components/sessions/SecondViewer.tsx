@@ -5,7 +5,7 @@ import { GenrePicker } from "./GenrePicker";
 /**
  * Optional, ephemeral second viewer captured on-device for tonight only.
  *
- * Renders inside the "Get recommendations" form (it has no <form> of its own).
+ * Renders inside the one-shot SessionForm (it has no <form> of its own).
  * When enabled it emits hidden `second_preferred_genre_ids` /
  * `second_excluded_genre_ids` inputs as repeated fields — the same pattern the
  * server reads via formData.getAll(). The second taste is NEVER persisted: it

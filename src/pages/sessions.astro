@@ -1,7 +1,6 @@
 ---
 import Layout from "@/layouts/Layout.astro";
 import SessionForm from "@/components/sessions/SessionForm";
-import { SecondViewer } from "@/components/sessions/SecondViewer";
 import { createClient } from "@/lib/supabase";
 import { DEFAULT_INTENSITY, type Intensity } from "@/lib/session-options";
 
@@ -16,45 +15,33 @@ interface SessionRow {
 }
 
 const { user } = Astro.locals;
-
 const supabase = createClient(Astro.request.headers, Astro.cookies);
-let latest: SessionRow | null = null;
-if (supabase && user) {
-  // The user's most recent session is what we show for in-place editing.
+
+const error = Astro.url.searchParams.get("error");
+
+// On error, the just-persisted session is the latest row — re-fill the form from
+// it so tonight's mood / genres / runtime / note survive a failed run. This is
+// input preservation, not a return of "edit mode": the session is still created
+// invisibly and there is no manage-session affordance.
+let errorSession: SessionRow | null = null;
+if (error && supabase && user) {
   const { data } = await supabase
     .from("movie_night_sessions")
     .select("id, mood, preferred_genre_ids, excluded_genre_ids, runtime_limit_minutes, intensity, note")
     .order("created_at", { ascending: false })
     .limit(1)
     .maybeSingle();
-  latest = data ?? null;
+  errorSession = data ?? null;
 }
 
-// Does the latest saved session already have a recommendation run? Lightweight
-// existence check so we can offer a "View recommendations" link.
-let hasRecommendation = false;
-if (supabase && user && latest) {
-  const { data: runs } = await supabase.from("recommendations").select("id").eq("session_id", latest.id).limit(1);
-  hasRecommendation = Boolean(runs && runs.length > 0);
-}
-
-const error = Astro.url.searchParams.get("error");
-const savedId = Astro.url.searchParams.get("saved");
-
-// Edit mode only when the just-saved id matches the latest row; otherwise a
-// fresh "start a session" form. "Start another session" links to /sessions
-// without ?saved, so a new submit starts from blank.
-const editSession = latest && savedId && savedId === latest.id ? latest : null;
-
-// New-session pre-fill (FR-004): seed tonight's genre pickers from the remembered
-// taste core. This is a page-level seed only — the session owns its own genre
-// columns, so editing tonight never writes back to the core (only /profiles does).
-// Edit mode keeps seeding from the session row, untouched.
+// Fresh one-shot (no error): seed tonight's genre pickers from the remembered
+// taste core (FR-004). Page-level seed only — the session owns its own genre
+// columns, so tonight never writes back to the core (only /profiles does).
 let prefilledPreferred: number[] = [];
 let prefilledExcluded: number[] = [];
 let prefilledFromCore = false;
 let noCore = false;
-if (supabase && user && !editSession) {
+if (supabase && user && !errorSession) {
   const { data: coreData } = await supabase
     .from("viewer_profiles")
     .select("preferred_genre_ids, excluded_genre_ids")
@@ -79,26 +66,18 @@ if (supabase && user && !editSession) {
       <h1 class="mb-6 bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-3xl font-bold text-transparent">
         Movie night
       </h1>
-      <p class="mb-8 text-sm text-blue-100/60">
-        {
-          editSession
-            ? "Tonight's session is saved. Tweak the preferences below, or start another session."
-            : "Set tonight's preferences. They tune the recommendations for this movie night."
-        }
-      </p>
+      <p class="mb-8 text-sm text-blue-100/60">Set tonight's preferences and get three picks in one click.</p>
 
       <div class="rounded-2xl border border-white/10 bg-white/10 p-6 text-white backdrop-blur-xl">
         <SessionForm
           client:load
-          sessionId={editSession ? editSession.id : null}
-          mood={editSession ? editSession.mood : ""}
-          preferredGenreIds={editSession ? editSession.preferred_genre_ids : prefilledPreferred}
-          excludedGenreIds={editSession ? editSession.excluded_genre_ids : prefilledExcluded}
-          runtimeLimitMinutes={editSession ? editSession.runtime_limit_minutes : null}
-          intensity={editSession ? editSession.intensity : DEFAULT_INTENSITY}
-          note={editSession ? editSession.note : ""}
+          mood={errorSession ? errorSession.mood : ""}
+          preferredGenreIds={errorSession ? errorSession.preferred_genre_ids : prefilledPreferred}
+          excludedGenreIds={errorSession ? errorSession.excluded_genre_ids : prefilledExcluded}
+          runtimeLimitMinutes={errorSession ? errorSession.runtime_limit_minutes : null}
+          intensity={errorSession ? errorSession.intensity : DEFAULT_INTENSITY}
+          note={errorSession ? errorSession.note : ""}
           serverError={error}
-          justSaved={Boolean(editSession)}
           prefilledFromCore={prefilledFromCore}
         />
       </div>
@@ -112,34 +91,6 @@ if (supabase && user && !editSession) {
             </a>{" "}
             so future nights pre-fill automatically.
           </p>
-        )
-      }
-
-      {
-        latest && (
-          <div class="mt-6 rounded-2xl border border-purple-300/30 bg-purple-300/5 p-6 text-white backdrop-blur-xl">
-            <h2 class="text-lg font-semibold text-purple-100">Your saved session</h2>
-            <p class="mt-1 text-sm text-blue-100/60">
-              Recommendations use your saved preferences — save any changes above first.
-            </p>
-            <div class="mt-4 flex flex-wrap items-center gap-3">
-              <form method="POST" action="/api/recommendations" class="w-full space-y-4">
-                <input type="hidden" name="session_id" value={latest.id} />
-                <SecondViewer client:load />
-                <button
-                  type="submit"
-                  class="rounded-lg bg-gradient-to-r from-blue-500 to-purple-500 px-4 py-2 text-sm font-semibold text-white hover:from-blue-400 hover:to-purple-400"
-                >
-                  Get recommendations
-                </button>
-              </form>
-              {hasRecommendation && (
-                <a href={`/sessions/${latest.id}/recommendations`} class="text-sm text-purple-300 hover:underline">
-                  View recommendations →
-                </a>
-              )}
-            </div>
-          </div>
         )
       }
     </div>

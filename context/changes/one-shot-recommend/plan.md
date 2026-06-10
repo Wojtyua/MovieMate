@@ -203,9 +203,9 @@ No data migration. Existing sessions and recommendation runs are unaffected. Sta
 
 #### Automated
 
-- [x] 1.1 Linting passes: `npm run lint`
-- [x] 1.2 Type/template check passes: `npx astro check`
-- [x] 1.3 Production build succeeds: `npm run build`
+- [x] 1.1 Linting passes: `npm run lint` — e63a930
+- [x] 1.2 Type/template check passes: `npx astro check` — e63a930
+- [x] 1.3 Production build succeeds: `npm run build` — e63a930
 
 #### Manual
 
@@ -216,11 +216,11 @@ No data migration. Existing sessions and recommendation runs are unaffected. Sta
 
 #### Automated
 
-- [ ] 2.1 No remaining `/api/sessions` references: `grep -rn "/api/sessions" src` is empty
-- [ ] 2.2 No "saved session" / "Get recommendations" copy: `grep -rni "saved session\|Get recommendations" src/pages/sessions.astro` is empty
-- [ ] 2.3 Linting passes: `npm run lint`
-- [ ] 2.4 Type/template check passes: `npx astro check`
-- [ ] 2.5 Production build succeeds: `npm run build`
+- [x] 2.1 No remaining `/api/sessions` references: `grep -rn "/api/sessions" src` is empty
+- [x] 2.2 No "saved session" / "Get recommendations" copy: `grep -rni "saved session\|Get recommendations" src/pages/sessions.astro` is empty
+- [x] 2.3 Linting passes: `npm run lint`
+- [x] 2.4 Type/template check passes: `npx astro check`
+- [x] 2.5 Production build succeeds: `npm run build`
 
 #### Manual
 
