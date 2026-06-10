@@ -1,8 +1,7 @@
 import type { APIRoute } from "astro";
 import { createClient } from "@/lib/supabase";
-import { createTmdbClient } from "@/lib/tmdb";
-import { fetchCandidates } from "@/lib/tmdb-discover";
-import { recommend, WEIGHTS, type Taste, type SessionPrefs } from "@/lib/recommend";
+import { recommendRun, type RecommendRunSession } from "@/lib/recommend-run";
+import { type Taste } from "@/lib/recommend";
 import { DEFAULT_INTENSITY, isKnownIntensity, type Intensity } from "@/lib/session-options";
 
 /** Read a text field from FormData, treating files/absent values as empty. */
@@ -36,15 +35,6 @@ function toIntensity(value: unknown): Intensity {
   return typeof value === "string" && isKnownIntensity(value) ? value : DEFAULT_INTENSITY;
 }
 
-/** A loaded session — scoring inputs plus the genre fields (tonight's taste),
- *  the runtime hard-filter, and id. */
-interface SessionRow extends SessionPrefs {
-  id: string;
-  preferred_genre_ids: number[];
-  excluded_genre_ids: number[];
-  runtime_limit_minutes: number | null;
-}
-
 export const POST: APIRoute = async (context) => {
   const form = await context.request.formData();
   const sessionId = textField(form, "session_id").trim();
@@ -76,7 +66,7 @@ export const POST: APIRoute = async (context) => {
   }
   const sessionRaw = sessionData as Record<string, unknown>;
   const runtimeRaw = sessionRaw.runtime_limit_minutes;
-  const session: SessionRow = {
+  const session: RecommendRunSession = {
     id: String(sessionRaw.id),
     mood: toNullableText(sessionRaw.mood),
     preferred_genre_ids: toIntArray(sessionRaw.preferred_genre_ids),
@@ -85,18 +75,12 @@ export const POST: APIRoute = async (context) => {
     intensity: toIntensity(sessionRaw.intensity),
   };
 
-  // 2. Tonight's session genres are the single taste (FR-008).
-  const taste: Taste = {
-    preferred_genre_ids: session.preferred_genre_ids,
-    excluded_genre_ids: session.excluded_genre_ids,
-  };
-
-  // 2b. Optional second viewer (duo path, FR-005). Captured on-device and POSTed
-  //     inline as repeated fields — same pattern as session genres. It is NEVER
-  //     persisted: it rides only this request and touches no table. A genre in
-  //     both lists is dropped from excluded (self-overlap sanitize, mirrors
-  //     SessionForm). `second` stays null unless at least one genre was picked,
-  //     so absent/empty fields fall back to the solo path.
+  // 2. Optional second viewer (duo path, FR-005). Captured on-device and POSTed
+  //    inline as repeated fields — same pattern as session genres. It is NEVER
+  //    persisted: it rides only this request and touches no table. A genre in
+  //    both lists is dropped from excluded (self-overlap sanitize, mirrors
+  //    SessionForm). `second` stays null unless at least one genre was picked,
+  //    so absent/empty fields fall back to the solo path.
   const secondPreferred = form.getAll("second_preferred_genre_ids").map(Number).filter(Number.isInteger);
   const secondPreferredSet = new Set(secondPreferred);
   const secondExcluded = form
@@ -108,73 +92,12 @@ export const POST: APIRoute = async (context) => {
       ? { preferred_genre_ids: secondPreferred, excluded_genre_ids: secondExcluded }
       : null;
 
-  // 3. TMDB must be configured to retrieve candidates; persist nothing if not.
-  const tmdb = createTmdbClient();
-  if (!tmdb) {
-    return redirectError(context, "/sessions", "Recommendations unavailable: TMDB is not configured");
+  // 3. Retrieve + score + persist (the always-three-picks pipeline). The helper
+  //    returns data; we map each result to the existing redirects so the route's
+  //    external behavior (status codes, redirect URLs, messages) is unchanged.
+  const result = await recommendRun(supabase, user, session, second);
+  if (!result.ok) {
+    return redirectError(context, "/sessions", result.message);
   }
-
-  // 4. Retrieve candidates. Excluded genres are NOT passed to discover — they
-  //    are a scoring penalty (FR-006). Only runtime is a hard filter. The
-  //    discover hint is the union of both viewers' preferred genres so the
-  //    candidate pool covers the duo (solo path: just tonight's preferred).
-  const discoverGenreIds = [...new Set([...taste.preferred_genre_ids, ...(second?.preferred_genre_ids ?? [])])];
-  let candidates;
-  try {
-    candidates = await fetchCandidates(tmdb, {
-      genreIds: discoverGenreIds,
-      runtimeLteMinutes: session.runtime_limit_minutes,
-      voteCountGte: WEIGHTS.VOTE_COUNT_FLOOR,
-      pages: 3,
-    });
-  } catch {
-    return redirectError(context, "/sessions", "Could not reach TMDB, try again");
-  }
-  if (candidates.length === 0) {
-    return redirectError(context, "/sessions", "Could not reach TMDB, try again");
-  }
-
-  // 5. Score + assign roles (FR-009). Solo session → the single-taste branch
-  //    returns safe / crowd_pleaser / wild_card. With a second viewer the engine
-  //    takes the two-taste branch and returns safe / compromise / wild_card.
-  const result = recommend(
-    second ? [taste, second] : [taste],
-    { mood: session.mood, intensity: session.intensity },
-    candidates,
-  );
-  if (result.picks.length === 0) {
-    return redirectError(context, "/sessions", "No matching films — broaden your preferences");
-  }
-
-  // 6. Persist the run + its picks (snapshotting display fields).
-  const { data: runData, error: runError } = await supabase
-    .from("recommendations")
-    .insert({ user_id: user.id, session_id: session.id })
-    .select("id")
-    .single();
-  if (runError) {
-    return redirectError(context, "/sessions", runError.message);
-  }
-  const recommendationId = String((runData as Record<string, unknown>).id);
-
-  const pickRows = result.picks.map((pick) => ({
-    user_id: user.id,
-    recommendation_id: recommendationId,
-    role: pick.role,
-    tmdb_movie_id: pick.movie.id,
-    score: pick.score,
-    title: pick.movie.title,
-    poster_path: pick.movie.poster_path,
-    overview: pick.movie.overview,
-    genre_ids: pick.movie.genre_ids,
-    release_date: pick.movie.release_date,
-    vote_average: pick.movie.vote_average,
-  }));
-  const { error: picksError } = await supabase.from("recommendation_picks").insert(pickRows);
-  if (picksError) {
-    return redirectError(context, "/sessions", picksError.message);
-  }
-
-  // 7. Show the results.
-  return context.redirect(`/sessions/${session.id}/recommendations`);
+  return context.redirect(result.redirectTo);
 };
