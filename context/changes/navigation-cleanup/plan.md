@@ -227,14 +227,14 @@ No data migration. `/dashboard` had no inbound redirects, so no users land there
 
 #### Automated
 
-- [x] 2.1 No remaining `/dashboard` references: `grep -rn "/dashboard" src` is empty
-- [x] 2.2 Linting passes: `npm run lint`
-- [x] 2.3 Type/template check passes: `npx astro check`
-- [x] 2.4 Production build succeeds: `npm run build`
+- [x] 2.1 No remaining `/dashboard` references: `grep -rn "/dashboard" src` is empty — 2194815
+- [x] 2.2 Linting passes: `npm run lint` — 2194815
+- [x] 2.3 Type/template check passes: `npx astro check` — 2194815
+- [x] 2.4 Production build succeeds: `npm run build` — 2194815
 
 #### Manual
 
-- [x] 2.5 `/dashboard` returns 404
-- [x] 2.6 `/sessions` and `/profiles` still gated (redirect to `/auth/signin` when logged out)
-- [x] 2.7 Session and profiles headers render cleanly with no leftover back-link
-- [x] 2.8 Full home → sign in → session → recommendations journey works via navbar + CTAs
+- [x] 2.5 `/dashboard` returns 404 — 2194815
+- [x] 2.6 `/sessions` and `/profiles` still gated (redirect to `/auth/signin` when logged out) — 2194815
+- [x] 2.7 Session and profiles headers render cleanly with no leftover back-link — 2194815
+- [x] 2.8 Full home → sign in → session → recommendations journey works via navbar + CTAs — 2194815
