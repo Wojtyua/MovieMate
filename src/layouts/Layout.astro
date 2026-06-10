@@ -1,6 +1,7 @@
 ---
 import "../styles/global.css";
 import Banner from "@/components/Banner.astro";
+import Topbar from "@/components/Topbar.astro";
 import { missingConfigs } from "@/lib/config-status";
 
 interface Props {
@@ -19,23 +20,33 @@ const { title = "10x Astro Starter" } = Astro.props;
     <title>{title}</title>
   </head>
   <body>
-    {
-      missingConfigs.map((cfg) => (
-        <Banner variant="error">
-          <strong>Uwaga:</strong> {cfg.message}
-          {cfg.docsUrl && (
-            <>
-              {" "}
-              <a href={cfg.docsUrl} target="_blank" rel="noopener noreferrer">
-                {cfg.docsLabel ?? "Dokumentacja"}
-              </a>
-              .
-            </>
-          )}
-        </Banner>
-      ))
-    }
-    <slot />
+    <!-- App shell: the dark cosmic background + navbar are owned here so every
+         page inherits coherent chrome. The flex-col + flex-1 main lets pages
+         (e.g. centered auth cards) fill the space below the navbar. -->
+    <div class="bg-cosmic flex min-h-screen flex-col">
+      {
+        missingConfigs.map((cfg) => (
+          <Banner variant="error">
+            <strong>Uwaga:</strong> {cfg.message}
+            {cfg.docsUrl && (
+              <>
+                {" "}
+                <a href={cfg.docsUrl} target="_blank" rel="noopener noreferrer">
+                  {cfg.docsLabel ?? "Dokumentacja"}
+                </a>
+                .
+              </>
+            )}
+          </Banner>
+        ))
+      }
+      <header class="px-4 pt-4 sm:px-8 sm:pt-6">
+        <Topbar />
+      </header>
+      <main class="flex flex-1 flex-col">
+        <slot />
+      </main>
+    </div>
   </body>
 </html>
 
