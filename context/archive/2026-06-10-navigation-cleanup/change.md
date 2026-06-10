@@ -1,9 +1,10 @@
 ---
 change_id: navigation-cleanup
 title: Navigation cleanup — remove dashboard, global navbar, home as entry
-status: implemented
+status: archived
 created: 2026-06-10
 updated: 2026-06-10
+archived_at: 2026-06-10T18:08:01Z
 ---
 
 ## Notes
