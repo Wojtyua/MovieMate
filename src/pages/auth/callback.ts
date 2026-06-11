@@ -23,5 +23,5 @@ export const GET: APIRoute = async (context) => {
     return context.redirect(`/auth/signin?error=${encodeURIComponent(error.message)}`);
   }
 
-  return context.redirect("/sessions");
+  return context.redirect("/");
 };
