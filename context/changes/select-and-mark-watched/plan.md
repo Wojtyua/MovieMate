@@ -261,9 +261,9 @@ New table only; no data migration. Applies locally via `npm run db:reset`. Remot
 
 #### Automated
 
-- [x] 2.1 Type check passes: `npm run astro -- check`
-- [x] 2.2 Lint passes: `npm run lint`
-- [x] 2.3 Build passes: `npm run build`
+- [x] 2.1 Type check passes: `npm run astro -- check` — f8ad165
+- [x] 2.2 Lint passes: `npm run lint` — f8ad165
+- [x] 2.3 Build passes: `npm run build` — f8ad165
 
 #### Manual
 
@@ -275,9 +275,9 @@ New table only; no data migration. Applies locally via `npm run db:reset`. Remot
 
 #### Automated
 
-- [ ] 3.1 Type check passes: `npm run astro -- check`
-- [ ] 3.2 Lint passes: `npm run lint`
-- [ ] 3.3 Build passes: `npm run build`
+- [x] 3.1 Type check passes: `npm run astro -- check`
+- [x] 3.2 Lint passes: `npm run lint`
+- [x] 3.3 Build passes: `npm run build`
 
 #### Manual
 

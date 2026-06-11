@@ -85,6 +85,16 @@ export async function recommendRun(
     }
   }
 
+  // S-05: the account's watched films are excluded from every retrieval attempt
+  // (FR-012). Fast owner-scoped, indexed read — kept OUTSIDE the TMDB budget
+  // below. A read failure degrades to no exclusion rather than blocking the run.
+  // The same set feeds every ladder attempt: exclusion must NEVER relax (a
+  // watched film must never be re-recommended) even as the ladder broadens.
+  const { data: watchedRows } = await supabase.from("watched").select("tmdb_movie_id").eq("user_id", user.id);
+  const watchedIds = new Set<number>(
+    (watchedRows ?? []).map((r) => Number((r as Record<string, unknown>).tmdb_movie_id)),
+  );
+
   // One shared deadline for ALL TMDB work on the note path — entity resolution
   // plus every relaxation attempt — so stacked re-queries can't sum past the
   // <10s NFR (each `fetchCandidates` also keeps its own per-call ceiling). The
@@ -129,6 +139,7 @@ export async function recommendRun(
         voteCountGte: WEIGHTS.VOTE_COUNT_FLOOR,
         pages: 3,
         signal: retrievalController.signal,
+        excludeMovieIds: watchedIds,
       });
       if (candidates.length >= 3) {
         break;
