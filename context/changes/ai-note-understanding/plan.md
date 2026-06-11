@@ -459,14 +459,14 @@ None. `movie_night_sessions.note` already exists; no schema change.
 
 #### Automated
 
-- [x] 4.1 Linting passes: `npm run lint`
-- [x] 4.2 Type checking passes: `npx astro check`
+- [x] 4.1 Linting passes: `npm run lint` — 789bc07
+- [x] 4.2 Type checking passes: `npx astro check` — 789bc07
 
 #### Manual
 
-- [x] 4.3 Sandler note returns three picks with a note-reflecting pool
-- [x] 4.4 Empty note returns three picks identical to pre-S-04 genre-only
-- [x] 4.5 Forced AI failure returns three picks via genre-only fallback, no 500
-- [x] 4.6 Over-narrow note returns three picks via the relaxation ladder
-- [x] 4.7 End-to-end run completes within `< 10 s`
-- [x] 4.8 AI config-status message reads as note-analysis copy
+- [x] 4.3 Sandler note returns three picks with a note-reflecting pool — 789bc07
+- [x] 4.4 Empty note returns three picks identical to pre-S-04 genre-only — 789bc07
+- [x] 4.5 Forced AI failure returns three picks via genre-only fallback, no 500 — 789bc07
+- [x] 4.6 Over-narrow note returns three picks via the relaxation ladder — 789bc07
+- [x] 4.7 End-to-end run completes within `< 10 s` — 789bc07
+- [x] 4.8 AI config-status message reads as note-analysis copy — 789bc07
