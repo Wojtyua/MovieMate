@@ -248,9 +248,9 @@ New table only; no data migration. Applies locally via `npm run db:reset`. Remot
 
 #### Automated
 
-- [x] 1.1 Migration applies cleanly: `npm run db:reset`
-- [x] 1.2 pgTAP isolation test passes: `npm run db:verify`
-- [x] 1.3 Lint passes: `npm run lint`
+- [x] 1.1 Migration applies cleanly: `npm run db:reset` — e094fd0
+- [x] 1.2 pgTAP isolation test passes: `npm run db:verify` — e094fd0
+- [x] 1.3 Lint passes: `npm run lint` — e094fd0
 
 #### Manual
 
@@ -261,9 +261,9 @@ New table only; no data migration. Applies locally via `npm run db:reset`. Remot
 
 #### Automated
 
-- [ ] 2.1 Type check passes: `npm run astro -- check`
-- [ ] 2.2 Lint passes: `npm run lint`
-- [ ] 2.3 Build passes: `npm run build`
+- [x] 2.1 Type check passes: `npm run astro -- check`
+- [x] 2.2 Lint passes: `npm run lint`
+- [x] 2.3 Build passes: `npm run build`
 
 #### Manual
 
