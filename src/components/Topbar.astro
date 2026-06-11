@@ -16,9 +16,9 @@ const brandClass = `font-semibold text-white transition-colors hover:text-blue-1
 ---
 
 <div
-  class="mb-4 flex items-center justify-between rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/80"
+  class="mb-4 flex flex-wrap items-center justify-between gap-x-3 gap-y-2 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs text-white/80 sm:px-4 sm:text-sm"
 >
-  <div class="flex items-center gap-4">
+  <div class="flex items-center gap-3 sm:gap-4">
     <a href="/" class:list={brandClass}>MovieMate</a>
     {
       user && (
@@ -37,7 +37,7 @@ const brandClass = `font-semibold text-white transition-colors hover:text-blue-1
     {
       user ? (
         <>
-          <span class="text-blue-100/70">{user.email}</span>
+          <span class="hidden max-w-[12rem] truncate text-blue-100/70 sm:inline lg:max-w-none">{user.email}</span>
           <form method="POST" action="/api/auth/signout">
             <button type="submit" class="text-purple-300 transition-colors hover:text-purple-100 hover:underline">
               Sign out
