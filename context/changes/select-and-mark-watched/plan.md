@@ -254,8 +254,8 @@ New table only; no data migration. Applies locally via `npm run db:reset`. Remot
 
 #### Manual
 
-- [ ] 1.4 `watched` table exists with four RLS policies and the owner index
-- [ ] 1.5 Duplicate `(user_id, tmdb_movie_id)` insert is rejected by the unique constraint
+- [x] 1.4 `watched` table exists with four RLS policies and the owner index — e094fd0
+- [x] 1.5 Duplicate `(user_id, tmdb_movie_id)` insert is rejected by the unique constraint — e094fd0
 
 ### Phase 2: Mark-watched endpoint
 
@@ -267,9 +267,9 @@ New table only; no data migration. Applies locally via `npm run db:reset`. Remot
 
 #### Manual
 
-- [ ] 2.4 Unauthenticated POST returns 401 JSON
-- [ ] 2.5 Valid POST returns 200 `{ ok: true }` and inserts one row; repeat POST inserts no duplicate
-- [ ] 2.6 Invalid/missing `tmdb_movie_id` returns 400 JSON
+- [x] 2.4 Unauthenticated POST returns 401 JSON — f8ad165
+- [x] 2.5 Valid POST returns 200 `{ ok: true }` and inserts one row; repeat POST inserts no duplicate — f8ad165
+- [x] 2.6 Invalid/missing `tmdb_movie_id` returns 400 JSON — f8ad165
 
 ### Phase 3: Retrieval wiring — feed excludeMovieIds
 
@@ -281,22 +281,22 @@ New table only; no data migration. Applies locally via `npm run db:reset`. Remot
 
 #### Manual
 
-- [ ] 3.4 Marked film does not reappear in a subsequent run's picks
-- [ ] 3.5 User with no watched rows gets identical picks (empty set = no exclusion)
-- [ ] 3.6 Recommendations still return three picks after marking a few films
+- [x] 3.4 Marked film does not reappear in a subsequent run's picks — 1f2468c
+- [x] 3.5 User with no watched rows gets identical picks (empty set = no exclusion) — 1f2468c
+- [x] 3.6 Recommendations still return three picks after marking a few films — 1f2468c
 
 ### Phase 4: Picks UI — mark-watched island
 
 #### Automated
 
-- [x] 4.1 Type check passes: `npm run astro -- check`
-- [x] 4.2 Lint passes: `npm run lint`
-- [x] 4.3 Build passes: `npm run build`
+- [x] 4.1 Type check passes: `npm run astro -- check` — 3f1f6df
+- [x] 4.2 Lint passes: `npm run lint` — 3f1f6df
+- [x] 4.3 Build passes: `npm run build` — 3f1f6df
 
 #### Manual
 
-- [ ] 4.4 Clicking "Mark watched" highlights the card, dims the other two, shows disabled "Watched ✓"
-- [ ] 4.5 Marked film is absent from a subsequent run's picks (end-to-end)
-- [ ] 4.6 Failed POST shows inline error and leaves button clickable (no silent failure)
-- [ ] 4.7 Empty-state still renders for a session with no run
-- [ ] 4.8 Page renders correctly on local `astro dev` (workerd)
+- [x] 4.4 Clicking "Mark watched" highlights the card, dims the other two, shows disabled "Watched ✓" — 3f1f6df
+- [x] 4.5 Marked film is absent from a subsequent run's picks (end-to-end) — 3f1f6df
+- [x] 4.6 Failed POST shows inline error and leaves button clickable (no silent failure) — 3f1f6df
+- [x] 4.7 Empty-state still renders for a session with no run — 3f1f6df
+- [x] 4.8 Page renders correctly on local `astro dev` (workerd) — 3f1f6df
