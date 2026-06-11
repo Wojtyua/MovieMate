@@ -1,10 +1,10 @@
 ---
 change_id: select-and-mark-watched
 title: Select and mark watched
-status: implemented
+status: archived
 created: 2026-06-11
 updated: 2026-06-11
-archived_at: null
+archived_at: 2026-06-11T09:16:36Z
 ---
 
 ## Notes
