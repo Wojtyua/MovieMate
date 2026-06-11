@@ -1,5 +1,4 @@
 import type { APIRoute } from "astro";
-import type { EmailOtpType } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase";
 
 export const GET: APIRoute = async (context) => {
@@ -20,7 +19,7 @@ export const GET: APIRoute = async (context) => {
   // because it carries no client-stored PKCE verifier. Requires the Supabase
   // email template to point at /auth/callback?token_hash=...&type=...
   const tokenHash = context.url.searchParams.get("token_hash");
-  const type = context.url.searchParams.get("type") as EmailOtpType | null;
+  const type = context.url.searchParams.get("type");
 
   if (tokenHash && type) {
     const { error } = await supabase.auth.verifyOtp({ token_hash: tokenHash, type });
