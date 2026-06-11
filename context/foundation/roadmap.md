@@ -3,7 +3,7 @@ project: MovieMate
 version: 1
 status: draft
 created: 2026-06-06
-updated: 2026-06-10
+updated: 2026-06-11
 prd_version: 1
 main_goal: low-complexity
 top_blocker: none
@@ -33,7 +33,7 @@ MovieMate fights movie-night decision paralysis by returning three scored, role-
 | S-01 | remembered-taste-core         | maintain one remembered taste core (replaces two profiles)       | —             | FR-001, FR-002                    | done     |
 | S-02 | session-first-solo-flow       | start a session from home, solo, and get three role-labeled picks | S-01          | US-01, FR-003, FR-004, FR-008, FR-009 | done     |
 | S-03 | optional-inline-second-viewer | add a second viewer's taste inline and get duo picks             | S-02          | US-01, FR-005, FR-008, FR-009     | done     |
-| S-04 | ai-note-understanding         | have a free-text note sharpen the candidate set                  | S-02          | FR-006, FR-007                    | proposed |
+| S-04 | ai-note-understanding         | have a free-text note sharpen the candidate set                  | S-02          | FR-006, FR-007                    | done     |
 | S-05 | select-and-mark-watched       | select one pick and mark it watched (excluded from future picks) | S-02          | US-01, FR-011, FR-012             | proposed |
 | S-06 | navigation-cleanup            | reach every page through one coherent navbar; no dashboard detour | S-02          | US-01 (UX/IA correction — no new FR) | done     |
 | S-07 | one-shot-recommend            | set tonight's preferences and get three picks in a single action | S-02, S-03    | US-01, FR-003, FR-004             | done     |
@@ -115,7 +115,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Unknowns:**
   - The order in which AI-derived filters (cast + keyword + genre alongside the runtime hard filter) are relaxed when the candidate pool falls below three picks (PRD OQ-2) — Owner: user/team. Block: no (tunable during `/10x-plan`).
 - **Risk:** The secondary Success Criterion and the only AI-dependent slice; AI now sits on the critical path before retrieval, so it must fit `<10s` and degrade gracefully (empty/unparseable note or slow/unavailable AI → genre-only retrieval still returns three picks). Person/keyword resolution adds external lookups that must respect the runtime's request-count budget. Repurposes the existing unused `src/lib/ai.ts` client.
-- **Status:** proposed
+- **Status:** done
 
 ### S-05: Select a pick and mark it watched
 
@@ -162,7 +162,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 | S-01       | remembered-taste-core         | Collapse two profiles into one remembered taste core   | done                  | Archived → `context/archive/2026-06-06-remembered-taste-core/` |
 | S-02       | session-first-solo-flow       | Session-first solo flow with pre-filled core genres    | done                  | Archived → `context/archive/2026-06-06-session-first-solo-flow/` |
 | S-03       | optional-inline-second-viewer | Add optional inline second viewer (duo path)           | done                  | Archived → `context/archive/2026-06-08-optional-inline-second-viewer/` |
-| S-04       | ai-note-understanding         | Parse the note into search params to sharpen retrieval | no                    | Ready once S-02 lands                   |
+| S-04       | ai-note-understanding         | Parse the note into search params to sharpen retrieval | done                  | Archived → `context/archive/2026-06-11-ai-note-understanding/` |
 | S-05       | select-and-mark-watched       | Select a pick and mark it watched (dedup filter)       | no                    | Ready once S-02 lands                   |
 | S-06       | navigation-cleanup            | Navigation cleanup — remove dashboard, global navbar   | done                  | Archived → `context/archive/2026-06-10-navigation-cleanup/` |
 | S-07       | one-shot-recommend            | One-shot recommend — preferences → picks in one action | done                  | Archived → `context/archive/2026-06-10-one-shot-recommend/` |
@@ -189,3 +189,4 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **S-03: user can optionally add a second viewer's taste (genres) inline for tonight (or stay solo) and receive duo picks labeled safe / compromise / wild card, scored against both present tastes.** — Archived 2026-06-08 → `context/archive/2026-06-08-optional-inline-second-viewer/`. Lesson: —.
 - **S-06: user reaches every page through a single, coherent navbar carried by the shared layout; the redundant `/dashboard` dead-end is gone and the home page is the canonical place to start a movie night.** — Archived 2026-06-10 → `context/archive/2026-06-10-navigation-cleanup/`. Lesson: —.
 - **S-07: user submits tonight's preferences and receives three picks in one action — no separate "save session" step, no second "Get recommendations" click — with a short interstitial covering the work.** — Archived 2026-06-10 → `context/archive/2026-06-10-one-shot-recommend/`. Lesson: —.
+- **S-04: user can type a free-text note ("something dumb, maybe with Adam Sandler") and have it parsed into structured search parameters (genres, people/cast, keywords) that improve the candidate set, with graceful fallback to genre-only retrieval.** — Archived 2026-06-11 → `context/archive/2026-06-11-ai-note-understanding/`. Lesson: —.
