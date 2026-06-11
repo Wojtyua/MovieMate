@@ -9,6 +9,13 @@ import { recommend, WEIGHTS, type Taste, type SessionPrefs } from "@/lib/recomme
 /** The (non-null) Supabase client the pipeline persists through. */
 type SupabaseClient = NonNullable<ReturnType<typeof createClient>>;
 
+/**
+ * Shared ceiling for the whole note-augmented TMDB path (entity resolution +
+ * all relaxation attempts), matching `fetchCandidates`' own ~8s budget. Keeps
+ * cumulative retrieval under the <10s NFR even when the ladder re-queries.
+ */
+const RETRIEVAL_BUDGET_MS = 8000;
+
 /** A loaded session — scoring inputs plus the genre fields (tonight's taste),
  *  the runtime hard-filter, and id. */
 export interface RecommendRunSession extends SessionPrefs {
@@ -59,44 +66,60 @@ export async function recommendRun(
   // candidate pool covers the duo (solo path: just tonight's preferred).
   const discoverGenreIds = [...new Set([...taste.preferred_genre_ids, ...(second?.preferred_genre_ids ?? [])])];
 
-  // S-04: parse the free-text note into extra discover signal (extra genres,
-  // cast ids, keyword ids). Every step fails soft to empty, so when there is no
-  // note — or AI is unconfigured / slow / erroring — these stay empty and the
-  // discover call below is byte-for-byte today's genre-only retrieval.
+  // S-04: parse the free-text note into extra discover signal (extra genres +
+  // people/keyword strings). The AI call keeps its OWN ~2.5s budget (inside
+  // `extract`), deliberately separate from TMDB's so a slow model can't starve
+  // retrieval. Fails soft to empty, so a missing/unparseable note — or
+  // unconfigured/slow/erroring AI — leaves the discover call below byte-for-byte
+  // today's genre-only retrieval.
   let aiGenreIds: number[] = [];
-  let castIds: number[] = [];
-  let keywordIds: number[] = [];
+  let people: string[] = [];
+  let keywords: string[] = [];
   if (session.note) {
     const ai = createAiClient();
     if (ai) {
       const parsed = await parseNote(ai, session.note);
       aiGenreIds = parsed.genreIds;
-      const resolved = await resolveEntities(tmdb, {
-        people: parsed.people,
-        keywords: parsed.keywords,
-      });
-      castIds = resolved.castIds;
-      keywordIds = resolved.keywordIds;
+      people = parsed.people;
+      keywords = parsed.keywords;
     }
   }
 
-  // Relaxation ladder (OQ-2 / FR-007). Stacked AI filters can drain the pool
-  // below three picks, so try the fully-constrained query first and drop filters
-  // in a fixed order — keywords → cast → AI-genres → genre-only baseline —
-  // stopping at the first attempt with ≥3 candidates. `dedupeAttempts` collapses
-  // steps that don't actually change the filter set (so a note-less run issues a
-  // single query), and the final attempt is exactly today's genre-only call, so
-  // retrieval is never worse than before S-04.
-  const augmentedGenreIds = [...new Set([...discoverGenreIds, ...aiGenreIds])];
-  const ladder = dedupeAttempts([
-    { genreIds: augmentedGenreIds, castIds, keywordIds },
-    { genreIds: augmentedGenreIds, castIds, keywordIds: [] },
-    { genreIds: augmentedGenreIds, castIds: [], keywordIds: [] },
-    { genreIds: discoverGenreIds, castIds: [], keywordIds: [] },
-  ]);
+  // One shared deadline for ALL TMDB work on the note path — entity resolution
+  // plus every relaxation attempt — so stacked re-queries can't sum past the
+  // <10s NFR (each `fetchCandidates` also keeps its own per-call ceiling). The
+  // AI parse above already ran under its own separate budget.
+  const retrievalController = new AbortController();
+  const retrievalTimeout = setTimeout(() => {
+    retrievalController.abort();
+  }, RETRIEVAL_BUDGET_MS);
 
   let candidates: TmdbMovie[] = [];
   try {
+    // Resolve people/keywords → TMDB ids under the shared budget.
+    let castIds: number[] = [];
+    let keywordIds: number[] = [];
+    if (people.length > 0 || keywords.length > 0) {
+      const resolved = await resolveEntities(tmdb, { people, keywords }, retrievalController.signal);
+      castIds = resolved.castIds;
+      keywordIds = resolved.keywordIds;
+    }
+
+    // Relaxation ladder (OQ-2 / FR-007). Stacked AI filters can drain the pool
+    // below three picks, so try the fully-constrained query first and drop
+    // filters in a fixed order — keywords → cast → AI-genres → genre-only
+    // baseline — stopping at the first attempt with ≥3 candidates.
+    // `dedupeAttempts` collapses steps that don't change the filter set (so a
+    // note-less run issues a single query), and the final attempt is exactly
+    // today's genre-only call, so retrieval is never worse than before S-04.
+    const augmentedGenreIds = [...new Set([...discoverGenreIds, ...aiGenreIds])];
+    const ladder = dedupeAttempts([
+      { genreIds: augmentedGenreIds, castIds, keywordIds },
+      { genreIds: augmentedGenreIds, castIds, keywordIds: [] },
+      { genreIds: augmentedGenreIds, castIds: [], keywordIds: [] },
+      { genreIds: discoverGenreIds, castIds: [], keywordIds: [] },
+    ]);
+
     for (const attempt of ladder) {
       candidates = await fetchCandidates(tmdb, {
         genreIds: attempt.genreIds,
@@ -105,6 +128,7 @@ export async function recommendRun(
         runtimeLteMinutes: session.runtime_limit_minutes,
         voteCountGte: WEIGHTS.VOTE_COUNT_FLOOR,
         pages: 3,
+        signal: retrievalController.signal,
       });
       if (candidates.length >= 3) {
         break;
@@ -112,6 +136,8 @@ export async function recommendRun(
     }
   } catch {
     return { ok: false, message: "Could not reach TMDB, try again" };
+  } finally {
+    clearTimeout(retrievalTimeout);
   }
   if (candidates.length === 0) {
     return { ok: false, message: "Could not reach TMDB, try again" };

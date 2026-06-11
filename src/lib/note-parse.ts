@@ -71,15 +71,27 @@ export async function parseNote(ai: AiClient, note: string): Promise<ParsedNote>
     return EMPTY;
   }
 
+  // `extract` casts the parsed JSON with `as T` and does not validate shape, and
+  // an `AI_MODEL` override could point at a model that ignores strict mode — so
+  // coerce defensively to string arrays here. This keeps the never-throws
+  // contract structural (a malformed response yields EMPTY, never a TypeError).
+  const genres = asStringArray(result.genres);
+  const people = asStringArray(result.people);
+  const keywords = asStringArray(result.keywords);
+
   const genreIds = dedupe(
-    result.genres.map((name) => genreIdByName(name)).filter((id): id is number => id !== undefined),
+    genres.map((name) => genreIdByName(name)).filter((id): id is number => id !== undefined),
   ).slice(0, MAX_GENRE_IDS);
 
   return {
     genreIds,
-    people: result.people.slice(0, MAX_PEOPLE),
-    keywords: result.keywords.slice(0, MAX_KEYWORDS),
+    people: people.slice(0, MAX_PEOPLE),
+    keywords: keywords.slice(0, MAX_KEYWORDS),
   };
+}
+
+function asStringArray(value: unknown): string[] {
+  return Array.isArray(value) ? value.filter((v): v is string => typeof v === "string") : [];
 }
 
 function dedupe<T>(values: T[]): T[] {

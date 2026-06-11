@@ -1,7 +1,7 @@
 ---
 change_id: ai-note-understanding
 title: Parse the free-text note into search parameters to sharpen retrieval
-status: implemented
+status: impl_reviewed
 created: 2026-06-11
 updated: 2026-06-11
 archived_at: null

@@ -125,6 +125,13 @@ export interface FetchCandidatesOptions {
   voteCountGte?: number;
   /** Watched-exclusion seam (S-05); defaults to empty (no exclusions). */
   excludeMovieIds?: Set<number>;
+  /**
+   * External deadline shared across several fetches (the S-04 relaxation ladder
+   * + entity resolution), so stacked re-queries stay under ONE cumulative budget
+   * instead of each getting a fresh ~8s. When it aborts, this fetch aborts too;
+   * the internal timeout still applies as a per-call ceiling.
+   */
+  signal?: AbortSignal;
 }
 
 /** Default page count — keeps retrieval at ≤3 subrequests for the <10s budget. */
@@ -145,6 +152,16 @@ export async function fetchCandidates(client: TmdbClient, opts: FetchCandidatesO
   const timeout = setTimeout(() => {
     controller.abort();
   }, FETCH_BUDGET_MS);
+  // Fold an external shared deadline (e.g. the relaxation ladder's cumulative
+  // budget) into this fetch's controller so the total can't exceed it.
+  const external = opts.signal;
+  const onExternalAbort = () => {
+    controller.abort();
+  };
+  if (external?.aborted) {
+    controller.abort();
+  }
+  external?.addEventListener("abort", onExternalAbort);
 
   const byId = new Map<number, TmdbMovie>();
   try {
@@ -174,6 +191,7 @@ export async function fetchCandidates(client: TmdbClient, opts: FetchCandidatesO
     // Abort or network error: return what we gathered so far (graceful).
   } finally {
     clearTimeout(timeout);
+    external?.removeEventListener("abort", onExternalAbort);
   }
 
   return [...byId.values()];
