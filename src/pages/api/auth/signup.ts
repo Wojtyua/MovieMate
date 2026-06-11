@@ -12,7 +12,7 @@ export const POST: APIRoute = async (context) => {
   }
   const emailRedirectTo = new URL("/auth/callback", context.url.origin).href;
 
-  const { error } = await supabase.auth.signUp({
+  const { data, error } = await supabase.auth.signUp({
     email,
     password,
     options: { emailRedirectTo },
@@ -20,6 +20,14 @@ export const POST: APIRoute = async (context) => {
 
   if (error) {
     return context.redirect(`/auth/signup?error=${encodeURIComponent(error.message)}`);
+  }
+
+  // When email confirmation is disabled (e.g. local dev), signUp returns a live
+  // session and the user is already signed in — land them on home instead of the
+  // "check your email" interstitial. When confirmation is required, there is no
+  // session yet, so route to the confirm-email page as before.
+  if (data.session) {
+    return context.redirect("/");
   }
 
   return context.redirect("/auth/confirm-email");

@@ -37,6 +37,10 @@ export default function SessionForm({
   const [note, setNote] = useState(initialNote ?? "");
   const [preferred, setPreferred] = useState<Set<number>>(new Set(preferredGenreIds));
   const [excluded, setExcluded] = useState<Set<number>>(new Set(excludedGenreIds));
+  // The form submits natively (full-page POST), so `useFormStatus` never reports
+  // pending — we track the in-flight submission ourselves to drive the loading
+  // overlay and disable the button. Reset by the page reload the redirect causes.
+  const [submitting, setSubmitting] = useState(false);
 
   // Genres are mutually exclusive between preferred and avoid: selecting one
   // side clears the other so the submitted sets stay disjoint (mirrors
@@ -72,7 +76,15 @@ export default function SessionForm({
   }
 
   return (
-    <form method="POST" action="/api/recommendations" className="space-y-5" noValidate>
+    <form
+      method="POST"
+      action="/api/recommendations"
+      className="space-y-5"
+      noValidate
+      onSubmit={() => {
+        setSubmitting(true);
+      }}
+    >
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
           <label htmlFor="mood" className="mb-1 block text-sm text-blue-100/80">
@@ -183,12 +195,16 @@ export default function SessionForm({
 
       <ServerError message={serverError} />
 
-      <SubmitButton pendingText="Finding tonight's picks…" icon={<Clapperboard className="size-4" />}>
+      <SubmitButton
+        pending={submitting}
+        pendingText="Finding tonight's picks…"
+        icon={<Clapperboard className="size-4" />}
+      >
         Get tonight&apos;s picks
       </SubmitButton>
 
       {/* Full-screen overlay while the native POST is in flight; clears on nav. */}
-      <Interstitial />
+      <Interstitial pending={submitting} />
     </form>
   );
 }

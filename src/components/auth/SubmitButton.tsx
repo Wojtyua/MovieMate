@@ -6,10 +6,17 @@ interface SubmitButtonProps {
   pendingText: string;
   icon: ReactNode;
   children: ReactNode;
+  /**
+   * Override for the pending state. `useFormStatus` only reports a pending
+   * submission for forms driven by a React action; native `method="POST"` forms
+   * (like the one-shot session form) must pass their own submitting state here.
+   */
+  pending?: boolean;
 }
 
-export function SubmitButton({ pendingText, icon, children }: SubmitButtonProps) {
-  const { pending } = useFormStatus();
+export function SubmitButton({ pendingText, icon, children, pending: pendingOverride }: SubmitButtonProps) {
+  const { pending: formPending } = useFormStatus();
+  const pending = pendingOverride ?? formPending;
 
   return (
     <Button

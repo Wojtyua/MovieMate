@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Check, Eye } from "lucide-react";
+import { Check, Eye, Clapperboard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { MOVIE_GENRES } from "@/lib/genres";
 import type { Role } from "@/lib/recommend";
@@ -152,6 +152,20 @@ export default function PicksGrid({ picks }: Props) {
           );
         })}
       </div>
+
+      {/* Once a pick closes the decision, offer a way out of this run: start a
+          fresh movie-night session (the watched film is now excluded). */}
+      {markedId !== null ? (
+        <div className="mt-8 flex flex-col items-center gap-3 text-center">
+          <p className="text-sm text-blue-100/70">Enjoy the film! Ready to plan another night?</p>
+          <a
+            href="/sessions"
+            className="inline-flex items-center justify-center gap-2 rounded-lg bg-purple-600 px-6 py-3 font-medium text-white transition-colors hover:bg-purple-500"
+          >
+            <Clapperboard className="size-4" /> Find a new film
+          </a>
+        </div>
+      ) : null}
     </>
   );
 }
