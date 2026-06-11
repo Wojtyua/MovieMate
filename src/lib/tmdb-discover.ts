@@ -31,6 +31,10 @@ export interface TmdbMovie {
 export interface DiscoverParams {
   /** Preferred TMDB genre ids, OR-unioned (`with_genres = a|b|c`). */
   genreIds?: number[];
+  /** AI-derived cast (person) ids, OR-unioned (`with_cast = a|b`); S-04. */
+  castIds?: number[];
+  /** AI-derived keyword ids, OR-unioned (`with_keywords = a|b|c`); S-04. */
+  keywordIds?: number[];
   /** Runtime ceiling in minutes; `with_runtime.lte` only when non-null. */
   runtimeLteMinutes?: number | null;
   /** Minimum vote count floor; keeps low-vote outliers out of the pool. */
@@ -83,6 +87,14 @@ export async function discoverMovies(
     // OR-union: preferred genres are a hint, not an AND filter (FR-006).
     query.set("with_genres", params.genreIds.join("|"));
   }
+  if (params.castIds && params.castIds.length > 0) {
+    // OR-union, consistent with with_genres (S-04 note-derived cast).
+    query.set("with_cast", params.castIds.join("|"));
+  }
+  if (params.keywordIds && params.keywordIds.length > 0) {
+    // OR-union, consistent with with_genres (S-04 note-derived keywords).
+    query.set("with_keywords", params.keywordIds.join("|"));
+  }
   if (params.runtimeLteMinutes != null) {
     // The ONLY hard filter (runtime is unavailable per-candidate).
     query.set("with_runtime.lte", String(params.runtimeLteMinutes));
@@ -103,6 +115,10 @@ export async function discoverMovies(
 /** Options for assembling the full candidate pool. */
 export interface FetchCandidatesOptions {
   genreIds?: number[];
+  /** AI-derived cast ids merged into every discover page (S-04). */
+  castIds?: number[];
+  /** AI-derived keyword ids merged into every discover page (S-04). */
+  keywordIds?: number[];
   runtimeLteMinutes?: number | null;
   /** Number of discover pages to merge; defaults to 3 (subrequest budget). */
   pages?: number;
@@ -140,6 +156,8 @@ export async function fetchCandidates(client: TmdbClient, opts: FetchCandidatesO
         client,
         {
           genreIds: opts.genreIds,
+          castIds: opts.castIds,
+          keywordIds: opts.keywordIds,
           runtimeLteMinutes: opts.runtimeLteMinutes,
           voteCountGte: opts.voteCountGte,
           page,

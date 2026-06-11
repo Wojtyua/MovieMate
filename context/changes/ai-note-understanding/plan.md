@@ -435,25 +435,25 @@ None. `movie_night_sessions.note` already exists; no schema change.
 
 #### Automated
 
-- [x] 2.1 Linting passes: `npm run lint`
-- [x] 2.2 Type checking passes: `npx astro check`
+- [x] 2.1 Linting passes: `npm run lint` — 3d87bad
+- [x] 2.2 Type checking passes: `npx astro check` — 3d87bad
 
 #### Manual
 
-- [x] 2.3 `parseNote` for the Sandler note returns comedy genre ids + `["Adam Sandler"]` within budget
-- [x] 2.4 Empty/garbage note and AI timeout return the empty result; long note is truncated before the call
+- [x] 2.3 `parseNote` for the Sandler note returns comedy genre ids + `["Adam Sandler"]` within budget — 3d87bad
+- [x] 2.4 Empty/garbage note and AI timeout return the empty result; long note is truncated before the call — 3d87bad
 
 ### Phase 3: TMDB Name → Id Resolution
 
 #### Automated
 
-- [ ] 3.1 Linting passes: `npm run lint`
-- [ ] 3.2 Type checking passes: `npx astro check`
+- [x] 3.1 Linting passes: `npm run lint`
+- [x] 3.2 Type checking passes: `npx astro check`
 
 #### Manual
 
-- [ ] 3.3 `searchPerson` / `searchKeyword` resolve real names and return `null` for gibberish
-- [ ] 3.4 `fetchCandidates` with `castIds` returns a visibly different pool
+- [x] 3.3 `searchPerson` / `searchKeyword` resolve real names and return `null` for gibberish
+- [x] 3.4 `fetchCandidates` with `castIds` returns a visibly different pool
 
 ### Phase 4: Pipeline Wiring + Relaxation Ladder + Copy Fix
 
