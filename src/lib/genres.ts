@@ -41,3 +41,15 @@ const GENRE_IDS = new Set(MOVIE_GENRES.map((g) => g.id));
 export function isKnownGenreId(id: number): boolean {
   return GENRE_IDS.has(id);
 }
+
+const GENRE_ID_BY_NAME = new Map(MOVIE_GENRES.map((g) => [g.name.toLowerCase(), g.id]));
+
+/**
+ * Case-insensitive exact-match lookup of a genre name → its TMDB id, for mapping
+ * AI-emitted genre strings to the canonical 19. Returns `undefined` on no match
+ * (caller drops unmatched strings). No synonym/alias table by design — the note
+ * extractor prompts the model with the exact allowed names.
+ */
+export function genreIdByName(name: string): number | undefined {
+  return GENRE_ID_BY_NAME.get(name.trim().toLowerCase());
+}

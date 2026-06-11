@@ -423,25 +423,25 @@ None. `movie_night_sessions.note` already exists; no schema change.
 
 #### Automated
 
-- [x] 1.1 Linting passes: `npm run lint`
-- [x] 1.2 Type checking passes: `npx astro check`
+- [x] 1.1 Linting passes: `npm run lint` — 05cf505
+- [x] 1.2 Type checking passes: `npx astro check` — 05cf505
 
 #### Manual
 
-- [x] 1.3 `pingAi()` still returns `true` against a configured key
-- [x] 1.4 `extract()` returns a typed object for a sample note and `null` (not a throw) on forced timeout
+- [x] 1.3 `pingAi()` still returns `true` against a configured key — 05cf505
+- [x] 1.4 `extract()` returns a typed object for a sample note and `null` (not a throw) on forced timeout — 05cf505
 
 ### Phase 2: Note → Params Extractor
 
 #### Automated
 
-- [ ] 2.1 Linting passes: `npm run lint`
-- [ ] 2.2 Type checking passes: `npx astro check`
+- [x] 2.1 Linting passes: `npm run lint`
+- [x] 2.2 Type checking passes: `npx astro check`
 
 #### Manual
 
-- [ ] 2.3 `parseNote` for the Sandler note returns comedy genre ids + `["Adam Sandler"]` within budget
-- [ ] 2.4 Empty/garbage note and AI timeout return the empty result; long note is truncated before the call
+- [x] 2.3 `parseNote` for the Sandler note returns comedy genre ids + `["Adam Sandler"]` within budget
+- [x] 2.4 Empty/garbage note and AI timeout return the empty result; long note is truncated before the call
 
 ### Phase 3: TMDB Name → Id Resolution
 
