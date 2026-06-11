@@ -26,7 +26,8 @@ export const configStatuses: ConfigStatus[] = [
   {
     name: "AI (OpenRouter)",
     configured: Boolean(OPENROUTER_API_KEY),
-    message: "OpenRouter nie jest skonfigurowany — uzasadnienia AI są wyłączone.",
+    message:
+      "OpenRouter nie jest skonfigurowany — analiza notatki AI jest wyłączona; rekomendacje korzystają tylko z gatunków.",
     docsUrl: "https://openrouter.ai/docs/quickstart",
     docsLabel: "Zobacz instrukcję konfiguracji",
   },

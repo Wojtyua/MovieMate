@@ -116,6 +116,7 @@ export const POST: APIRoute = async (context) => {
     excluded_genre_ids: excluded,
     runtime_limit_minutes: runtimeLimit,
     intensity,
+    note,
   };
 
   // 2. Optional second viewer (duo path, FR-005). Captured on-device and POSTed

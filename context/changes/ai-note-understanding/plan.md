@@ -447,26 +447,26 @@ None. `movie_night_sessions.note` already exists; no schema change.
 
 #### Automated
 
-- [x] 3.1 Linting passes: `npm run lint`
-- [x] 3.2 Type checking passes: `npx astro check`
+- [x] 3.1 Linting passes: `npm run lint` — 5173397
+- [x] 3.2 Type checking passes: `npx astro check` — 5173397
 
 #### Manual
 
-- [x] 3.3 `searchPerson` / `searchKeyword` resolve real names and return `null` for gibberish
-- [x] 3.4 `fetchCandidates` with `castIds` returns a visibly different pool
+- [x] 3.3 `searchPerson` / `searchKeyword` resolve real names and return `null` for gibberish — 5173397
+- [x] 3.4 `fetchCandidates` with `castIds` returns a visibly different pool — 5173397
 
 ### Phase 4: Pipeline Wiring + Relaxation Ladder + Copy Fix
 
 #### Automated
 
-- [ ] 4.1 Linting passes: `npm run lint`
-- [ ] 4.2 Type checking passes: `npx astro check`
+- [x] 4.1 Linting passes: `npm run lint`
+- [x] 4.2 Type checking passes: `npx astro check`
 
 #### Manual
 
-- [ ] 4.3 Sandler note returns three picks with a note-reflecting pool
-- [ ] 4.4 Empty note returns three picks identical to pre-S-04 genre-only
-- [ ] 4.5 Forced AI failure returns three picks via genre-only fallback, no 500
-- [ ] 4.6 Over-narrow note returns three picks via the relaxation ladder
-- [ ] 4.7 End-to-end run completes within `< 10 s`
-- [ ] 4.8 AI config-status message reads as note-analysis copy
+- [x] 4.3 Sandler note returns three picks with a note-reflecting pool
+- [x] 4.4 Empty note returns three picks identical to pre-S-04 genre-only
+- [x] 4.5 Forced AI failure returns three picks via genre-only fallback, no 500
+- [x] 4.6 Over-narrow note returns three picks via the relaxation ladder
+- [x] 4.7 End-to-end run completes within `< 10 s`
+- [x] 4.8 AI config-status message reads as note-analysis copy

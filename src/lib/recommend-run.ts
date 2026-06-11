@@ -1,6 +1,9 @@
 import type { createClient } from "@/lib/supabase";
 import { createTmdbClient } from "@/lib/tmdb";
-import { fetchCandidates } from "@/lib/tmdb-discover";
+import { createAiClient } from "@/lib/ai";
+import { parseNote } from "@/lib/note-parse";
+import { resolveEntities } from "@/lib/tmdb-search";
+import { fetchCandidates, type TmdbMovie } from "@/lib/tmdb-discover";
 import { recommend, WEIGHTS, type Taste, type SessionPrefs } from "@/lib/recommend";
 
 /** The (non-null) Supabase client the pipeline persists through. */
@@ -13,6 +16,8 @@ export interface RecommendRunSession extends SessionPrefs {
   preferred_genre_ids: number[];
   excluded_genre_ids: number[];
   runtime_limit_minutes: number | null;
+  /** Free-text note (S-04); parsed into extra discover signal, or `null`. */
+  note: string | null;
 }
 
 /** Discriminated result of a run: success carries the persisted run id and the
@@ -53,14 +58,58 @@ export async function recommendRun(
   // discover hint is the union of both viewers' preferred genres so the
   // candidate pool covers the duo (solo path: just tonight's preferred).
   const discoverGenreIds = [...new Set([...taste.preferred_genre_ids, ...(second?.preferred_genre_ids ?? [])])];
-  let candidates;
+
+  // S-04: parse the free-text note into extra discover signal (extra genres,
+  // cast ids, keyword ids). Every step fails soft to empty, so when there is no
+  // note — or AI is unconfigured / slow / erroring — these stay empty and the
+  // discover call below is byte-for-byte today's genre-only retrieval.
+  let aiGenreIds: number[] = [];
+  let castIds: number[] = [];
+  let keywordIds: number[] = [];
+  if (session.note) {
+    const ai = createAiClient();
+    if (ai) {
+      const parsed = await parseNote(ai, session.note);
+      aiGenreIds = parsed.genreIds;
+      const resolved = await resolveEntities(tmdb, {
+        people: parsed.people,
+        keywords: parsed.keywords,
+      });
+      castIds = resolved.castIds;
+      keywordIds = resolved.keywordIds;
+    }
+  }
+
+  // Relaxation ladder (OQ-2 / FR-007). Stacked AI filters can drain the pool
+  // below three picks, so try the fully-constrained query first and drop filters
+  // in a fixed order — keywords → cast → AI-genres → genre-only baseline —
+  // stopping at the first attempt with ≥3 candidates. `dedupeAttempts` collapses
+  // steps that don't actually change the filter set (so a note-less run issues a
+  // single query), and the final attempt is exactly today's genre-only call, so
+  // retrieval is never worse than before S-04.
+  const augmentedGenreIds = [...new Set([...discoverGenreIds, ...aiGenreIds])];
+  const ladder = dedupeAttempts([
+    { genreIds: augmentedGenreIds, castIds, keywordIds },
+    { genreIds: augmentedGenreIds, castIds, keywordIds: [] },
+    { genreIds: augmentedGenreIds, castIds: [], keywordIds: [] },
+    { genreIds: discoverGenreIds, castIds: [], keywordIds: [] },
+  ]);
+
+  let candidates: TmdbMovie[] = [];
   try {
-    candidates = await fetchCandidates(tmdb, {
-      genreIds: discoverGenreIds,
-      runtimeLteMinutes: session.runtime_limit_minutes,
-      voteCountGte: WEIGHTS.VOTE_COUNT_FLOOR,
-      pages: 3,
-    });
+    for (const attempt of ladder) {
+      candidates = await fetchCandidates(tmdb, {
+        genreIds: attempt.genreIds,
+        castIds: attempt.castIds,
+        keywordIds: attempt.keywordIds,
+        runtimeLteMinutes: session.runtime_limit_minutes,
+        voteCountGte: WEIGHTS.VOTE_COUNT_FLOOR,
+        pages: 3,
+      });
+      if (candidates.length >= 3) {
+        break;
+      }
+    }
   } catch {
     return { ok: false, message: "Could not reach TMDB, try again" };
   }
@@ -110,4 +159,32 @@ export async function recommendRun(
   }
 
   return { ok: true, recommendationId, redirectTo: `/sessions/${session.id}/recommendations` };
+}
+
+/** One discover query's filter set in the relaxation ladder (S-04). */
+interface DiscoverAttempt {
+  genreIds: number[];
+  castIds: number[];
+  keywordIds: number[];
+}
+
+/**
+ * Drop ladder steps whose filter set is identical to one already kept, preserving
+ * order. A note-less run (or one where every AI filter dropped out) collapses to
+ * a single genre-only attempt, so we never spend extra subrequests re-querying
+ * the same thing.
+ */
+function dedupeAttempts(attempts: DiscoverAttempt[]): DiscoverAttempt[] {
+  const seen = new Set<string>();
+  const out: DiscoverAttempt[] = [];
+  for (const attempt of attempts) {
+    const sig = [attempt.genreIds, attempt.castIds, attempt.keywordIds]
+      .map((ids) => [...ids].sort((a, b) => a - b).join(","))
+      .join("|");
+    if (!seen.has(sig)) {
+      seen.add(sig);
+      out.push(attempt);
+    }
+  }
+  return out;
 }
