@@ -3,10 +3,10 @@ project: MovieMate
 version: 1
 status: draft
 created: 2026-06-06
-updated: 2026-06-11
+updated: 2026-06-12
 prd_version: 1
 main_goal: low-complexity
-top_blocker: none
+top_blocker: none (S-08 closed 2026-06-12 — no reproducible defect; see Done)
 ---
 
 # Roadmap: MovieMate — Session-First Flow Reshape
@@ -37,6 +37,7 @@ MovieMate fights movie-night decision paralysis by returning three scored, role-
 | S-05 | select-and-mark-watched       | select one pick and mark it watched (excluded from future picks) | S-02          | US-01, FR-011, FR-012             | done     |
 | S-06 | navigation-cleanup            | reach every page through one coherent navbar; no dashboard detour | S-02          | US-01 (UX/IA correction — no new FR) | done     |
 | S-07 | one-shot-recommend            | set tonight's preferences and get three picks in a single action | S-02, S-03    | US-01, FR-003, FR-004             | done     |
+| S-08 | concurrent-user-isolation     | use the app concurrently with other logged-in users without sessions colliding or data leaking | —             | US-01 (correctness/security defect — no new FR) | done (no defect) |
 
 ## Streams
 
@@ -47,6 +48,7 @@ Navigation aid — groups items that share a Prerequisites chain. Canonical orde
 | A      | Model & solo flow      | `S-01` → `S-02`                | The reshape backbone and the north-star path; everything else hangs off `S-02`.       |
 | B      | Flow extensions        | `S-03` / `S-04` / `S-05`       | Three independent extensions, all join Stream A at `S-02`; plannable in parallel.      |
 | C      | Flow polish (post-ship)| `S-06` / `S-07`                | Corrections to the shipped flow, framed in `context/changes/<id>/frame.md`. `S-06` is independent UI/IA; `S-07` touches the recommendations pipeline (test-plan Risk #1) — sequence with/after test-plan Phase 1. |
+| D      | Reliability (post-deploy)| `S-08`                       | Investigated post-deploy report of concurrent-user breakage. `/10x-research` + live Supabase diagnostics found the code per-request-correct and isolation sound; the symptom did not reproduce. **Closed 2026-06-12 as no reproducible defect** (no longer a blocker). |
 
 ## Baseline
 
@@ -155,6 +157,22 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Risk:** Runs on the recommendations pipeline = **Risk #1** in `context/foundation/test-plan.md` ("fewer than three picks"). The reframe: the root is not the extra click but that "save a session" is leaked into the user's mental model as a step — collapse to one action *and* retire the save-session language, keeping the session row as an invisible server-side byproduct (FK `recommendations.session_id NOT NULL` forces persistence). **Sequence with or after test-plan Phase 1** so the merge lands against the always-three-picks safety net. Framed in `context/changes/one-shot-recommend/frame.md` (Confidence HIGH).
 - **Status:** done
 
+### S-08: Concurrent logged-in users don't collide (multi-user isolation)
+
+- **Outcome:** two or more users logged in at the same time can each run their own movie-night flow independently — one user creating a session and choosing tonight's preferences never breaks, hijacks, or leaks into another user's session, and a second person logging in mid-flow does not disrupt the first. Each request is served strictly in its own user's context.
+- **Change ID:** concurrent-user-isolation
+- **PRD refs:** US-01 (correctness/security defect surfaced post-deploy — no new FR; reinforces the owner-scoped data convention behind FR-008/FR-009)
+- **Prerequisites:** — (a fix on the already-shipped flow; not gated by any reshape slice)
+- **Parallel with:** — (sits outside the reshape chain)
+- **Blockers:** — (was the top blocker pre-investigation; closed 2026-06-12 as no defect — see Resolution below)
+- **Unknowns:**
+  - Root cause is not yet confirmed and must be established by `/10x-research`, not assumed here. The leading hypothesis is shared mutable server-side auth/session state across concurrent requests on the SSR runtime (e.g. a module-level or otherwise non-per-request Supabase/auth client whose identity is overwritten when a second user authenticates), so one request ends up serving another user's identity. Alternatives to rule out: cookie/session handling that isn't request-scoped, and any in-memory state holding the "current user." — Owner: user/team. Block: no (resolve in `/10x-research`).
+  - Whether the failure is purely a crash/disruption or also a cross-account **data exposure** (one user seeing another's taste core, session, or picks). If exposure is possible this is a security incident, not just a reliability bug, and prioritization rises accordingly. — Owner: user/team. Block: no.
+  - How to reproduce deterministically (two concurrent authenticated sessions, second login during the first user's preference step) — needed before and after the fix to prove it. — Owner: user/team. Block: no.
+- **Risk:** Production-impacting and likely a security concern: if server-side identity is shared across concurrent requests, the app is effectively single-user despite per-user data and the owner-scoped RLS convention — and may leak data between accounts. This is the highest-severity open item because it breaks the core promise that each account sees only its own data (the same isolation guarantee S-01–S-05 were built on). The fix is expected to live at the request/auth boundary rather than in any feature slice, so it is intentionally kept independent of the reshape chain. Pair with a concurrency-focused regression test (two simultaneous authenticated flows) — coordinate with `context/foundation/test-plan.md` so the isolation guarantee lands against a lasting safety net.
+- **Resolution (2026-06-12):** Closed as **no reproducible defect**. `/10x-research` refuted the leading hypothesis — the Supabase client is a per-request factory (`src/lib/supabase.ts`), there is no shared mutable per-user state, identity uses the secure `getUser()`, and RLS is enabled + correct on every table (verified live via Supabase advisors + `list_tables`; DB-layer isolation already proven by `supabase/tests/*_isolation.sql`). The operator confirmed concurrent use works in practice. Likely original symptom: a transient (shared external rate limit, or two accounts in the same browser cookie jar). The "harden + repro" plan (optional defense-in-depth owner filters) was **not** implemented; it stays on the shelf in the archived folder as the starting point should the symptom ever return under real concurrent load. The unknowns above are resolved in `context/archive/2026-06-12-concurrent-user-isolation/research.md` (Outcome section).
+- **Status:** done (no defect — closed without code change)
+
 ## Backlog Handoff
 
 | Roadmap ID | Change ID                     | Suggested issue title                                  | Ready for `/10x-plan` | Notes                                   |
@@ -166,6 +184,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 | S-05       | select-and-mark-watched       | Select a pick and mark it watched (dedup filter)       | done                  | Archived → `context/archive/2026-06-11-select-and-mark-watched/` |
 | S-06       | navigation-cleanup            | Navigation cleanup — remove dashboard, global navbar   | done                  | Archived → `context/archive/2026-06-10-navigation-cleanup/` |
 | S-07       | one-shot-recommend            | One-shot recommend — preferences → picks in one action | done                  | Archived → `context/archive/2026-06-10-one-shot-recommend/` |
+| S-08       | concurrent-user-isolation     | Fix concurrent logged-in users breaking each other (multi-user isolation) | done (no defect)      | Investigated + closed as no reproducible defect; archived → `context/archive/2026-06-12-concurrent-user-isolation/` |
 
 ## Open Roadmap Questions
 
@@ -191,3 +210,4 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **S-07: user submits tonight's preferences and receives three picks in one action — no separate "save session" step, no second "Get recommendations" click — with a short interstitial covering the work.** — Archived 2026-06-10 → `context/archive/2026-06-10-one-shot-recommend/`. Lesson: —.
 - **S-04: user can type a free-text note ("something dumb, maybe with Adam Sandler") and have it parsed into structured search parameters (genres, people/cast, keywords) that improve the candidate set, with graceful fallback to genre-only retrieval.** — Archived 2026-06-11 → `context/archive/2026-06-11-ai-note-understanding/`. Lesson: —.
 - **S-05: user can select one recommendation to close the decision, mark it watched, and have watched films excluded from future candidate retrieval for the account.** — Archived 2026-06-11 → `context/archive/2026-06-11-select-and-mark-watched/`. Lesson: —.
+- **S-08: concurrent logged-in users don't collide — investigated as a post-deploy report and closed as NO reproducible defect (no code change).** Research refuted the shared-state hypothesis (per-request client, no shared mutable state, RLS on + correct, DB isolation already pgTAP-proven); operator confirmed concurrent use works. — Archived 2026-06-12 → `context/archive/2026-06-12-concurrent-user-isolation/`. Lesson: a bug report's leading root-cause hypothesis must be reproduced/confirmed before planning a fix — here research + live diagnostics caught a non-defect before any code was written.
