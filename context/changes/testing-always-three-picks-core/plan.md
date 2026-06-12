@@ -484,24 +484,24 @@ config, and package.json scripts.
 
 #### Automated
 
-- [x] 1.1 Vitest is installed: `npm ls vitest` resolves a 3.x version
-- [x] 1.2 The suite runs and passes: `npm run test:run`
-- [x] 1.3 The `@/*` alias resolves inside a test
-- [x] 1.4 Lint passes: `npm run lint`
+- [x] 1.1 Vitest is installed: `npm ls vitest` resolves a 3.x version — 63d827e
+- [x] 1.2 The suite runs and passes: `npm run test:run` — 63d827e
+- [x] 1.3 The `@/*` alias resolves inside a test — 63d827e
+- [x] 1.4 Lint passes: `npm run lint` — 63d827e
 
 #### Manual
 
-- [x] 1.5 `npm run test` watch mode starts and re-runs on change
-- [x] 1.6 No Astro/Cloudflare runtime warnings in the unit run
+- [x] 1.5 `npm run test` watch mode starts and re-runs on change — 63d827e
+- [x] 1.6 No Astro/Cloudflare runtime warnings in the unit run — 63d827e
 
 ### Phase 2: Pure-layer unit suite — `recommend()`
 
 #### Automated
 
-- [ ] 2.1 Unit suite passes: `npm run test:run`
-- [ ] 2.2 Type checking passes: `astro check`
-- [ ] 2.3 Lint passes: `npm run lint`
-- [ ] 2.4 No test asserts an exact float score value
+- [x] 2.1 Unit suite passes: `npm run test:run`
+- [x] 2.2 Type checking passes: `astro check`
+- [x] 2.3 Lint passes: `npm run lint`
+- [x] 2.4 No test asserts an exact float score value
 
 #### Manual
 
