@@ -82,7 +82,7 @@ orchestrator updates Status as artifacts appear on disk.
 
 | # | Phase name | Goal (one line) | Risks covered | Test types | Status | Change folder |
 |---|------------|-----------------|---------------|------------|--------|---------------|
-| 1 | Bootstrap + "always three picks" core | Stand up Vitest; defend R1 + R5 at the cheapest layer | #1, #5 | unit + integration | change opened | context/changes/testing-always-three-picks-core/ |
+| 1 | Bootstrap + "always three picks" core | Stand up Vitest; defend R1 + R5 at the cheapest layer | #1, #5 | unit + integration | implementing | context/changes/testing-always-three-picks-core/ |
 | 2 | Graceful degradation at the external edge | TMDB / OpenRouter failure → genre-only fallback, still three picks | #2 | integration + network mock (MSW) | not started | — |
 | 3 | Own-data isolation | User B cannot reach user A's data (IDOR / RLS) | #4 | integration (two users) | not started | — |
 | 4 | E2E critical path | home → three picks end-to-end | #3 | e2e (Playwright) | not started | — |
@@ -149,11 +149,22 @@ relevant rollout phase ships; before that, the sub-section reads
 
 ### 6.1 Adding a unit test
 
-- TBD — see §3 Phase 1 (deterministic scoring / role-assignment rules: cardinality branch, wild-card genre ≠ safe, ≤ 3; oracle from PRD, never from the implementation).
+Worked example: `src/lib/recommend/roles.test.ts` + `src/lib/recommend/__fixtures__/movies.ts` (Phase 1).
+
+- **Build fixtures with a `makeMovie(partial)` factory** that returns a fully-populated `TmdbMovie` with neutral defaults, overriding only the fields the test cares about (`genre_ids`, `vote_average`, `vote_count`, `popularity`). Keep each named pool a small function returning a fresh array.
+- **Force the outcome by construction, never by asserting a float score** (§7). Order the pool so the intended winner is unambiguous: give the safe candidate the strongest preferred-genre match + top quality/popularity, the middle candidate the next popularity, and the wild card a genre-disjoint set. Zero out the session signal where it would muddy reasoning (`mood: null`, `intensity: "medium"`). Assert role labels, distinct ids, ≤ 3, and wild-card-genre-disjointness — never `pick.score`.
+- **Parameterize per invariant, not per case.** Use `it.each` over `{solo, duo}` for each shape invariant (≤ 3, distinct ids, role vocabulary, wild-card genre ≠ safe) so one test pins one property across both cardinalities; reserve discrete tests for the named edges (solo-never-`compromise`, Jaccard fallback, `min(N,3)` for 2/1/0, dedup). A `requirePick` helper that throws keeps assertions free of non-null `!` (lint forbids it).
+- **Oracle from the PRD/research, never from the implementation.** The expected role-by-cardinality and "wild card differs in genre" come from FR-009 / research.md, not from reading `roles.ts`.
 
 ### 6.2 Adding an integration test (recommendations pipeline)
 
-- TBD — see §3 Phase 1 ("always three picks" with healthy mocks) and §3 Phase 2 (graceful degradation; mock only the network edge with MSW, never internal modules).
+Worked example: `src/lib/recommend-run.test.ts` + `src/lib/__fixtures__/recommend-run-doubles.ts` (Phase 1, "always three picks" with healthy doubles). Graceful-degradation + MSW recipes still pending — see §3 Phase 2.
+
+- **Stub the network EDGE, never an internal module.** `recommendRun` builds its own TMDB client (`createTmdbClient()`) and makes its own Supabase calls — it does not take a stub arg for them. So the honest seam is global `fetch` + the env token + a fake `SupabaseClient`. Do not mock `@/lib/recommend*`.
+- **`fetch` stub keyed on the `page` query param.** `vi.stubGlobal("fetch", fn)` where `fn` parses the request URL, reads `page`, and returns an `ok: true` Response whose `.json()` yields `{ results }` varying per page — that makes dedup-across-pages meaningful. The raw items only need the fields `normalizeMovie` reads (id, title, genre_ids, vote_average, vote_count, popularity). `vi.unstubAllGlobals()` in `afterEach`.
+- **`astro:env/server` token shim, scoped to the file.** `vi.mock("astro:env/server", () => ({ TMDB_READ_ACCESS_TOKEN: "test-token", … }))` at the top (hoisted). Without a truthy token `createTmdbClient()` returns `null` and `recommendRun` short-circuits before the ladder. Export the other names that module owns too (ai.ts reads `OPENROUTER_API_KEY`/`AI_MODEL` at load). Keep this in the integration file only so the unit suite stays infra-free.
+- **Hand-rolled fake `SupabaseClient`** covering exactly the three calls: `from("watched").select(…).eq(…)` → `{ data }`; `from("recommendations").insert(…).select("id").single()` → `{ data: { id } }`; `from("recommendation_picks").insert(rows)` → `{ error }` (capture `rows` for assertions). Cast with `as unknown as Parameters<typeof recommendRun>[0]`.
+- **Assert supply, not scores:** persisted pick count + distinct `tmdb_movie_id` + valid roles, watched-id absence, and the two faces of R1 (2 films → `ok:true` 2 picks; 0 → `ok:false`).
 
 ### 6.3 Adding an own-data / authorization test
 
@@ -171,6 +182,19 @@ relevant rollout phase ships; before that, the sub-section reads
 
 (Optional. After each phase lands, `/10x-implement` appends a 2–3 line note
 here capturing anything surprising the rollout phase taught.)
+
+**Phase 1 — bootstrap + "always three picks" core (R1 + R5).** "Always three" is
+not one invariant: it splits into a pure *shape* layer (`recommend()`: ≤3,
+distinct, role-by-cardinality, wild-card genre ≠ safe, but `min(N,3)` — never
+fabricates a third) and a retrieval *supply* layer (the ladder widens the pool
+toward ≥3). The two faces of R1 — a healthy ≥3 pool drained (defect) vs a
+genuinely thin universe (physics) — are tested separately. The supply seam is
+**`fetch` + env token + a fake Supabase**, not an injected stub, because
+`recommendRun` builds its own TMDB client. Multi-rung relaxation *progression*
+needs a note → the AI path → **deferred to Phase 2**; the no-note path collapses
+the ladder to one genre-only rung. Selective mutation gate (ad hoc, not CI):
+`npx stryker run --mutate "src/lib/recommend/roles.ts"` after this phase, then
+kill only survived mutants that would hurt a user (per CLAUDE.md guidance).
 
 ## 7. What We Deliberately Don't Test
 

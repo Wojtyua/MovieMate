@@ -512,10 +512,10 @@ config, and package.json scripts.
 
 #### Automated
 
-- [x] 3.1 Integration suite passes: `npm run test:run`
-- [x] 3.2 Type checking passes: `astro check`
-- [x] 3.3 Lint passes: `npm run lint`
-- [x] 3.4 No real network call is made (passes offline; `fetch` stubbed)
+- [x] 3.1 Integration suite passes: `npm run test:run` — 078d2a7
+- [x] 3.2 Type checking passes: `astro check` — 078d2a7
+- [x] 3.3 Lint passes: `npm run lint` — 078d2a7
+- [x] 3.4 No real network call is made (passes offline; `fetch` stubbed) — 078d2a7
 
 #### Manual
 
@@ -527,8 +527,8 @@ config, and package.json scripts.
 
 #### Automated
 
-- [ ] 4.1 §6.1/§6.2 no longer contain the "TBD — see §3 Phase 1" stubs
-- [ ] 4.2 Full suite still green: `npm run test:run`
+- [x] 4.1 §6.1/§6.2 no longer contain the "TBD — see §3 Phase 1" stubs
+- [x] 4.2 Full suite still green: `npm run test:run`
 
 #### Manual
 
