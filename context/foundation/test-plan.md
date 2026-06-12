@@ -6,7 +6,7 @@
 >
 > Refresh: re-run `/10x-test-plan --refresh` when stale (see §8).
 >
-> Last updated: 2026-06-08
+> Last updated: 2026-06-12
 
 ## 1. Strategy
 
@@ -82,7 +82,7 @@ orchestrator updates Status as artifacts appear on disk.
 
 | # | Phase name | Goal (one line) | Risks covered | Test types | Status | Change folder |
 |---|------------|-----------------|---------------|------------|--------|---------------|
-| 1 | Bootstrap + "always three picks" core | Stand up Vitest; defend R1 + R5 at the cheapest layer | #1, #5 | unit + integration | implementing | context/changes/testing-always-three-picks-core/ |
+| 1 | Bootstrap + "always three picks" core | Stand up Vitest; defend R1 + R5 at the cheapest layer | #1, #5 | unit + integration | complete | context/archive/2026-06-12-testing-always-three-picks-core/ |
 | 2 | Graceful degradation at the external edge | TMDB / OpenRouter failure → genre-only fallback, still three picks | #2 | integration + network mock (MSW) | not started | — |
 | 3 | Own-data isolation | User B cannot reach user A's data (IDOR / RLS) | #4 | integration (two users) | not started | — |
 | 4 | E2E critical path | home → three picks end-to-end | #3 | e2e (Playwright) | not started | — |
@@ -111,7 +111,7 @@ The classic test base for this project. AI-native tools (if any) carry a
 
 | Layer | Tool | Version | Notes |
 |-------|------|---------|-------|
-| unit + integration | Vitest | none yet — see §3 Phase 1 | Vite 7 is already pinned (`overrides`), so Vitest 3.x fits; bootstrapped in Phase 1 |
+| unit + integration | Vitest | 3.2.6 | Vite 7 pinned (`overrides`); bootstrapped in Phase 1 (`vitest.config.ts`, `npm run test` / `test:run`) |
 | API mocking | MSW | none yet — see §3 Phase 2 | Mock only the network edge (TMDB / OpenRouter) |
 | e2e | Playwright | none yet — see §3 Phase 4 | App runs on Cloudflare workerd; `astro dev` is real workerd locally |
 | database | pgTAP (Supabase) | present | `supabase/tests/`, run via `npm run db:verify` — existing RLS-level coverage |
