@@ -498,10 +498,10 @@ config, and package.json scripts.
 
 #### Automated
 
-- [x] 2.1 Unit suite passes: `npm run test:run`
-- [x] 2.2 Type checking passes: `astro check`
-- [x] 2.3 Lint passes: `npm run lint`
-- [x] 2.4 No test asserts an exact float score value
+- [x] 2.1 Unit suite passes: `npm run test:run` — 6c58ffc
+- [x] 2.2 Type checking passes: `astro check` — 6c58ffc
+- [x] 2.3 Lint passes: `npm run lint` — 6c58ffc
+- [x] 2.4 No test asserts an exact float score value — 6c58ffc
 
 #### Manual
 
@@ -512,10 +512,10 @@ config, and package.json scripts.
 
 #### Automated
 
-- [ ] 3.1 Integration suite passes: `npm run test:run`
-- [ ] 3.2 Type checking passes: `astro check`
-- [ ] 3.3 Lint passes: `npm run lint`
-- [ ] 3.4 No real network call is made (passes offline; `fetch` stubbed)
+- [x] 3.1 Integration suite passes: `npm run test:run`
+- [x] 3.2 Type checking passes: `astro check`
+- [x] 3.3 Lint passes: `npm run lint`
+- [x] 3.4 No real network call is made (passes offline; `fetch` stubbed)
 
 #### Manual
 
