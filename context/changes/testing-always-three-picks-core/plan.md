@@ -505,8 +505,8 @@ config, and package.json scripts.
 
 #### Manual
 
-- [ ] 2.5 Each test maps to a distinct R5 failure — no redundant copies
-- [ ] 2.6 `min(N,3)` tests document no-fabrication (comment present)
+- [x] 2.5 Each test maps to a distinct R5 failure — no redundant copies — 6c58ffc
+- [x] 2.6 `min(N,3)` tests document no-fabrication (comment present) — 6c58ffc
 
 ### Phase 3: Supply-layer integration suite — `recommendRun`
 
@@ -519,9 +519,9 @@ config, and package.json scripts.
 
 #### Manual
 
-- [ ] 3.5 Watched-exclusion test fails if the exclusion seam is removed (teeth)
-- [ ] 3.6 2-film boundary test reads as the physics face of R1
-- [ ] 3.7 No internal `@/lib/recommend*` module is mocked
+- [x] 3.5 Watched-exclusion test fails if the exclusion seam is removed (teeth) — 078d2a7
+- [x] 3.6 2-film boundary test reads as the physics face of R1 — 078d2a7
+- [x] 3.7 No internal `@/lib/recommend*` module is mocked — 078d2a7
 
 ### Phase 4: Cookbook + test-plan sync
 
@@ -532,5 +532,5 @@ config, and package.json scripts.
 
 #### Manual
 
-- [ ] 4.3 A new contributor could add a unit + integration test from §6.1/§6.2
-- [ ] 4.4 §6.6 records the two-layer split and the Stryker pointer
+- [x] 4.3 A new contributor could add a unit + integration test from §6.1/§6.2 — b2fd69f
+- [x] 4.4 §6.6 records the two-layer split and the Stryker pointer — b2fd69f
