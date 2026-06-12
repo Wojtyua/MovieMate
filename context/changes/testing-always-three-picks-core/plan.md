@@ -527,8 +527,8 @@ config, and package.json scripts.
 
 #### Automated
 
-- [x] 4.1 §6.1/§6.2 no longer contain the "TBD — see §3 Phase 1" stubs
-- [x] 4.2 Full suite still green: `npm run test:run`
+- [x] 4.1 §6.1/§6.2 no longer contain the "TBD — see §3 Phase 1" stubs — b2fd69f
+- [x] 4.2 Full suite still green: `npm run test:run` — b2fd69f
 
 #### Manual
 
