@@ -249,25 +249,25 @@ headings. Unique data; no `waitForTimeout`; reviewed against the five anti-patte
 
 #### Automated
 
-- [x] 1.1 Playwright installed; `npx playwright --version` works
-- [x] 1.2 `npm run test:e2e -- seed.spec.ts` runs setup + seed green
-- [x] 1.3 Seed runs twice consecutively, still green
-- [x] 1.4 `npm run typecheck` and `npm run lint` pass with new files
+- [x] 1.1 Playwright installed; `npx playwright --version` works — 211653d
+- [x] 1.2 `npm run test:e2e -- seed.spec.ts` runs setup + seed green — 211653d
+- [x] 1.3 Seed runs twice consecutively, still green — 211653d
+- [x] 1.4 `npm run typecheck` and `npm run lint` pass with new files — 211653d
 
 #### Manual
 
-- [x] 1.5 `playwright/.auth/user.json` created; chromium project starts authenticated
-- [x] 1.6 `.gitignore` keeps auth state + reports untracked
+- [x] 1.5 `playwright/.auth/user.json` created; chromium project starts authenticated — 211653d
+- [x] 1.6 `.gitignore` keeps auth state + reports untracked — 211653d
 
 ### Phase 2: Critical-path E2E test for Risk #3
 
 #### Automated
 
-- [ ] 2.1 `critical-path-three-picks.spec.ts` passes against the running app
-- [ ] 2.2 Deliberate break makes the test red; reverted, never committed
-- [ ] 2.3 Full e2e suite runs twice consecutively, all green
+- [x] 2.1 `critical-path-three-picks.spec.ts` passes against the running app
+- [x] 2.2 Deliberate break makes the test red; reverted, never committed
+- [x] 2.3 Full e2e suite runs twice consecutively, all green
 
 #### Manual
 
-- [ ] 2.4 Recommendations page visibly shows three picks with role badges
-- [ ] 2.5 Deliberate-break red observed and reverted before commit
+- [x] 2.4 Recommendations page visibly shows three picks with role badges
+- [x] 2.5 Deliberate-break red observed and reverted before commit
