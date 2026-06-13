@@ -391,12 +391,12 @@ final phase.
 
 #### Automated
 
-- [x] 1.1 Hook script is executable (`test -x .claude/hooks/post-edit-quality.sh`)
-- [x] 1.2 `settings.json` is valid JSON (`jq empty .claude/settings.json`)
-- [x] 1.3 Pass path: clean risk-file stdin stub exits 0
-- [x] 1.4 Block path: lint-error / failing-test stub exits 2 with stderr diagnostic
-- [x] 1.5 Non-risk path: non-risk `*.ts` stub runs lint only, exits 0
-- [x] 1.6 `npm run lint` still passes
+- [x] 1.1 Hook script is executable (`test -x .claude/hooks/post-edit-quality.sh`) — 97bdb10
+- [x] 1.2 `settings.json` is valid JSON (`jq empty .claude/settings.json`) — 97bdb10
+- [x] 1.3 Pass path: clean risk-file stdin stub exits 0 — 97bdb10
+- [x] 1.4 Block path: lint-error / failing-test stub exits 2 with stderr diagnostic — 97bdb10
+- [x] 1.5 Non-risk path: non-risk `*.ts` stub runs lint only, exits 0 — 97bdb10
+- [x] 1.6 `npm run lint` still passes — 97bdb10
 
 #### Manual
 
@@ -408,11 +408,11 @@ final phase.
 
 #### Automated
 
-- [ ] 2.1 `npm run typecheck` exits 0 on clean tree
-- [ ] 2.2 `npm run test:run` exits 0
-- [ ] 2.3 Pre-push hook is executable (`test -x .husky/pre-push`)
-- [ ] 2.4 `.husky/pre-push` on clean tree exits 0
-- [ ] 2.5 Injected type error makes `.husky/pre-push` exit non-zero before tests (then reverted)
+- [x] 2.1 `npm run typecheck` exits 0 on clean tree
+- [x] 2.2 `npm run test:run` exits 0
+- [x] 2.3 Pre-push hook is executable (`test -x .husky/pre-push`)
+- [x] 2.4 `.husky/pre-push` on clean tree exits 0
+- [x] 2.5 Injected type error makes `.husky/pre-push` exit non-zero before tests (then reverted)
 
 #### Manual
 
