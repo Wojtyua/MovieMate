@@ -85,7 +85,7 @@ orchestrator updates Status as artifacts appear on disk.
 | 1   | Bootstrap + "always three picks" core     | Stand up Vitest; defend R1 + R5 at the cheapest layer               | #1, #5        | unit + integration               | complete    | context/archive/2026-06-12-testing-always-three-picks-core/ |
 | 2   | Graceful degradation at the external edge | TMDB / OpenRouter failure → genre-only fallback, still three picks  | #2            | integration + network mock (MSW) | not started | —                                                           |
 | 3   | Own-data isolation                        | User B cannot reach user A's data (IDOR / RLS)                      | #4            | integration (two users)          | not started | —                                                           |
-| 4   | E2E critical path                         | home → three picks end-to-end                                       | #3            | e2e (Playwright)                 | not started | —                                                           |
+| 4   | E2E critical path                         | home → three picks end-to-end                                       | #3            | e2e (Playwright)                 | complete    | context/changes/e2e-critical-path/                          |
 | 5   | Quality-gates wiring                      | Lock the floor: lint + typecheck + scoped-test hooks and pre-commit | cross-cutting | gates / hooks                    | complete    | context/archive/2026-06-12-quality-gates-wiring/            |
 
 **Status vocabulary** (fixed — parser literals):
@@ -109,14 +109,14 @@ triggered by a real bug, not a rollout phase.
 The classic test base for this project. AI-native tools (if any) carry a
 `checked:` date so future readers can see which lines need re-verification.
 
-| Layer              | Tool              | Version                   | Notes                                                                                                  |
-| ------------------ | ----------------- | ------------------------- | ------------------------------------------------------------------------------------------------------ |
-| unit + integration | Vitest            | 3.2.6                     | Vite 7 pinned (`overrides`); bootstrapped in Phase 1 (`vitest.config.ts`, `npm run test` / `test:run`) |
-| API mocking        | MSW               | none yet — see §3 Phase 2 | Mock only the network edge (TMDB / OpenRouter)                                                         |
-| e2e                | Playwright        | none yet — see §3 Phase 4 | App runs on Cloudflare workerd; `astro dev` is real workerd locally                                    |
-| database           | pgTAP (Supabase)  | present                   | `supabase/tests/`, run via `npm run db:verify` — existing RLS-level coverage                           |
-| lint / format      | ESLint + Prettier | present                   | `npm run lint`; husky pre-commit runs lint-staged (Husky activated via `prepare` script, Phase 5)      |
-| typecheck          | `astro check`     | present                   | `npm run typecheck` (`astro sync && astro check`); wired as a pre-push gate (Phase 5)                  |
+| Layer              | Tool              | Version                   | Notes                                                                                                                                        |
+| ------------------ | ----------------- | ------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| unit + integration | Vitest            | 3.2.6                     | Vite 7 pinned (`overrides`); bootstrapped in Phase 1 (`vitest.config.ts`, `npm run test` / `test:run`)                                       |
+| API mocking        | MSW               | none yet — see §3 Phase 2 | Mock only the network edge (TMDB / OpenRouter)                                                                                               |
+| e2e                | Playwright        | 1.60 (`@playwright/test`) | Bootstrapped Phase 4: `playwright.config.ts` (webServer = `astro dev` :4321, real workerd), `storageState` setup project, `npm run test:e2e` |
+| database           | pgTAP (Supabase)  | present                   | `supabase/tests/`, run via `npm run db:verify` — existing RLS-level coverage                                                                 |
+| lint / format      | ESLint + Prettier | present                   | `npm run lint`; husky pre-commit runs lint-staged (Husky activated via `prepare` script, Phase 5)                                            |
+| typecheck          | `astro check`     | present                   | `npm run typecheck` (`astro sync && astro check`); wired as a pre-push gate (Phase 5)                                                        |
 
 **Stack grounding tools (current session):**
 
@@ -173,7 +173,13 @@ Worked example: `src/lib/recommend-run.test.ts` + `src/lib/__fixtures__/recommen
 
 ### 6.4 Adding an e2e test
 
-- TBD — see §3 Phase 4 (home → three picks; assert three picks render, not just status / URL; app on workerd).
+Worked example: `tests/e2e/critical-path-three-picks.spec.ts` + `tests/e2e/seed.spec.ts` + `tests/e2e/auth.setup.ts` (Phase 4, Risk #3). Driven by `/10x-e2e` (PLAN → GENERATE → REVIEW vs the five anti-patterns → VERIFY by deliberate break).
+
+- **Auth once, via `storageState` — never log in per test.** A `setup` project (`auth.setup.ts`) signs up a unique user (`e2e-${Date.now()}@example.com`) and saves `playwright/.auth/user.json`; the `chromium` project injects it (`dependencies: ['setup']`). Local Supabase has `enable_confirmations = false`, so signup returns a live session. Sign up via **`page.request.post('/api/auth/signup', …)`** with an explicit `Origin: http://localhost:4321` header (two gotchas: the React form island has a controlled-input hydration race that wipes `fill()`s, and Astro's CSRF guard rejects form POSTs whose Origin doesn't match the site). `page.request` shares the context cookie jar, so `storageState` captures it.
+- **Assert the rendered outcome, not status/URL.** The core assertion is `expect(page.getByRole('article')).toHaveCount(3)` — `PicksGrid` renders one `<article>` per pick and an empty state (0 articles) when the pool drains, so the count fails exactly when Risk #3 materializes. Reinforce with the role badges (`Safe pick` / `Crowd-pleaser` / `Wild card`) and three `<h2>` titles.
+- **Keep the run deterministic.** Select **one** preferred genre (scope to the Preferred picker — the genre name is also a button in the Avoid picker, and Preferred renders first, so `getByRole('button', { name: 'Action', exact: true }).first()`) and **leave the Note empty** — a note triggers the non-deterministic AI/OpenRouter rung; an empty preferred set gives no discover hint. With both, retrieval collapses to the genre-only rung and real TMDB returns ≥3.
+- **Real vs mocked.** Auth, routing, Supabase, SSR-on-workerd stay real. TMDB is called server-side (browser `page.route()` can't intercept it) and is used **live** by decision — degradation/mocking the external edge is Risk #2 (Phase 2, integration + MSW), not the browser layer.
+- **Isolation without teardown.** Fresh user per run + a new session row per submit → re-runs never collide. Run `npm run test:e2e` twice to confirm. The two quality levers (`seed.spec.ts` + `tests/e2e/e2e-quality-rules.md`) shape every generated test.
 
 ### 6.5 Adding / running a quality-gate hook
 
@@ -229,6 +235,18 @@ needs a note → the AI path → **deferred to Phase 2**; the no-note path colla
 the ladder to one genre-only rung. Selective mutation gate (ad hoc, not CI):
 `npx stryker run --mutate "src/lib/recommend/roles.ts"` after this phase, then
 kill only survived mutants that would hurt a user (per CLAUDE.md guidance).
+
+**Phase 4 — E2E critical path (R3).** "Three picks render on screen" splits cleanly
+from the unit/integration "always three" layer: the E2E test proves the _rendered_
+journey (auth → routing → API → DB → SSR `PicksGrid`) that no cheaper layer covers.
+Determinism is achievable against **real TMDB** without mocking — a note-less,
+single-genre submit collapses the relaxation ladder to one genre-only query (≥3
+candidates). Two non-obvious bootstrapping costs the skill doesn't carry: (a) the
+React form-island **controlled-input hydration race** (a `fill()` before hydration is
+wiped) — sidestepped by signing up through the API, not the UI; (b) Astro's **CSRF
+origin check** on form POSTs — the API call needs an explicit `Origin` header the
+browser would send automatically. Auth is a `storageState` setup project (login is
+never a per-test dependency). CI wiring deliberately deferred (separate lesson).
 
 **Phase 5 — quality-gates wiring (cross-cutting).** Shipped two new local layers
 in front of CI: a per-edit Claude Code `PostToolUse` agent hook
