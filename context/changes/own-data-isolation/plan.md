@@ -295,10 +295,10 @@ are harmless and cleared by `npm run db:reset`.
 
 #### Automated
 
-- [x] 2.1 Linting passes: `npm run lint`
-- [x] 2.2 No broken intra-doc references (change folder path resolves)
+- [x] 2.1 Linting passes: `npm run lint` — 9cc68d2
+- [x] 2.2 No broken intra-doc references (change folder path resolves) — 9cc68d2
 
 #### Manual
 
-- [x] 2.3 §6.3 reads as actionable guidance without re-deriving it
-- [x] 2.4 §3 Phase 3 Status/Change-folder accurate; §5 gate row matches `test:isolation` behavior
+- [x] 2.3 §6.3 reads as actionable guidance without re-deriving it — 9cc68d2
+- [x] 2.4 §3 Phase 3 Status/Change-folder accurate; §5 gate row matches `test:isolation` behavior — 9cc68d2

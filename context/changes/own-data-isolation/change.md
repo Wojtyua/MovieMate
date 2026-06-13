@@ -1,7 +1,7 @@
 ---
 change_id: own-data-isolation
 title: Own data isolation
-status: implementing
+status: implemented
 created: 2026-06-13
 updated: 2026-06-13
 archived_at: null
