@@ -1,10 +1,10 @@
 ---
 change_id: e2e-critical-path
 title: E2E critical path — three picks render end-to-end
-status: implemented
+status: archived
 created: 2026-06-13
 updated: 2026-06-13
-archived_at: null
+archived_at: 2026-06-13T12:25:57Z
 ---
 
 ## Notes
