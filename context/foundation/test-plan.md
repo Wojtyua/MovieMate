@@ -80,13 +80,13 @@ Each row is a discrete rollout phase that will open its own change folder
 via `/10x-new`. Status moves left-to-right through the values below; the
 orchestrator updates Status as artifacts appear on disk.
 
-| #   | Phase name                                | Goal (one line)                                                     | Risks covered | Test types                              | Status      | Change folder                                                         |
-| --- | ----------------------------------------- | ------------------------------------------------------------------- | ------------- | --------------------------------------- | ----------- | --------------------------------------------------------------------- |
-| 1   | Bootstrap + "always three picks" core     | Stand up Vitest; defend R1 + R5 at the cheapest layer               | #1, #5        | unit + integration                      | complete    | context/archive/2026-06-12-testing-always-three-picks-core/           |
-| 2   | Graceful degradation at the external edge | TMDB / OpenRouter failure → genre-only fallback, still three picks  | #2            | integration + fetch-stub (network edge) | complete    | context/archive/2026-06-13-graceful-degradation-at-the-external-edge/ |
-| 3   | Own-data isolation                        | User B cannot reach user A's data (IDOR / RLS)                      | #4            | integration (two users)                 | not started | —                                                                     |
-| 4   | E2E critical path                         | home → three picks end-to-end                                       | #3            | e2e (Playwright)                        | complete    | context/archive/2026-06-13-e2e-critical-path/                         |
-| 5   | Quality-gates wiring                      | Lock the floor: lint + typecheck + scoped-test hooks and pre-commit | cross-cutting | gates / hooks                           | complete    | context/archive/2026-06-12-quality-gates-wiring/                      |
+| #   | Phase name                                | Goal (one line)                                                     | Risks covered | Test types                              | Status   | Change folder                                                         |
+| --- | ----------------------------------------- | ------------------------------------------------------------------- | ------------- | --------------------------------------- | -------- | --------------------------------------------------------------------- |
+| 1   | Bootstrap + "always three picks" core     | Stand up Vitest; defend R1 + R5 at the cheapest layer               | #1, #5        | unit + integration                      | complete | context/archive/2026-06-12-testing-always-three-picks-core/           |
+| 2   | Graceful degradation at the external edge | TMDB / OpenRouter failure → genre-only fallback, still three picks  | #2            | integration + fetch-stub (network edge) | complete | context/archive/2026-06-13-graceful-degradation-at-the-external-edge/ |
+| 3   | Own-data isolation                        | User B cannot reach user A's data (IDOR / RLS)                      | #4            | integration (two users)                 | complete | context/changes/own-data-isolation/                                   |
+| 4   | E2E critical path                         | home → three picks end-to-end                                       | #3            | e2e (Playwright)                        | complete | context/archive/2026-06-13-e2e-critical-path/                         |
+| 5   | Quality-gates wiring                      | Lock the floor: lint + typecheck + scoped-test hooks and pre-commit | cross-cutting | gates / hooks                           | complete | context/archive/2026-06-12-quality-gates-wiring/                      |
 
 **Status vocabulary** (fixed — parser literals):
 
@@ -138,6 +138,7 @@ phase lands; before that, the gate is `planned`.
 | pre-commit (lint-staged)      | local (husky)        | required (wired)                    | unformatted / unlinted staged files                  |
 | unit + integration            | local + CI           | required after §3 Phase 1           | logic regressions, lost fallback, malformed pick set |
 | pgTAP RLS tests               | local + CI           | required (wired)                    | broken owner-scoped policies at the DB layer         |
+| own-data isolation (2 users)  | local (on demand)    | optional — Docker-dependent, gated  | IDOR / own-data leak at the app client + RLS seam    |
 | e2e on critical flow          | CI on PR             | required after §3 Phase 4           | broken home → three-picks journey                    |
 | post-edit hook (scoped tests) | local (agent loop)   | wired (local agent loop)            | regressions at edit time                             |
 | pre-prod smoke                | between merge + prod | optional                            | workerd-specific failures                            |
@@ -177,7 +178,13 @@ Worked examples: `src/lib/recommend-run.test.ts` (Phase 1, "always three picks" 
 
 ### 6.3 Adding an own-data / authorization test
 
-- TBD — see §3 Phase 3 (two-user IDOR check: user B must not reach user A's sessions / recommendations / taste core).
+Worked example: `tests/integration/own-data-isolation.test.ts` + `tests/integration/supabase-clients.ts` (Phase 3, Risk #4). Run on demand via `npm run test:isolation` with the local stack up (`npm run db:start`).
+
+- **Two fresh authed clients vs the LOCAL stack, at the app data seam.** `signUpClient()` signs up a unique user (`iso-${Date.now()}-${rand}@example.com`) and returns a raw `@supabase/supabase-js` client carrying that user's session JWT. Use **two** of them (A and B) for independent identities with no shared state. This reproduces the app's real seam (`src/lib/supabase.ts`: anon key + the user's JWT → PostgREST runs every query as that user, `auth.uid()` RLS applies) without an Astro `cookies`/`Headers` harness — so do **not** import `@/lib/supabase`. Local stack only: `enable_confirmations = false` (`supabase/config.toml`) makes `signUp` return a live session with no email step.
+- **The read-leak-plus-positive-control oracle (teeth).** Asserting only "B sees zero rows" passes on a broken-auth false green. For **every** owner-scoped entity assert **both** B-sees-0 **and** A-sees-its-own (count ≥ 1), so the test fails if a write silently no-ops or auth is misconfigured. A writes one row per entity (`viewer_profiles`, `movie_night_sessions`, `recommendations`, `recommendation_picks`, `watched`) passing **no** `user_id` — it comes from the `auth.uid()` column default, exercising the real ownership-on-insert path.
+- **The URL-swap vector is the sharpest case.** B reads `recommendations` filtered by **A's** `session_id` and `recommendation_picks` by **A's** `recommendation_id` — exactly the id-from-URL path at `src/pages/sessions/[id]/recommendations.astro`, owner-gated solely by RLS. Both must return empty for B.
+- **`RUN_ISOLATION` env gating keeps the keyless suite infra-free.** The spec is `describe.skipIf(!process.env.RUN_ISOLATION)`, so default `npm run test:run` collects but **skips** it (no Docker needed); `test:isolation` sets the flag. A `beforeAll` probe to `${SUPABASE_URL}/auth/v1/health` fails fast with a clear "start the local stack (`npm run db:start`)" message when the flag is set but the stack is down. `SUPABASE_URL` / `SUPABASE_KEY` come from env with documented local defaults.
+- **App-wiring layer, not policy layer.** This complements — does not replace — the DB-layer pgTAP fixtures (`supabase/tests/*_isolation.sql`), which prove the RLS **policies** by impersonating users via `request.jwt.claims`. This spec proves the **createClient-with-JWT seam** and the URL-swap read path the pgTAP layer never exercises. Verify by deliberate break: point B's read at A's client/token (or assert B sees A's row) and watch the spec go red; revert.
 
 ### 6.4 Adding an e2e test
 
@@ -282,6 +289,8 @@ Kept Husky pre-commit untouched — it already runs `lint-staged`, and the lesso
 rule forbids a needless Lefthook migration. The "+ CI" half of the typecheck/test
 gates is deferred: CI authoring is a different lesson, so only the local half is
 wired here.
+
+**Phase 3 — own-data isolation (R4).** Reading the API surface first showed the risk is **narrow**: every write endpoint derives `user_id` from the JWT (`context.locals.user`), never from request input — so there is **no foreign-id-to-write swap** vector. The one genuine surface is the URL-id-swap read at `src/pages/sessions/[id]/recommendations.astro` (`.eq("session_id", id)` with `id` from the URL), owner-gated solely by RLS — so the test centers B reading A's rows by A's `session_id`/`recommendation_id`. This is the **app-seam** counterpart to the existing pgTAP fixtures: pgTAP proves the RLS _policies_ (via `request.jwt.claims` impersonation); this spec proves the `createClient`-with-JWT _wiring_ + the URL-swap path that pgTAP never exercises. Test-only, no product-code change (no defense-in-depth `.eq("user_id")` filters — RLS is proven correct). Gated behind `RUN_ISOLATION` (Docker-dependent) so the keyless `test:run` and pre-push stay infra-free; the positive "teeth" control (A-sees-own ≥ 1 alongside B-sees-0) is what makes a broken-auth false green fail loudly.
 
 ## 7. What We Deliberately Don't Test
 

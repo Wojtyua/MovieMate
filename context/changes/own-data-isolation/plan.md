@@ -280,25 +280,25 @@ are harmless and cleared by `npm run db:reset`.
 
 #### Automated
 
-- [x] 1.1 Keyless default suite stays green (spec skipped): `npm run test:run`
-- [x] 1.2 Isolation suite passes with the local stack up: `npm run db:start && npm run test:isolation`
-- [x] 1.3 Linting passes: `npm run lint`
-- [x] 1.4 Type checking passes: `npm run typecheck`
+- [x] 1.1 Keyless default suite stays green (spec skipped): `npm run test:run` — 4540746
+- [x] 1.2 Isolation suite passes with the local stack up: `npm run db:start && npm run test:isolation` — 4540746
+- [x] 1.3 Linting passes: `npm run lint` — 4540746
+- [x] 1.4 Type checking passes: `npm run typecheck` — 4540746
 
 #### Manual
 
-- [x] 1.5 With the stack up, `npm run test:isolation` shows the spec executed (not skipped) and every entity assertion ran
-- [x] 1.6 Teeth check: forcing B to read A's row turns the spec red; revert
-- [x] 1.7 Flag set but stack down → clear "start the local stack" failure, not an opaque connection error
+- [x] 1.5 With the stack up, `npm run test:isolation` shows the spec executed (not skipped) and every entity assertion ran — 4540746
+- [x] 1.6 Teeth check: forcing B to read A's row turns the spec red; revert — 4540746
+- [x] 1.7 Flag set but stack down → clear "start the local stack" failure, not an opaque connection error — 4540746
 
 ### Phase 2: Documentation write-back
 
 #### Automated
 
-- [ ] 2.1 Linting passes: `npm run lint`
-- [ ] 2.2 No broken intra-doc references (change folder path resolves)
+- [x] 2.1 Linting passes: `npm run lint`
+- [x] 2.2 No broken intra-doc references (change folder path resolves)
 
 #### Manual
 
-- [ ] 2.3 §6.3 reads as actionable guidance without re-deriving it
-- [ ] 2.4 §3 Phase 3 Status/Change-folder accurate; §5 gate row matches `test:isolation` behavior
+- [x] 2.3 §6.3 reads as actionable guidance without re-deriving it
+- [x] 2.4 §3 Phase 3 Status/Change-folder accurate; §5 gate row matches `test:isolation` behavior
