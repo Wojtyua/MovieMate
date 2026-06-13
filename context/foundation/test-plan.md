@@ -191,8 +191,12 @@ cheapest layer that still gives signal.
   script's risk-area `case`, or a new check before the final `exit 0`.
 - **Pre-commit** (`.husky/pre-commit` → `npx lint-staged`, config in
   `package.json`). Unchanged — `eslint --fix` on `*.{ts,tsx,astro}`,
-  `prettier --write` on `*.{json,css,md}` over staged files. Husky 9 works; per
-  the lesson rule we did **not** migrate to Lefthook.
+  `prettier --write` on `*.{json,css,md}` over staged files. Per the lesson rule
+  we did **not** migrate to Lefthook. **Activation:** Husky 9 only fires its
+  hooks once `core.hooksPath` points at `.husky/` — set by running `husky`. A
+  `prepare` script (`"prepare": "husky"`) runs that automatically on every
+  `npm install`, so a fresh clone gets working hooks; without it `.husky/` is
+  inert and **no** hook (pre-commit or pre-push) runs.
 - **Pre-push** (`.husky/pre-push`). The heavier checks too slow for per-edit:
   `npm run typecheck` (`astro sync && astro check`, whole project) then
   `npm run test:run` (full Vitest suite). Either failing aborts the push before
