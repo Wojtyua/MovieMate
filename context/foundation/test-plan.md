@@ -80,13 +80,13 @@ Each row is a discrete rollout phase that will open its own change folder
 via `/10x-new`. Status moves left-to-right through the values below; the
 orchestrator updates Status as artifacts appear on disk.
 
-| #   | Phase name                                | Goal (one line)                                                     | Risks covered | Test types                              | Status      | Change folder                                               |
-| --- | ----------------------------------------- | ------------------------------------------------------------------- | ------------- | --------------------------------------- | ----------- | ----------------------------------------------------------- |
-| 1   | Bootstrap + "always three picks" core     | Stand up Vitest; defend R1 + R5 at the cheapest layer               | #1, #5        | unit + integration                      | complete    | context/archive/2026-06-12-testing-always-three-picks-core/ |
-| 2   | Graceful degradation at the external edge | TMDB / OpenRouter failure → genre-only fallback, still three picks  | #2            | integration + fetch-stub (network edge) | complete    | context/changes/graceful-degradation-at-the-external-edge/  |
-| 3   | Own-data isolation                        | User B cannot reach user A's data (IDOR / RLS)                      | #4            | integration (two users)                 | not started | —                                                           |
-| 4   | E2E critical path                         | home → three picks end-to-end                                       | #3            | e2e (Playwright)                        | complete    | context/archive/2026-06-13-e2e-critical-path/               |
-| 5   | Quality-gates wiring                      | Lock the floor: lint + typecheck + scoped-test hooks and pre-commit | cross-cutting | gates / hooks                           | complete    | context/archive/2026-06-12-quality-gates-wiring/            |
+| #   | Phase name                                | Goal (one line)                                                     | Risks covered | Test types                              | Status      | Change folder                                                         |
+| --- | ----------------------------------------- | ------------------------------------------------------------------- | ------------- | --------------------------------------- | ----------- | --------------------------------------------------------------------- |
+| 1   | Bootstrap + "always three picks" core     | Stand up Vitest; defend R1 + R5 at the cheapest layer               | #1, #5        | unit + integration                      | complete    | context/archive/2026-06-12-testing-always-three-picks-core/           |
+| 2   | Graceful degradation at the external edge | TMDB / OpenRouter failure → genre-only fallback, still three picks  | #2            | integration + fetch-stub (network edge) | complete    | context/archive/2026-06-13-graceful-degradation-at-the-external-edge/ |
+| 3   | Own-data isolation                        | User B cannot reach user A's data (IDOR / RLS)                      | #4            | integration (two users)                 | not started | —                                                                     |
+| 4   | E2E critical path                         | home → three picks end-to-end                                       | #3            | e2e (Playwright)                        | complete    | context/archive/2026-06-13-e2e-critical-path/                         |
+| 5   | Quality-gates wiring                      | Lock the floor: lint + typecheck + scoped-test hooks and pre-commit | cross-cutting | gates / hooks                           | complete    | context/archive/2026-06-12-quality-gates-wiring/                      |
 
 **Status vocabulary** (fixed — parser literals):
 
