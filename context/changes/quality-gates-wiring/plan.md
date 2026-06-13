@@ -424,9 +424,9 @@ final phase.
 
 #### Automated
 
-- [x] 3.1 §6.5 no longer contains "TBD — see §3 Phase 5"
-- [x] 3.2 §3 Phase 5 row no longer reads `not started`; Change folder repointed
-- [x] 3.3 `npx prettier --check context/foundation/test-plan.md` clean
+- [x] 3.1 §6.5 no longer contains "TBD — see §3 Phase 5" — 1c3091e
+- [x] 3.2 §3 Phase 5 row no longer reads `not started`; Change folder repointed — 1c3091e
+- [x] 3.3 `npx prettier --check context/foundation/test-plan.md` clean — 1c3091e
 
 #### Manual
 
