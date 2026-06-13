@@ -19,9 +19,9 @@ Tests follow three non-negotiable principles for this project:
 2. **User concerns are first-class evidence.** Risks anchored in "the
    operator is worried about X, and the failure would surface somewhere in
    `<area>`" carry the same weight as PRD lines or hot-spot data.
-3. **Risks are scenarios, not code locations.** This plan documents *what
-   could fail* and *why we believe it's likely* — drawn from documents,
-   interview, and codebase *signal* (churn, structure, test base). It does
+3. **Risks are scenarios, not code locations.** This plan documents _what
+   could fail_ and _why we believe it's likely_ — drawn from documents,
+   interview, and codebase _signal_ (churn, structure, test base). It does
    NOT claim to know which line owns the failure. That knowledge is
    produced by `/10x-research` during each rollout phase. If the plan and
    research disagree about where the failure lives, research is the
@@ -34,26 +34,26 @@ archive, build output, fixtures).
 
 The top failure scenarios this project must protect against, ordered by
 risk = impact × likelihood. Risks are failure scenarios in user / business
-terms, not test names. The Source column cites the *evidence that surfaced
-this risk* — never a specific file as "where the failure lives" (that is
+terms, not test names. The Source column cites the _evidence that surfaced
+this risk_ — never a specific file as "where the failure lives" (that is
 research's job, see §1 principle #3).
 
-| # | Risk (failure scenario) | Impact | Likelihood | Source (evidence — not anchor) |
-|---|-------------------------|--------|------------|--------------------------------|
-| 1 | Operator submits a session and receives **fewer than three picks (or zero)** even with healthy dependencies — internal pipeline (filters / relaxation / dedup / scoring) drains the pool | High | High | interview Q1; PRD Guardrails "at most / always three picks"; hot-spot dir `src/pages/api` (15 commits/30d), `src/lib/recommend` (7) |
-| 2 | **TMDB or OpenRouter fails or times out** and, instead of degrading to genre-only retrieval (still three picks within < 10 s), the request errors out | High | Medium-High | interview Q2; PRD Guardrails "graceful degradation"; PRD FR-006, FR-007 |
-| 3 | **Regression in the multi-step journey** home → login → session → preferences → (optional second viewer) → three picks breaks the end-to-end flow | High | High | interview Q3; PRD US-01; hot-spot dir `src/pages/sessions` + `src/components/sessions` (5), files `sessions.astro` (4), `SessionForm.tsx` (3) |
-| 4 | **Own-data leak (IDOR)**: a logged-in user A reaches user B's sessions / recommendations / taste core by swapping an identifier | High | Medium | PRD FR-001 + Guardrail "own-data isolation preserved"; abuse lens; hot-spot dir `src/pages/api` (15), file `src/middleware.ts` (4) |
-| 5 | **Scoring engine returns a malformed pick set** on the solo↔duo branch: wrong role (CHECK rejects, or solo gets "compromise"), duplicate picks, or wild card not differing in genre from safe | Medium-High | Medium | PRD FR-008, FR-009 + roadmap S-03 duo branch + Open Question "solo role labels"; hot-spot dir `src/lib/recommend` (7) |
+| #   | Risk (failure scenario)                                                                                                                                                                       | Impact      | Likelihood  | Source (evidence — not anchor)                                                                                                                |
+| --- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- | ----------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | Operator submits a session and receives **fewer than three picks (or zero)** even with healthy dependencies — internal pipeline (filters / relaxation / dedup / scoring) drains the pool      | High        | High        | interview Q1; PRD Guardrails "at most / always three picks"; hot-spot dir `src/pages/api` (15 commits/30d), `src/lib/recommend` (7)           |
+| 2   | **TMDB or OpenRouter fails or times out** and, instead of degrading to genre-only retrieval (still three picks within < 10 s), the request errors out                                         | High        | Medium-High | interview Q2; PRD Guardrails "graceful degradation"; PRD FR-006, FR-007                                                                       |
+| 3   | **Regression in the multi-step journey** home → login → session → preferences → (optional second viewer) → three picks breaks the end-to-end flow                                             | High        | High        | interview Q3; PRD US-01; hot-spot dir `src/pages/sessions` + `src/components/sessions` (5), files `sessions.astro` (4), `SessionForm.tsx` (3) |
+| 4   | **Own-data leak (IDOR)**: a logged-in user A reaches user B's sessions / recommendations / taste core by swapping an identifier                                                               | High        | Medium      | PRD FR-001 + Guardrail "own-data isolation preserved"; abuse lens; hot-spot dir `src/pages/api` (15), file `src/middleware.ts` (4)            |
+| 5   | **Scoring engine returns a malformed pick set** on the solo↔duo branch: wrong role (CHECK rejects, or solo gets "compromise"), duplicate picks, or wild card not differing in genre from safe | Medium-High | Medium      | PRD FR-008, FR-009 + roadmap S-03 duo branch + Open Question "solo role labels"; hot-spot dir `src/lib/recommend` (7)                         |
 
 **Impact × Likelihood rubric.** Score both axes on a coarse High / Medium /
 Low scale so two readers agree on the same row.
 
-| Rating | Impact | Likelihood |
-|--------|--------|------------|
-| High   | user loses access, data, or money; failure is publicly visible | area changes weekly, or we have already been burned here |
-| Medium | feature degrades, a workaround exists, only some users affected | touched occasionally, has been a source of bugs |
-| Low    | cosmetic, easily reverted, no data effect | stable code, rarely touched |
+| Rating | Impact                                                          | Likelihood                                               |
+| ------ | --------------------------------------------------------------- | -------------------------------------------------------- |
+| High   | user loses access, data, or money; failure is publicly visible  | area changes weekly, or we have already been burned here |
+| Medium | feature degrades, a workaround exists, only some users affected | touched occasionally, has been a source of bugs          |
+| Low    | cosmetic, easily reverted, no data effect                       | stable code, rarely touched                              |
 
 **Abuse / security lens.** The product has email/password auth and accepts
 user input (session form, free-text note), so the map carries one mandatory
@@ -66,13 +66,13 @@ timing/alerting, not a unit test.
 
 ### Risk Response Guidance
 
-| Risk | What would prove protection | Must challenge | Context `/10x-research` must ground | Likely cheapest layer | Anti-pattern to avoid |
-|------|-----------------------------|----------------|--------------------------------------|-----------------------|-----------------------|
-| #1 | With healthy mocked dependencies the pipeline **always returns exactly three** picks across typical and boundary inputs (thin pool, all-excluded genres) | "the pool can never drop below three" — verify the relaxation / dedup logic | endpoint entry, retrieval boundary, dedup + relaxation rule | integration (endpoint / pipeline) | happy-path-only; mocking internal modules |
-| #2 | A failing / timing-out dependency yields a **clean fallback to genre-only** retrieval, still three picks, no 500 | "200 means success" — the fallback may silently return < 3 | network edge (TMDB / OpenRouter), timeout + error path | integration + network-edge mock (MSW) | over-mocking; never exercising the error path itself |
-| #3 | A real journey renders **three picks on screen**, not just an HTTP 200 / a URL change | "green e2e means the flow works" | page entry points, auth / session shape, SSR on workerd | e2e (Playwright) — no cheaper layer covers cross-page | asserting only status / URL; brittle selectors |
-| #4 | User B **cannot see** user A's data (403 / empty), not merely "is authenticated" | "logged in means authorized" | RLS / owner-scope shape, id passed in URL / endpoint | integration (two users) | testing only the happy path of one's own data |
-| #5 | Roles branch on taste cardinality; **wild card genre ≠ safe genre**; ≤ 3; solo omits "compromise" | the oracle comes from PRD rules, **not** from the implementation | role rules, `role` CHECK values, scoring input shape | unit (deterministic) | **oracle problem** — asserting exact float score values (negative space, §7) |
+| Risk | What would prove protection                                                                                                                              | Must challenge                                                              | Context `/10x-research` must ground                         | Likely cheapest layer                                 | Anti-pattern to avoid                                                        |
+| ---- | -------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------- | ----------------------------------------------------------- | ----------------------------------------------------- | ---------------------------------------------------------------------------- |
+| #1   | With healthy mocked dependencies the pipeline **always returns exactly three** picks across typical and boundary inputs (thin pool, all-excluded genres) | "the pool can never drop below three" — verify the relaxation / dedup logic | endpoint entry, retrieval boundary, dedup + relaxation rule | integration (endpoint / pipeline)                     | happy-path-only; mocking internal modules                                    |
+| #2   | A failing / timing-out dependency yields a **clean fallback to genre-only** retrieval, still three picks, no 500                                         | "200 means success" — the fallback may silently return < 3                  | network edge (TMDB / OpenRouter), timeout + error path      | integration + network-edge mock (MSW)                 | over-mocking; never exercising the error path itself                         |
+| #3   | A real journey renders **three picks on screen**, not just an HTTP 200 / a URL change                                                                    | "green e2e means the flow works"                                            | page entry points, auth / session shape, SSR on workerd     | e2e (Playwright) — no cheaper layer covers cross-page | asserting only status / URL; brittle selectors                               |
+| #4   | User B **cannot see** user A's data (403 / empty), not merely "is authenticated"                                                                         | "logged in means authorized"                                                | RLS / owner-scope shape, id passed in URL / endpoint        | integration (two users)                               | testing only the happy path of one's own data                                |
+| #5   | Roles branch on taste cardinality; **wild card genre ≠ safe genre**; ≤ 3; solo omits "compromise"                                                        | the oracle comes from PRD rules, **not** from the implementation            | role rules, `role` CHECK values, scoring input shape        | unit (deterministic)                                  | **oracle problem** — asserting exact float score values (negative space, §7) |
 
 ## 3. Phased Rollout
 
@@ -80,24 +80,24 @@ Each row is a discrete rollout phase that will open its own change folder
 via `/10x-new`. Status moves left-to-right through the values below; the
 orchestrator updates Status as artifacts appear on disk.
 
-| # | Phase name | Goal (one line) | Risks covered | Test types | Status | Change folder |
-|---|------------|-----------------|---------------|------------|--------|---------------|
-| 1 | Bootstrap + "always three picks" core | Stand up Vitest; defend R1 + R5 at the cheapest layer | #1, #5 | unit + integration | complete | context/archive/2026-06-12-testing-always-three-picks-core/ |
-| 2 | Graceful degradation at the external edge | TMDB / OpenRouter failure → genre-only fallback, still three picks | #2 | integration + network mock (MSW) | not started | — |
-| 3 | Own-data isolation | User B cannot reach user A's data (IDOR / RLS) | #4 | integration (two users) | not started | — |
-| 4 | E2E critical path | home → three picks end-to-end | #3 | e2e (Playwright) | not started | — |
-| 5 | Quality-gates wiring | Lock the floor: lint + typecheck + scoped-test hooks and pre-commit | cross-cutting | gates / hooks | not started | — |
+| #   | Phase name                                | Goal (one line)                                                     | Risks covered | Test types                       | Status       | Change folder                                               |
+| --- | ----------------------------------------- | ------------------------------------------------------------------- | ------------- | -------------------------------- | ------------ | ----------------------------------------------------------- |
+| 1   | Bootstrap + "always three picks" core     | Stand up Vitest; defend R1 + R5 at the cheapest layer               | #1, #5        | unit + integration               | complete     | context/archive/2026-06-12-testing-always-three-picks-core/ |
+| 2   | Graceful degradation at the external edge | TMDB / OpenRouter failure → genre-only fallback, still three picks  | #2            | integration + network mock (MSW) | not started  | —                                                           |
+| 3   | Own-data isolation                        | User B cannot reach user A's data (IDOR / RLS)                      | #4            | integration (two users)          | not started  | —                                                           |
+| 4   | E2E critical path                         | home → three picks end-to-end                                       | #3            | e2e (Playwright)                 | not started  | —                                                           |
+| 5   | Quality-gates wiring                      | Lock the floor: lint + typecheck + scoped-test hooks and pre-commit | cross-cutting | gates / hooks                    | implementing | context/changes/quality-gates-wiring/                       |
 
 **Status vocabulary** (fixed — parser literals):
 
-| Value | Meaning |
-|-------|---------|
-| `not started` | No change folder for this rollout phase yet. |
+| Value           | Meaning                                                             |
+| --------------- | ------------------------------------------------------------------- |
+| `not started`   | No change folder for this rollout phase yet.                        |
 | `change opened` | `context/changes/<id>/` exists with `change.md`; research not done. |
-| `researched` | `research.md` exists in the change folder. |
-| `planned` | `plan.md` exists with a `## Progress` section. |
-| `implementing` | Progress section has at least one `[x]` and at least one `[ ]`. |
-| `complete` | Progress section is fully `[x]`. |
+| `researched`    | `research.md` exists in the change folder.                          |
+| `planned`       | `plan.md` exists with a `## Progress` section.                      |
+| `implementing`  | Progress section has at least one `[x]` and at least one `[ ]`.     |
+| `complete`      | Progress section is fully `[x]`.                                    |
 
 Module-3 lesson mapping: Phases 1–3 are Lesson 2 (unit/integration with an
 agent); Phase 4 is Lesson 4 (e2e / Playwright + MCP); Phase 5 is Lesson 3
@@ -109,16 +109,17 @@ triggered by a real bug, not a rollout phase.
 The classic test base for this project. AI-native tools (if any) carry a
 `checked:` date so future readers can see which lines need re-verification.
 
-| Layer | Tool | Version | Notes |
-|-------|------|---------|-------|
-| unit + integration | Vitest | 3.2.6 | Vite 7 pinned (`overrides`); bootstrapped in Phase 1 (`vitest.config.ts`, `npm run test` / `test:run`) |
-| API mocking | MSW | none yet — see §3 Phase 2 | Mock only the network edge (TMDB / OpenRouter) |
-| e2e | Playwright | none yet — see §3 Phase 4 | App runs on Cloudflare workerd; `astro dev` is real workerd locally |
-| database | pgTAP (Supabase) | present | `supabase/tests/`, run via `npm run db:verify` — existing RLS-level coverage |
-| lint / format | ESLint + Prettier | present | `npm run lint`; husky pre-commit runs lint-staged |
-| typecheck | `astro check` | present | `@astrojs/check` installed; not yet a standalone gate |
+| Layer              | Tool              | Version                   | Notes                                                                                                  |
+| ------------------ | ----------------- | ------------------------- | ------------------------------------------------------------------------------------------------------ |
+| unit + integration | Vitest            | 3.2.6                     | Vite 7 pinned (`overrides`); bootstrapped in Phase 1 (`vitest.config.ts`, `npm run test` / `test:run`) |
+| API mocking        | MSW               | none yet — see §3 Phase 2 | Mock only the network edge (TMDB / OpenRouter)                                                         |
+| e2e                | Playwright        | none yet — see §3 Phase 4 | App runs on Cloudflare workerd; `astro dev` is real workerd locally                                    |
+| database           | pgTAP (Supabase)  | present                   | `supabase/tests/`, run via `npm run db:verify` — existing RLS-level coverage                           |
+| lint / format      | ESLint + Prettier | present                   | `npm run lint`; husky pre-commit runs lint-staged                                                      |
+| typecheck          | `astro check`     | present                   | `@astrojs/check` installed; not yet a standalone gate                                                  |
 
 **Stack grounding tools (current session):**
+
 - Docs: none — Context7 / framework docs MCP not available in current session; checked: 2026-06-08
 - Search: WebSearch — available, not yet used; will ground Vitest/MSW/Playwright setup versions during the relevant rollout phase; checked: 2026-06-08
 - Runtime/browser: none — Playwright MCP not in current session; arrives with §3 Phase 4 (Lesson 4); checked: 2026-06-08
@@ -130,16 +131,16 @@ The full set of gates that must pass before a change reaches production.
 "Required after §3 Phase N" means the gate is enforced once that rollout
 phase lands; before that, the gate is `planned`.
 
-| Gate | Where | Required? | Catches |
-|------|-------|-----------|---------|
-| lint | local + CI | required (wired) | syntactic drift, stray `console.*` |
-| typecheck (`astro check`) | local + CI | required after §3 Phase 5 | type drift |
-| pre-commit (lint-staged) | local (husky) | required (wired) | unformatted / unlinted staged files |
-| unit + integration | local + CI | required after §3 Phase 1 | logic regressions, lost fallback, malformed pick set |
-| pgTAP RLS tests | local + CI | required (wired) | broken owner-scoped policies at the DB layer |
-| e2e on critical flow | CI on PR | required after §3 Phase 4 | broken home → three-picks journey |
-| post-edit hook (scoped tests) | local (agent loop) | recommended after §3 Phase 5 | regressions at edit time |
-| pre-prod smoke | between merge + prod | optional | workerd-specific failures |
+| Gate                          | Where                | Required?                           | Catches                                              |
+| ----------------------------- | -------------------- | ----------------------------------- | ---------------------------------------------------- |
+| lint                          | local + CI           | required (wired)                    | syntactic drift, stray `console.*`                   |
+| typecheck (`astro check`)     | local + CI           | wired local (pre-push); CI deferred | type drift                                           |
+| pre-commit (lint-staged)      | local (husky)        | required (wired)                    | unformatted / unlinted staged files                  |
+| unit + integration            | local + CI           | required after §3 Phase 1           | logic regressions, lost fallback, malformed pick set |
+| pgTAP RLS tests               | local + CI           | required (wired)                    | broken owner-scoped policies at the DB layer         |
+| e2e on critical flow          | CI on PR             | required after §3 Phase 4           | broken home → three-picks journey                    |
+| post-edit hook (scoped tests) | local (agent loop)   | wired (local agent loop)            | regressions at edit time                             |
+| pre-prod smoke                | between merge + prod | optional                            | workerd-specific failures                            |
 
 ## 6. Cookbook Patterns
 
@@ -176,7 +177,36 @@ Worked example: `src/lib/recommend-run.test.ts` + `src/lib/__fixtures__/recommen
 
 ### 6.5 Adding / running a quality-gate hook
 
-- TBD — see §3 Phase 5 (lint + typecheck + scoped-test hooks; pre-commit).
+Three local layers sit in front of CI, cheapest-first. Each gate runs at the
+cheapest layer that still gives signal.
+
+- **Per-edit agent hook** (`.claude/settings.json` → `PostToolUse` matcher
+  `Write|Edit`, runs `.claude/hooks/post-edit-quality.sh`). The only layer that
+  feeds the agent mid-session. For each agent file edit it runs
+  `prettier --write` + `eslint --fix` on the edited file, and — only when the
+  path is under a §2 risk area (`src/lib/recommend`, `src/pages/api`,
+  `src/pages/sessions`, `src/components/sessions`, `src/middleware.ts`) and is a
+  `.ts`/`.tsx` file — runs the scoped suite `npx vitest related "<file>" --run`.
+  A non-risk edit lints/formats only. To extend: add a path-prefix arm in the
+  script's risk-area `case`, or a new check before the final `exit 0`.
+- **Pre-commit** (`.husky/pre-commit` → `npx lint-staged`, config in
+  `package.json`). Unchanged — `eslint --fix` on `*.{ts,tsx,astro}`,
+  `prettier --write` on `*.{json,css,md}` over staged files. Husky 9 works; per
+  the lesson rule we did **not** migrate to Lefthook.
+- **Pre-push** (`.husky/pre-push`). The heavier checks too slow for per-edit:
+  `npm run typecheck` (`astro sync && astro check`, whole project) then
+  `npm run test:run` (full Vitest suite). Either failing aborts the push before
+  code leaves the machine; typecheck runs first so the cheapest check fails fast.
+
+**Block contract.** The per-edit hook signals via exit code: `0` = pass/skip
+(continue), `2` = blocking failure with the failing command's output on **stderr**
+— that is what Claude Code surfaces to the agent so it self-corrects next turn.
+Any other non-zero is a non-blocking (logged) error. To run a layer manually:
+pipe a `{"tool_input":{"file_path":"<abs path>"}}` JSON stub to the hook script,
+run `npm run typecheck` / `npm run test:run`, or invoke `.husky/pre-push`
+directly. CI (`.github/workflows/ci.yml`) stays the authoritative gate for shared
+state; these local layers cut CI round-trips, not replace it. The "+ CI" half of
+the typecheck / test gates is deferred (CI authoring is a separate lesson).
 
 ### 6.6 Per-rollout-phase notes
 
@@ -184,17 +214,27 @@ Worked example: `src/lib/recommend-run.test.ts` + `src/lib/__fixtures__/recommen
 here capturing anything surprising the rollout phase taught.)
 
 **Phase 1 — bootstrap + "always three picks" core (R1 + R5).** "Always three" is
-not one invariant: it splits into a pure *shape* layer (`recommend()`: ≤3,
+not one invariant: it splits into a pure _shape_ layer (`recommend()`: ≤3,
 distinct, role-by-cardinality, wild-card genre ≠ safe, but `min(N,3)` — never
-fabricates a third) and a retrieval *supply* layer (the ladder widens the pool
+fabricates a third) and a retrieval _supply_ layer (the ladder widens the pool
 toward ≥3). The two faces of R1 — a healthy ≥3 pool drained (defect) vs a
 genuinely thin universe (physics) — are tested separately. The supply seam is
 **`fetch` + env token + a fake Supabase**, not an injected stub, because
-`recommendRun` builds its own TMDB client. Multi-rung relaxation *progression*
+`recommendRun` builds its own TMDB client. Multi-rung relaxation _progression_
 needs a note → the AI path → **deferred to Phase 2**; the no-note path collapses
 the ladder to one genre-only rung. Selective mutation gate (ad hoc, not CI):
 `npx stryker run --mutate "src/lib/recommend/roles.ts"` after this phase, then
 kill only survived mutants that would hurt a user (per CLAUDE.md guidance).
+
+**Phase 5 — quality-gates wiring (cross-cutting).** Shipped two new local layers
+in front of CI: a per-edit Claude Code `PostToolUse` agent hook
+(`.claude/hooks/post-edit-quality.sh`, format + lint + scoped `vitest related` on
+§2 risk-area edits, exit-2/stderr block channel) and a `.husky/pre-push` net
+(`npm run typecheck` = `astro sync && astro check`, then full `npm run test:run`).
+Kept Husky pre-commit untouched — it already runs `lint-staged`, and the lesson
+rule forbids a needless Lefthook migration. The "+ CI" half of the typecheck/test
+gates is deferred: CI authoring is a different lesson, so only the local half is
+wired here.
 
 ## 7. What We Deliberately Don't Test
 

@@ -408,11 +408,11 @@ final phase.
 
 #### Automated
 
-- [x] 2.1 `npm run typecheck` exits 0 on clean tree
-- [x] 2.2 `npm run test:run` exits 0
-- [x] 2.3 Pre-push hook is executable (`test -x .husky/pre-push`)
-- [x] 2.4 `.husky/pre-push` on clean tree exits 0
-- [x] 2.5 Injected type error makes `.husky/pre-push` exit non-zero before tests (then reverted)
+- [x] 2.1 `npm run typecheck` exits 0 on clean tree — 550eab7
+- [x] 2.2 `npm run test:run` exits 0 — 550eab7
+- [x] 2.3 Pre-push hook is executable (`test -x .husky/pre-push`) — 550eab7
+- [x] 2.4 `.husky/pre-push` on clean tree exits 0 — 550eab7
+- [x] 2.5 Injected type error makes `.husky/pre-push` exit non-zero before tests (then reverted) — 550eab7
 
 #### Manual
 
@@ -424,9 +424,9 @@ final phase.
 
 #### Automated
 
-- [ ] 3.1 §6.5 no longer contains "TBD — see §3 Phase 5"
-- [ ] 3.2 §3 Phase 5 row no longer reads `not started`; Change folder repointed
-- [ ] 3.3 `npx prettier --check context/foundation/test-plan.md` clean
+- [x] 3.1 §6.5 no longer contains "TBD — see §3 Phase 5"
+- [x] 3.2 §3 Phase 5 row no longer reads `not started`; Change folder repointed
+- [x] 3.3 `npx prettier --check context/foundation/test-plan.md` clean
 
 #### Manual
 
