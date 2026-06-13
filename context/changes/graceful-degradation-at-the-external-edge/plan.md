@@ -382,28 +382,28 @@ schema, or config changes.
 
 #### Automated
 
-- [x] 1.1 Typecheck passes: `npm run typecheck`
-- [x] 1.2 Lint passes: `npm run lint`
-- [x] 1.3 Existing Phase 1 suite still green: `npm run test:run`
+- [x] 1.1 Typecheck passes: `npm run typecheck` — fca29cf
+- [x] 1.2 Lint passes: `npm run lint` — fca29cf
+- [x] 1.3 Existing Phase 1 suite still green: `npm run test:run` — fca29cf
 
 #### Manual
 
-- [ ] 1.4 Builder failure modes + request log read clearly enough for the §6.2 cookbook
+- [x] 1.4 Builder failure modes + request log read clearly enough for the §6.2 cookbook
 
 ### Phase 2: Degradation test suite
 
 #### Automated
 
-- [ ] 2.1 New suites pass: `npm run test:run`
-- [ ] 2.2 Typecheck passes: `npm run typecheck`
-- [ ] 2.3 Lint passes: `npm run lint`
-- [ ] 2.4 Post-edit hook scoped suite passes on each new `.ts`
+- [x] 2.1 New suites pass: `npm run test:run`
+- [x] 2.2 Typecheck passes: `npm run typecheck`
+- [x] 2.3 Lint passes: `npm run lint`
+- [x] 2.4 Post-edit hook scoped suite passes on each new `.ts`
 
 #### Manual
 
-- [ ] 2.5 Deliberate break of the TMDB `ok:false` branch turns a TMDB test red; reverted
-- [ ] 2.6 Deliberate break of the AI degrade guard turns an OpenRouter test red; reverted
-- [ ] 2.7 Injecting non-empty `castIds` turns the genre-only-signature assertion red; reverted
+- [x] 2.5 Deliberate break of the TMDB `ok:false` branch turns a TMDB test red; reverted
+- [x] 2.6 Deliberate break of the AI degrade guard turns an OpenRouter test red; reverted
+- [x] 2.7 Injecting non-empty `castIds` turns the genre-only-signature assertion red; reverted
 
 ### Phase 3: Reconcile the test plan
 
