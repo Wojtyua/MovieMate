@@ -286,13 +286,13 @@ one CSS line from `Layout.astro`.
 
 #### Manual
 
-- [ ] 1.4 Navbar link clicks show smooth fade, no white flash
-- [ ] 1.5 Direct entry + hard reload show dark canvas, no white
-- [ ] 1.6 Overscroll bounce shows dark, not white
-- [ ] 1.7 React islands interactive after navigation (forms, PicksGrid)
-- [ ] 1.8 Sign-out POST form still logs out and redirects
-- [ ] 1.9 Topbar active-link underline updates between pages
-- [ ] 1.10 `prefers-reduced-motion` set: navigation has no white flash
+- [x] 1.4 Navbar link clicks show smooth fade, no white flash
+- [x] 1.5 Direct entry + hard reload show dark canvas, no white
+- [x] 1.6 Overscroll bounce shows dark, not white
+- [x] 1.7 React islands interactive after navigation (forms, PicksGrid)
+- [x] 1.8 Sign-out POST form still logs out and redirects
+- [x] 1.9 Topbar active-link underline updates between pages
+- [x] 1.10 `prefers-reduced-motion` set: navigation has no white flash
 
 ### Phase 2: Regression guard (Playwright)
 
@@ -303,4 +303,4 @@ one CSS line from `Layout.astro`.
 
 #### Manual
 
-- [ ] 2.3 Removing `<ClientRouter />` makes the guard fail, then restore
+- [x] 2.3 Removing `<ClientRouter />` makes the guard fail, then restore

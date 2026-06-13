@@ -1,7 +1,7 @@
 ---
 change_id: page-transition-flash
 title: No white flash on navigation / re-render
-status: implementing
+status: implemented
 created: 2026-06-13
 updated: 2026-06-13
 ---
