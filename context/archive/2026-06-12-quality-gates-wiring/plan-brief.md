@@ -25,15 +25,15 @@ machine. The test-plan reflects these gates as wired.
 
 ## Key Decisions Made
 
-| Decision | Choice | Why (1 sentence) | Source |
-| --- | --- | --- | --- |
-| Per-edit hook scope | Lint/format + risk-gated scoped tests | §5 recommends scoped tests; only layer that feeds the agent | Plan |
-| Typecheck layer | Pre-push (not pre-commit) | Whole-project check; keeps commits fast | Plan |
-| Full test suite layer | Pre-push full `vitest run` | Single safety net for edits that bypassed the agent hook | Plan |
-| Risk-area gate | Path-prefix match on §2 risk dirs | Deterministic, matches "don't test every helper" rule | Plan |
-| Hook failure signal | Block (exit 2) + stderr to agent | Core Lesson 3 payoff — agent self-corrects trivial errors | Plan |
-| Git hook tool | Keep Husky, add pre-push | Husky works; lesson forbids needless Lefthook migration | Plan |
-| Test-plan record | Flip §5 status + fill §6.5/§6.6 | Keep the doc from lying after gates ship | Plan |
+| Decision              | Choice                                | Why (1 sentence)                                            | Source |
+| --------------------- | ------------------------------------- | ----------------------------------------------------------- | ------ |
+| Per-edit hook scope   | Lint/format + risk-gated scoped tests | §5 recommends scoped tests; only layer that feeds the agent | Plan   |
+| Typecheck layer       | Pre-push (not pre-commit)             | Whole-project check; keeps commits fast                     | Plan   |
+| Full test suite layer | Pre-push full `vitest run`            | Single safety net for edits that bypassed the agent hook    | Plan   |
+| Risk-area gate        | Path-prefix match on §2 risk dirs     | Deterministic, matches "don't test every helper" rule       | Plan   |
+| Hook failure signal   | Block (exit 2) + stderr to agent      | Core Lesson 3 payoff — agent self-corrects trivial errors   | Plan   |
+| Git hook tool         | Keep Husky, add pre-push              | Husky works; lesson forbids needless Lefthook migration     | Plan   |
+| Test-plan record      | Flip §5 status + fill §6.5/§6.6       | Keep the doc from lying after gates ship                    | Plan   |
 
 ## Scope
 
@@ -54,11 +54,11 @@ untouched) → **pre-push** (Husky hook: `astro sync && astro check` + full
 
 ## Phases at a Glance
 
-| Phase | What it delivers | Key risk |
-| --- | --- | --- |
-| 1. Per-edit agent hook | `.claude/settings.json` + script: lint/format + scoped tests, exit-2 block | Exit-code/stderr block contract must match Claude Code behavior |
-| 2. Pre-push safety net | `typecheck` script + `.husky/pre-push` (typecheck + full suite) | `astro check` staleness — script must `astro sync` first |
-| 3. Test-plan reconciliation | §5 status, §6.5 cookbook, §6.6 note, §3 status | Touch only status/records, not gate definitions (Lesson 1) |
+| Phase                       | What it delivers                                                           | Key risk                                                        |
+| --------------------------- | -------------------------------------------------------------------------- | --------------------------------------------------------------- |
+| 1. Per-edit agent hook      | `.claude/settings.json` + script: lint/format + scoped tests, exit-2 block | Exit-code/stderr block contract must match Claude Code behavior |
+| 2. Pre-push safety net      | `typecheck` script + `.husky/pre-push` (typecheck + full suite)            | `astro check` staleness — script must `astro sync` first        |
+| 3. Test-plan reconciliation | §5 status, §6.5 cookbook, §6.6 note, §3 status                             | Touch only status/records, not gate definitions (Lesson 1)      |
 
 **Prerequisites:** Husky installed (yes), Vitest suites present (yes), risk dirs exist (yes).
 **Estimated effort:** ~1 session across 3 small phases.
