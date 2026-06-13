@@ -80,13 +80,13 @@ Each row is a discrete rollout phase that will open its own change folder
 via `/10x-new`. Status moves left-to-right through the values below; the
 orchestrator updates Status as artifacts appear on disk.
 
-| #   | Phase name                                | Goal (one line)                                                     | Risks covered | Test types                       | Status       | Change folder                                               |
-| --- | ----------------------------------------- | ------------------------------------------------------------------- | ------------- | -------------------------------- | ------------ | ----------------------------------------------------------- |
-| 1   | Bootstrap + "always three picks" core     | Stand up Vitest; defend R1 + R5 at the cheapest layer               | #1, #5        | unit + integration               | complete     | context/archive/2026-06-12-testing-always-three-picks-core/ |
-| 2   | Graceful degradation at the external edge | TMDB / OpenRouter failure → genre-only fallback, still three picks  | #2            | integration + network mock (MSW) | not started  | —                                                           |
-| 3   | Own-data isolation                        | User B cannot reach user A's data (IDOR / RLS)                      | #4            | integration (two users)          | not started  | —                                                           |
-| 4   | E2E critical path                         | home → three picks end-to-end                                       | #3            | e2e (Playwright)                 | not started  | —                                                           |
-| 5   | Quality-gates wiring                      | Lock the floor: lint + typecheck + scoped-test hooks and pre-commit | cross-cutting | gates / hooks                    | implementing | context/changes/quality-gates-wiring/                       |
+| #   | Phase name                                | Goal (one line)                                                     | Risks covered | Test types                       | Status      | Change folder                                               |
+| --- | ----------------------------------------- | ------------------------------------------------------------------- | ------------- | -------------------------------- | ----------- | ----------------------------------------------------------- |
+| 1   | Bootstrap + "always three picks" core     | Stand up Vitest; defend R1 + R5 at the cheapest layer               | #1, #5        | unit + integration               | complete    | context/archive/2026-06-12-testing-always-three-picks-core/ |
+| 2   | Graceful degradation at the external edge | TMDB / OpenRouter failure → genre-only fallback, still three picks  | #2            | integration + network mock (MSW) | not started | —                                                           |
+| 3   | Own-data isolation                        | User B cannot reach user A's data (IDOR / RLS)                      | #4            | integration (two users)          | not started | —                                                           |
+| 4   | E2E critical path                         | home → three picks end-to-end                                       | #3            | e2e (Playwright)                 | not started | —                                                           |
+| 5   | Quality-gates wiring                      | Lock the floor: lint + typecheck + scoped-test hooks and pre-commit | cross-cutting | gates / hooks                    | complete    | context/archive/2026-06-12-quality-gates-wiring/            |
 
 **Status vocabulary** (fixed — parser literals):
 
@@ -115,8 +115,8 @@ The classic test base for this project. AI-native tools (if any) carry a
 | API mocking        | MSW               | none yet — see §3 Phase 2 | Mock only the network edge (TMDB / OpenRouter)                                                         |
 | e2e                | Playwright        | none yet — see §3 Phase 4 | App runs on Cloudflare workerd; `astro dev` is real workerd locally                                    |
 | database           | pgTAP (Supabase)  | present                   | `supabase/tests/`, run via `npm run db:verify` — existing RLS-level coverage                           |
-| lint / format      | ESLint + Prettier | present                   | `npm run lint`; husky pre-commit runs lint-staged                                                      |
-| typecheck          | `astro check`     | present                   | `@astrojs/check` installed; not yet a standalone gate                                                  |
+| lint / format      | ESLint + Prettier | present                   | `npm run lint`; husky pre-commit runs lint-staged (Husky activated via `prepare` script, Phase 5)      |
+| typecheck          | `astro check`     | present                   | `npm run typecheck` (`astro sync && astro check`); wired as a pre-push gate (Phase 5)                  |
 
 **Stack grounding tools (current session):**
 
