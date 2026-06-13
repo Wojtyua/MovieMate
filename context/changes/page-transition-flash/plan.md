@@ -298,8 +298,8 @@ one CSS line from `Layout.astro`.
 
 #### Automated
 
-- [x] 2.1 E2E suite passes: `npm run test:e2e`
-- [x] 2.2 New spec asserts both invariants (sentinel survives nav; html bg ≠ white)
+- [x] 2.1 E2E suite passes: `npm run test:e2e` — cdfd9d9
+- [x] 2.2 New spec asserts both invariants (sentinel survives nav; html bg ≠ white) — cdfd9d9
 
 #### Manual
 
