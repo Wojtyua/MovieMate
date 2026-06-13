@@ -1,4 +1,4 @@
-import { defineConfig } from "vitest/config";
+import { defineConfig, configDefaults } from "vitest/config";
 import tsconfigPaths from "vite-tsconfig-paths";
 
 // Minimal Vitest setup for the test-plan §3 Phase 1 suite.
@@ -12,5 +12,9 @@ export default defineConfig({
   plugins: [tsconfigPaths()],
   test: {
     environment: "node",
+    // Playwright owns tests/e2e (run via `npm run test:e2e`); excluding it here
+    // keeps `vitest run` from collecting Playwright `test()` specs it cannot
+    // execute.
+    exclude: [...configDefaults.exclude, "tests/e2e/**"],
   },
 });
