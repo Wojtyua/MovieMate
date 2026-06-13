@@ -11,6 +11,7 @@
     "prepare": "husky",
     "test": "vitest",
     "test:run": "vitest run",
+    "test:isolation": "RUN_ISOLATION=1 vitest run tests/integration/own-data-isolation.test.ts",
     "test:e2e": "playwright test",
     "typecheck": "astro sync && astro check",
     "lint": "eslint .",
