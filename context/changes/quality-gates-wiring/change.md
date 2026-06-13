@@ -22,8 +22,9 @@ archived_at: null
   (a push with a failing test was NOT aborted; it reached origin until deleted).
   Adapted per user approval: added `"prepare": "husky"` and ran it once; both
   hooks now fire. Re-verified 2.6/2.7/2.8 green afterward.
-- **1.9 NOT met — per-edit loop ~2.3s, over the sub-2s target.** The checks
-  themselves are sub-second (vitest 3ms); the cost is three sequential `npx`
-  binary resolutions (even the lint-only non-risk path is ~1.77s). Open
-  follow-up: call the local bins directly (`node_modules/.bin/{prettier,eslint,vitest}`)
-  instead of `npx` to cut most of the overhead. Left unchecked in plan.md.
+- **1.9 met after optimization.** Initially ~2.3s (over the sub-2s target): the
+  cost was three sequential `npx` binary resolutions, not the checks (vitest 3ms).
+  Fixed by calling the project-local bins directly
+  (`node_modules/.bin/{prettier,eslint,vitest}`, `npx` fallback for fresh clones):
+  risk-file loop now ~1.93s, non-risk ~1.5s. Residual cost is ESLint's type-aware
+  program load (~1s), inherent to the lint config — not the hook.

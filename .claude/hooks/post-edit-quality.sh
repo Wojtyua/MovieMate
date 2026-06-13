@@ -10,10 +10,18 @@ FILE=$(jq -r '.tool_input.file_path // empty')
 [ -z "$FILE" ] || [ ! -f "$FILE" ] && exit 0
 REL=${FILE#"$PWD"/}
 
+# Call the project-local binaries directly — `npx` adds ~0.5s of resolution per
+# invocation, which dominated the per-edit loop (~2.3s for three `npx` calls).
+# Fall back to `npx` only if deps aren't installed (e.g. a fresh clone).
+BIN="$PWD/node_modules/.bin"
+PRETTIER="$BIN/prettier"; [ -x "$PRETTIER" ] || PRETTIER="npx prettier"
+ESLINT="$BIN/eslint";     [ -x "$ESLINT" ]   || ESLINT="npx eslint"
+VITEST="$BIN/vitest";     [ -x "$VITEST" ]   || VITEST="npx vitest"
+
 # format + lint only the lint targets
 case "$REL" in
   *.ts | *.tsx | *.astro)
-    if ! OUT=$(npx prettier --write "$REL" && npx eslint --fix "$REL" 2>&1); then
+    if ! OUT=$($PRETTIER --write "$REL" && $ESLINT --fix "$REL" 2>&1); then
       echo "$OUT" >&2
       exit 2
     fi
@@ -25,7 +33,7 @@ case "$REL" in
   src/lib/recommend/* | src/pages/api/* | src/pages/sessions/* | src/components/sessions/* | src/middleware.ts)
     case "$REL" in
       *.ts | *.tsx)
-        if ! OUT=$(npx vitest related "$REL" --run 2>&1); then
+        if ! OUT=$($VITEST related "$REL" --run 2>&1); then
           echo "$OUT" >&2
           exit 2
         fi

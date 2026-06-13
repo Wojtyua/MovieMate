@@ -402,7 +402,7 @@ final phase.
 
 - [x] 1.7 Live session: error in `src/lib/recommend/` blocks and agent self-corrects
 - [x] 1.8 Non-risk edit triggers no Vitest run, no perceptible slowdown
-- [ ] 1.9 Per-edit loop stays sub-2s on a normal risk-file edit
+- [x] 1.9 Per-edit loop stays sub-2s on a normal risk-file edit
 
 ### Phase 2: Pre-push safety net
 
