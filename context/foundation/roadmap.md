@@ -3,7 +3,7 @@ project: MovieMate
 version: 1
 status: draft
 created: 2026-06-06
-updated: 2026-06-12
+updated: 2026-06-13
 prd_version: 1
 main_goal: low-complexity
 top_blocker: none (S-08 closed 2026-06-12 — no reproducible defect; see Done)
@@ -28,27 +28,29 @@ MovieMate fights movie-night decision paralysis by returning three scored, role-
 
 ## At a glance
 
-| ID   | Change ID                     | Outcome (user can …)                                             | Prerequisites | PRD refs                          | Status   |
-| ---- | ----------------------------- | ---------------------------------------------------------------- | ------------- | --------------------------------- | -------- |
-| S-01 | remembered-taste-core         | maintain one remembered taste core (replaces two profiles)       | —             | FR-001, FR-002                    | done     |
-| S-02 | session-first-solo-flow       | start a session from home, solo, and get three role-labeled picks | S-01          | US-01, FR-003, FR-004, FR-008, FR-009 | done     |
-| S-03 | optional-inline-second-viewer | add a second viewer's taste inline and get duo picks             | S-02          | US-01, FR-005, FR-008, FR-009     | done     |
-| S-04 | ai-note-understanding         | have a free-text note sharpen the candidate set                  | S-02          | FR-006, FR-007                    | done     |
-| S-05 | select-and-mark-watched       | select one pick and mark it watched (excluded from future picks) | S-02          | US-01, FR-011, FR-012             | done     |
-| S-06 | navigation-cleanup            | reach every page through one coherent navbar; no dashboard detour | S-02          | US-01 (UX/IA correction — no new FR) | done     |
-| S-07 | one-shot-recommend            | set tonight's preferences and get three picks in a single action | S-02, S-03    | US-01, FR-003, FR-004             | done     |
+| ID   | Change ID                     | Outcome (user can …)                                                                           | Prerequisites | PRD refs                                        | Status           |
+| ---- | ----------------------------- | ---------------------------------------------------------------------------------------------- | ------------- | ----------------------------------------------- | ---------------- |
+| S-01 | remembered-taste-core         | maintain one remembered taste core (replaces two profiles)                                     | —             | FR-001, FR-002                                  | done             |
+| S-02 | session-first-solo-flow       | start a session from home, solo, and get three role-labeled picks                              | S-01          | US-01, FR-003, FR-004, FR-008, FR-009           | done             |
+| S-03 | optional-inline-second-viewer | add a second viewer's taste inline and get duo picks                                           | S-02          | US-01, FR-005, FR-008, FR-009                   | done             |
+| S-04 | ai-note-understanding         | have a free-text note sharpen the candidate set                                                | S-02          | FR-006, FR-007                                  | done             |
+| S-05 | select-and-mark-watched       | select one pick and mark it watched (excluded from future picks)                               | S-02          | US-01, FR-011, FR-012                           | done             |
+| S-06 | navigation-cleanup            | reach every page through one coherent navbar; no dashboard detour                              | S-02          | US-01 (UX/IA correction — no new FR)            | done             |
+| S-07 | one-shot-recommend            | set tonight's preferences and get three picks in a single action                               | S-02, S-03    | US-01, FR-003, FR-004                           | done             |
 | S-08 | concurrent-user-isolation     | use the app concurrently with other logged-in users without sessions colliding or data leaking | —             | US-01 (correctness/security defect — no new FR) | done (no defect) |
+| S-09 | page-transition-flash         | navigate between pages (or re-render) without a brief white-background flash                   | —             | US-01 (UX/rendering defect — no new FR)         | done             |
 
 ## Streams
 
 Navigation aid — groups items that share a Prerequisites chain. Canonical ordering still lives in the dependency graph below; this table is the proposed reading order across parallel tracks.
 
-| Stream | Theme                  | Chain                          | Note                                                                                  |
-| ------ | ---------------------- | ------------------------------ | ------------------------------------------------------------------------------------- |
-| A      | Model & solo flow      | `S-01` → `S-02`                | The reshape backbone and the north-star path; everything else hangs off `S-02`.       |
-| B      | Flow extensions        | `S-03` / `S-04` / `S-05`       | Three independent extensions, all join Stream A at `S-02`; plannable in parallel.      |
-| C      | Flow polish (post-ship)| `S-06` / `S-07`                | Corrections to the shipped flow, framed in `context/changes/<id>/frame.md`. `S-06` is independent UI/IA; `S-07` touches the recommendations pipeline (test-plan Risk #1) — sequence with/after test-plan Phase 1. |
-| D      | Reliability (post-deploy)| `S-08`                       | Investigated post-deploy report of concurrent-user breakage. `/10x-research` + live Supabase diagnostics found the code per-request-correct and isolation sound; the symptom did not reproduce. **Closed 2026-06-12 as no reproducible defect** (no longer a blocker). |
+| Stream | Theme                          | Chain                    | Note                                                                                                                                                                                                                                                                   |
+| ------ | ------------------------------ | ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| A      | Model & solo flow              | `S-01` → `S-02`          | The reshape backbone and the north-star path; everything else hangs off `S-02`.                                                                                                                                                                                        |
+| B      | Flow extensions                | `S-03` / `S-04` / `S-05` | Three independent extensions, all join Stream A at `S-02`; plannable in parallel.                                                                                                                                                                                      |
+| C      | Flow polish (post-ship)        | `S-06` / `S-07`          | Corrections to the shipped flow, framed in `context/changes/<id>/frame.md`. `S-06` is independent UI/IA; `S-07` touches the recommendations pipeline (test-plan Risk #1) — sequence with/after test-plan Phase 1.                                                      |
+| D      | Reliability (post-deploy)      | `S-08`                   | Investigated post-deploy report of concurrent-user breakage. `/10x-research` + live Supabase diagnostics found the code per-request-correct and isolation sound; the symptom did not reproduce. **Closed 2026-06-12 as no reproducible defect** (no longer a blocker). |
+| E      | Rendering polish (post-deploy) | `S-09`                   | Post-deploy UX defect: brief white-background flash on page change / re-render. Independent of the reshape chain; confirm the repaint cause via `/10x-frame` + `/10x-research` before planning (S-08 discipline — don't assume the fix).                               |
 
 ## Baseline
 
@@ -141,7 +143,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Blockers:** —
 - **Unknowns:**
   - The exact navbar link set and active-state treatment once `/dashboard` is gone (home / movie night / taste core) — Owner: user/team. Block: no (resolve in `/10x-plan`).
-- **Risk:** Pure UI/IA change — no recommendations-pipeline touch. The one coupling: today the navbar's *only* nav target is `/dashboard`, so removing the page forces a navbar redesign; "add a navbar to inner pages" and "remove the dashboard" are one unit of work. Also touches `PROTECTED_ROUTES` and the `← Dashboard` back-links in `sessions` + `profiles`. Framed in `context/changes/navigation-cleanup/frame.md` (Confidence HIGH).
+- **Risk:** Pure UI/IA change — no recommendations-pipeline touch. The one coupling: today the navbar's _only_ nav target is `/dashboard`, so removing the page forces a navbar redesign; "add a navbar to inner pages" and "remove the dashboard" are one unit of work. Also touches `PROTECTED_ROUTES` and the `← Dashboard` back-links in `sessions` + `profiles`. Framed in `context/changes/navigation-cleanup/frame.md` (Confidence HIGH).
 - **Status:** done
 
 ### S-07: One-shot recommend — preferences → picks in a single action
@@ -154,7 +156,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Blockers:** —
 - **Unknowns:**
   - Chain `/api/sessions` → recommend vs. fold into one endpoint; picks inline vs. the existing redirect; how the "edit an existing session" path folds into one-shot — Owner: user/team. Block: no (resolve in `/10x-plan`).
-- **Risk:** Runs on the recommendations pipeline = **Risk #1** in `context/foundation/test-plan.md` ("fewer than three picks"). The reframe: the root is not the extra click but that "save a session" is leaked into the user's mental model as a step — collapse to one action *and* retire the save-session language, keeping the session row as an invisible server-side byproduct (FK `recommendations.session_id NOT NULL` forces persistence). **Sequence with or after test-plan Phase 1** so the merge lands against the always-three-picks safety net. Framed in `context/changes/one-shot-recommend/frame.md` (Confidence HIGH).
+- **Risk:** Runs on the recommendations pipeline = **Risk #1** in `context/foundation/test-plan.md` ("fewer than three picks"). The reframe: the root is not the extra click but that "save a session" is leaked into the user's mental model as a step — collapse to one action _and_ retire the save-session language, keeping the session row as an invisible server-side byproduct (FK `recommendations.session_id NOT NULL` forces persistence). **Sequence with or after test-plan Phase 1** so the merge lands against the always-three-picks safety net. Framed in `context/changes/one-shot-recommend/frame.md` (Confidence HIGH).
 - **Status:** done
 
 ### S-08: Concurrent logged-in users don't collide (multi-user isolation)
@@ -173,18 +175,33 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Resolution (2026-06-12):** Closed as **no reproducible defect**. `/10x-research` refuted the leading hypothesis — the Supabase client is a per-request factory (`src/lib/supabase.ts`), there is no shared mutable per-user state, identity uses the secure `getUser()`, and RLS is enabled + correct on every table (verified live via Supabase advisors + `list_tables`; DB-layer isolation already proven by `supabase/tests/*_isolation.sql`). The operator confirmed concurrent use works in practice. Likely original symptom: a transient (shared external rate limit, or two accounts in the same browser cookie jar). The "harden + repro" plan (optional defense-in-depth owner filters) was **not** implemented; it stays on the shelf in the archived folder as the starting point should the symptom ever return under real concurrent load. The unknowns above are resolved in `context/archive/2026-06-12-concurrent-user-isolation/research.md` (Outcome section).
 - **Status:** done (no defect — closed without code change)
 
+### S-09: No white flash on navigation / re-render
+
+- **Outcome:** a user navigating between pages — or on a re-render — never sees a brief white-background flash; the app's background paints consistently from the first frame of each full-page load, so transitions feel seamless rather than blinking through white.
+- **Change ID:** page-transition-flash
+- **PRD refs:** US-01 (UX/rendering defect surfaced post-deploy — no new FR)
+- **Prerequisites:** — (a fix on the already-shipped UI; not gated by any reshape slice)
+- **Parallel with:** — (sits outside the reshape chain)
+- **Blockers:** —
+- **Unknowns:**
+  - Root cause must be confirmed by `/10x-research`, not assumed here. Leading hypothesis: because Astro ships a multi-page app (a full document load per navigation), each navigation paints the browser-default white before the app/theme background CSS applies (a FOUC-style unstyled-background flash) — likely because the dark surface lives on an element _below_ `html`/`:root` and that root frame is white for one paint. Alternatives to rule out: no background color set on `html`/`:root`, stylesheet load/order timing (render-blocking vs. deferred), and a React hydration/re-mount that briefly clears styled content. — Owner: user/team. Block: no.
+  - Scope of the fix differs by cause: a static background on the root document (cheapest, kills the white frame) vs. adopting Astro View Transitions (broader — animates page-to-page and avoids the full repaint). These are different units of work. — Owner: user/team. Block: no (resolve in `/10x-frame` or `/10x-plan`).
+- **Risk:** Pure rendering/UX polish — no recommendations-pipeline or data touch, so low blast radius. The S-08 discipline applies: confirm the actual repaint cause (and which element carries the background) before committing, since "add a root background" and "adopt View Transitions" are very different scopes. Best run through `context/changes/page-transition-flash/frame.md` before planning.
+- **Status:** done
+
 ## Backlog Handoff
 
-| Roadmap ID | Change ID                     | Suggested issue title                                  | Ready for `/10x-plan` | Notes                                   |
-| ---------- | ----------------------------- | ------------------------------------------------------ | --------------------- | --------------------------------------- |
-| S-01       | remembered-taste-core         | Collapse two profiles into one remembered taste core   | done                  | Archived → `context/archive/2026-06-06-remembered-taste-core/` |
-| S-02       | session-first-solo-flow       | Session-first solo flow with pre-filled core genres    | done                  | Archived → `context/archive/2026-06-06-session-first-solo-flow/` |
-| S-03       | optional-inline-second-viewer | Add optional inline second viewer (duo path)           | done                  | Archived → `context/archive/2026-06-08-optional-inline-second-viewer/` |
-| S-04       | ai-note-understanding         | Parse the note into search params to sharpen retrieval | done                  | Archived → `context/archive/2026-06-11-ai-note-understanding/` |
-| S-05       | select-and-mark-watched       | Select a pick and mark it watched (dedup filter)       | done                  | Archived → `context/archive/2026-06-11-select-and-mark-watched/` |
-| S-06       | navigation-cleanup            | Navigation cleanup — remove dashboard, global navbar   | done                  | Archived → `context/archive/2026-06-10-navigation-cleanup/` |
-| S-07       | one-shot-recommend            | One-shot recommend — preferences → picks in one action | done                  | Archived → `context/archive/2026-06-10-one-shot-recommend/` |
+| Roadmap ID | Change ID                     | Suggested issue title                                                     | Ready for `/10x-plan` | Notes                                                                                                               |
+| ---------- | ----------------------------- | ------------------------------------------------------------------------- | --------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| S-01       | remembered-taste-core         | Collapse two profiles into one remembered taste core                      | done                  | Archived → `context/archive/2026-06-06-remembered-taste-core/`                                                      |
+| S-02       | session-first-solo-flow       | Session-first solo flow with pre-filled core genres                       | done                  | Archived → `context/archive/2026-06-06-session-first-solo-flow/`                                                    |
+| S-03       | optional-inline-second-viewer | Add optional inline second viewer (duo path)                              | done                  | Archived → `context/archive/2026-06-08-optional-inline-second-viewer/`                                              |
+| S-04       | ai-note-understanding         | Parse the note into search params to sharpen retrieval                    | done                  | Archived → `context/archive/2026-06-11-ai-note-understanding/`                                                      |
+| S-05       | select-and-mark-watched       | Select a pick and mark it watched (dedup filter)                          | done                  | Archived → `context/archive/2026-06-11-select-and-mark-watched/`                                                    |
+| S-06       | navigation-cleanup            | Navigation cleanup — remove dashboard, global navbar                      | done                  | Archived → `context/archive/2026-06-10-navigation-cleanup/`                                                         |
+| S-07       | one-shot-recommend            | One-shot recommend — preferences → picks in one action                    | done                  | Archived → `context/archive/2026-06-10-one-shot-recommend/`                                                         |
 | S-08       | concurrent-user-isolation     | Fix concurrent logged-in users breaking each other (multi-user isolation) | done (no defect)      | Investigated + closed as no reproducible defect; archived → `context/archive/2026-06-12-concurrent-user-isolation/` |
+| S-09       | page-transition-flash         | Eliminate brief white-background flash on page change / re-render         | done                  | Archived → `context/archive/2026-06-13-page-transition-flash/`                                                      |
 
 ## Open Roadmap Questions
 
@@ -211,3 +228,4 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **S-04: user can type a free-text note ("something dumb, maybe with Adam Sandler") and have it parsed into structured search parameters (genres, people/cast, keywords) that improve the candidate set, with graceful fallback to genre-only retrieval.** — Archived 2026-06-11 → `context/archive/2026-06-11-ai-note-understanding/`. Lesson: —.
 - **S-05: user can select one recommendation to close the decision, mark it watched, and have watched films excluded from future candidate retrieval for the account.** — Archived 2026-06-11 → `context/archive/2026-06-11-select-and-mark-watched/`. Lesson: —.
 - **S-08: concurrent logged-in users don't collide — investigated as a post-deploy report and closed as NO reproducible defect (no code change).** Research refuted the shared-state hypothesis (per-request client, no shared mutable state, RLS on + correct, DB isolation already pgTAP-proven); operator confirmed concurrent use works. — Archived 2026-06-12 → `context/archive/2026-06-12-concurrent-user-isolation/`. Lesson: a bug report's leading root-cause hypothesis must be reproduced/confirmed before planning a fix — here research + live diagnostics caught a non-defect before any code was written.
+- **S-09: a user navigating between pages never sees a brief white-background flash; the document canvas paints dark from the first frame and client navigations swap without a full reload.** — Archived 2026-06-13 → `context/archive/2026-06-13-page-transition-flash/`. Lesson: —.
