@@ -409,10 +409,10 @@ schema, or config changes.
 
 #### Automated
 
-- [x] 3.1 Markdown lints/formats clean (`npx lint-staged` / prettier on edited `.md`)
-- [x] 3.2 The §3 change-folder path reference resolves
+- [x] 3.1 Markdown lints/formats clean (`npx lint-staged` / prettier on edited `.md`) — eeef684
+- [x] 3.2 The §3 change-folder path reference resolves — eeef684
 
 #### Manual
 
-- [x] 3.3 §3/§4 no longer imply MSW arrives in Phase 2; §6.2/§6.6 read as a usable recipe
-- [x] 3.4 A reader can understand why MSW was skipped
+- [x] 3.3 §3/§4 no longer imply MSW arrives in Phase 2; §6.2/§6.6 read as a usable recipe — eeef684
+- [x] 3.4 A reader can understand why MSW was skipped — eeef684
