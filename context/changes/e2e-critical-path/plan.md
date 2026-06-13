@@ -263,11 +263,11 @@ headings. Unique data; no `waitForTimeout`; reviewed against the five anti-patte
 
 #### Automated
 
-- [x] 2.1 `critical-path-three-picks.spec.ts` passes against the running app
-- [x] 2.2 Deliberate break makes the test red; reverted, never committed
-- [x] 2.3 Full e2e suite runs twice consecutively, all green
+- [x] 2.1 `critical-path-three-picks.spec.ts` passes against the running app — 7b26971
+- [x] 2.2 Deliberate break makes the test red; reverted, never committed — 7b26971
+- [x] 2.3 Full e2e suite runs twice consecutively, all green — 7b26971
 
 #### Manual
 
-- [x] 2.4 Recommendations page visibly shows three picks with role badges
-- [x] 2.5 Deliberate-break red observed and reverted before commit
+- [x] 2.4 Recommendations page visibly shows three picks with role badges — 7b26971
+- [x] 2.5 Deliberate-break red observed and reverted before commit — 7b26971
