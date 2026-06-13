@@ -388,31 +388,31 @@ schema, or config changes.
 
 #### Manual
 
-- [x] 1.4 Builder failure modes + request log read clearly enough for the §6.2 cookbook
+- [x] 1.4 Builder failure modes + request log read clearly enough for the §6.2 cookbook — c4b075f
 
 ### Phase 2: Degradation test suite
 
 #### Automated
 
-- [x] 2.1 New suites pass: `npm run test:run`
-- [x] 2.2 Typecheck passes: `npm run typecheck`
-- [x] 2.3 Lint passes: `npm run lint`
-- [x] 2.4 Post-edit hook scoped suite passes on each new `.ts`
+- [x] 2.1 New suites pass: `npm run test:run` — c4b075f
+- [x] 2.2 Typecheck passes: `npm run typecheck` — c4b075f
+- [x] 2.3 Lint passes: `npm run lint` — c4b075f
+- [x] 2.4 Post-edit hook scoped suite passes on each new `.ts` — c4b075f
 
 #### Manual
 
-- [x] 2.5 Deliberate break of the TMDB `ok:false` branch turns a TMDB test red; reverted
-- [x] 2.6 Deliberate break of the AI degrade guard turns an OpenRouter test red; reverted
-- [x] 2.7 Injecting non-empty `castIds` turns the genre-only-signature assertion red; reverted
+- [x] 2.5 Deliberate break of the TMDB `ok:false` branch turns a TMDB test red; reverted — c4b075f
+- [x] 2.6 Deliberate break of the AI degrade guard turns an OpenRouter test red; reverted — c4b075f
+- [x] 2.7 Injecting non-empty `castIds` turns the genre-only-signature assertion red; reverted — c4b075f
 
 ### Phase 3: Reconcile the test plan
 
 #### Automated
 
-- [ ] 3.1 Markdown lints/formats clean (`npx lint-staged` / prettier on edited `.md`)
-- [ ] 3.2 The §3 change-folder path reference resolves
+- [x] 3.1 Markdown lints/formats clean (`npx lint-staged` / prettier on edited `.md`)
+- [x] 3.2 The §3 change-folder path reference resolves
 
 #### Manual
 
-- [ ] 3.3 §3/§4 no longer imply MSW arrives in Phase 2; §6.2/§6.6 read as a usable recipe
-- [ ] 3.4 A reader can understand why MSW was skipped
+- [x] 3.3 §3/§4 no longer imply MSW arrives in Phase 2; §6.2/§6.6 read as a usable recipe
+- [x] 3.4 A reader can understand why MSW was skipped

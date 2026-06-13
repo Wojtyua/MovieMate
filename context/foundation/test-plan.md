@@ -69,7 +69,7 @@ timing/alerting, not a unit test.
 | Risk | What would prove protection                                                                                                                              | Must challenge                                                              | Context `/10x-research` must ground                         | Likely cheapest layer                                 | Anti-pattern to avoid                                                        |
 | ---- | -------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------- | ----------------------------------------------------------- | ----------------------------------------------------- | ---------------------------------------------------------------------------- |
 | #1   | With healthy mocked dependencies the pipeline **always returns exactly three** picks across typical and boundary inputs (thin pool, all-excluded genres) | "the pool can never drop below three" — verify the relaxation / dedup logic | endpoint entry, retrieval boundary, dedup + relaxation rule | integration (endpoint / pipeline)                     | happy-path-only; mocking internal modules                                    |
-| #2   | A failing / timing-out dependency yields a **clean fallback to genre-only** retrieval, still three picks, no 500                                         | "200 means success" — the fallback may silently return < 3                  | network edge (TMDB / OpenRouter), timeout + error path      | integration + network-edge mock (MSW)                 | over-mocking; never exercising the error path itself                         |
+| #2   | A failing / timing-out dependency yields a **clean fallback to genre-only** retrieval, still three picks, no 500                                         | "200 means success" — the fallback may silently return < 3                  | network edge (TMDB / OpenRouter), timeout + error path      | integration + fetch-stub (network edge)               | over-mocking; never exercising the error path itself                         |
 | #3   | A real journey renders **three picks on screen**, not just an HTTP 200 / a URL change                                                                    | "green e2e means the flow works"                                            | page entry points, auth / session shape, SSR on workerd     | e2e (Playwright) — no cheaper layer covers cross-page | asserting only status / URL; brittle selectors                               |
 | #4   | User B **cannot see** user A's data (403 / empty), not merely "is authenticated"                                                                         | "logged in means authorized"                                                | RLS / owner-scope shape, id passed in URL / endpoint        | integration (two users)                               | testing only the happy path of one's own data                                |
 | #5   | Roles branch on taste cardinality; **wild card genre ≠ safe genre**; ≤ 3; solo omits "compromise"                                                        | the oracle comes from PRD rules, **not** from the implementation            | role rules, `role` CHECK values, scoring input shape        | unit (deterministic)                                  | **oracle problem** — asserting exact float score values (negative space, §7) |
@@ -80,13 +80,13 @@ Each row is a discrete rollout phase that will open its own change folder
 via `/10x-new`. Status moves left-to-right through the values below; the
 orchestrator updates Status as artifacts appear on disk.
 
-| #   | Phase name                                | Goal (one line)                                                     | Risks covered | Test types                       | Status      | Change folder                                               |
-| --- | ----------------------------------------- | ------------------------------------------------------------------- | ------------- | -------------------------------- | ----------- | ----------------------------------------------------------- |
-| 1   | Bootstrap + "always three picks" core     | Stand up Vitest; defend R1 + R5 at the cheapest layer               | #1, #5        | unit + integration               | complete    | context/archive/2026-06-12-testing-always-three-picks-core/ |
-| 2   | Graceful degradation at the external edge | TMDB / OpenRouter failure → genre-only fallback, still three picks  | #2            | integration + network mock (MSW) | not started | —                                                           |
-| 3   | Own-data isolation                        | User B cannot reach user A's data (IDOR / RLS)                      | #4            | integration (two users)          | not started | —                                                           |
-| 4   | E2E critical path                         | home → three picks end-to-end                                       | #3            | e2e (Playwright)                 | complete    | context/archive/2026-06-13-e2e-critical-path/               |
-| 5   | Quality-gates wiring                      | Lock the floor: lint + typecheck + scoped-test hooks and pre-commit | cross-cutting | gates / hooks                    | complete    | context/archive/2026-06-12-quality-gates-wiring/            |
+| #   | Phase name                                | Goal (one line)                                                     | Risks covered | Test types                              | Status      | Change folder                                               |
+| --- | ----------------------------------------- | ------------------------------------------------------------------- | ------------- | --------------------------------------- | ----------- | ----------------------------------------------------------- |
+| 1   | Bootstrap + "always three picks" core     | Stand up Vitest; defend R1 + R5 at the cheapest layer               | #1, #5        | unit + integration                      | complete    | context/archive/2026-06-12-testing-always-three-picks-core/ |
+| 2   | Graceful degradation at the external edge | TMDB / OpenRouter failure → genre-only fallback, still three picks  | #2            | integration + fetch-stub (network edge) | complete    | context/changes/graceful-degradation-at-the-external-edge/  |
+| 3   | Own-data isolation                        | User B cannot reach user A's data (IDOR / RLS)                      | #4            | integration (two users)                 | not started | —                                                           |
+| 4   | E2E critical path                         | home → three picks end-to-end                                       | #3            | e2e (Playwright)                        | complete    | context/archive/2026-06-13-e2e-critical-path/               |
+| 5   | Quality-gates wiring                      | Lock the floor: lint + typecheck + scoped-test hooks and pre-commit | cross-cutting | gates / hooks                           | complete    | context/archive/2026-06-12-quality-gates-wiring/            |
 
 **Status vocabulary** (fixed — parser literals):
 
@@ -109,14 +109,14 @@ triggered by a real bug, not a rollout phase.
 The classic test base for this project. AI-native tools (if any) carry a
 `checked:` date so future readers can see which lines need re-verification.
 
-| Layer              | Tool              | Version                   | Notes                                                                                                                                        |
-| ------------------ | ----------------- | ------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| unit + integration | Vitest            | 3.2.6                     | Vite 7 pinned (`overrides`); bootstrapped in Phase 1 (`vitest.config.ts`, `npm run test` / `test:run`)                                       |
-| API mocking        | MSW               | none yet — see §3 Phase 2 | Mock only the network edge (TMDB / OpenRouter)                                                                                               |
-| e2e                | Playwright        | 1.60 (`@playwright/test`) | Bootstrapped Phase 4: `playwright.config.ts` (webServer = `astro dev` :4321, real workerd), `storageState` setup project, `npm run test:e2e` |
-| database           | pgTAP (Supabase)  | present                   | `supabase/tests/`, run via `npm run db:verify` — existing RLS-level coverage                                                                 |
-| lint / format      | ESLint + Prettier | present                   | `npm run lint`; husky pre-commit runs lint-staged (Husky activated via `prepare` script, Phase 5)                                            |
-| typecheck          | `astro check`     | present                   | `npm run typecheck` (`astro sync && astro check`); wired as a pre-push gate (Phase 5)                                                        |
+| Layer              | Tool              | Version                      | Notes                                                                                                                                                                                                                                                       |
+| ------------------ | ----------------- | ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| unit + integration | Vitest            | 3.2.6                        | Vite 7 pinned (`overrides`); bootstrapped in Phase 1 (`vitest.config.ts`, `npm run test` / `test:run`)                                                                                                                                                      |
+| API mocking        | MSW (not adopted) | not adopted — see §3 Phase 2 | Phase 2 covered the network edge with the existing global-`fetch` stub (`makeNetworkStub` in `recommend-run-doubles.ts`) instead — same failure-injection signal at lower cost (cost×signal, §1). Row kept as a record of the decision. checked: 2026-06-13 |
+| e2e                | Playwright        | 1.60 (`@playwright/test`)    | Bootstrapped Phase 4: `playwright.config.ts` (webServer = `astro dev` :4321, real workerd), `storageState` setup project, `npm run test:e2e`                                                                                                                |
+| database           | pgTAP (Supabase)  | present                      | `supabase/tests/`, run via `npm run db:verify` — existing RLS-level coverage                                                                                                                                                                                |
+| lint / format      | ESLint + Prettier | present                      | `npm run lint`; husky pre-commit runs lint-staged (Husky activated via `prepare` script, Phase 5)                                                                                                                                                           |
+| typecheck          | `astro check`     | present                      | `npm run typecheck` (`astro sync && astro check`); wired as a pre-push gate (Phase 5)                                                                                                                                                                       |
 
 **Stack grounding tools (current session):**
 
@@ -159,13 +159,21 @@ Worked example: `src/lib/recommend/roles.test.ts` + `src/lib/recommend/__fixture
 
 ### 6.2 Adding an integration test (recommendations pipeline)
 
-Worked example: `src/lib/recommend-run.test.ts` + `src/lib/__fixtures__/recommend-run-doubles.ts` (Phase 1, "always three picks" with healthy doubles). Graceful-degradation + MSW recipes still pending — see §3 Phase 2.
+Worked examples: `src/lib/recommend-run.test.ts` (Phase 1, "always three picks" with healthy doubles) and `src/lib/recommend-run.degradation.test.ts` + `recommend-run.unconfigured.test.ts` (Phase 2, graceful degradation), all over `src/lib/__fixtures__/recommend-run-doubles.ts`.
 
 - **Stub the network EDGE, never an internal module.** `recommendRun` builds its own TMDB client (`createTmdbClient()`) and makes its own Supabase calls — it does not take a stub arg for them. So the honest seam is global `fetch` + the env token + a fake `SupabaseClient`. Do not mock `@/lib/recommend*`.
-- **`fetch` stub keyed on the `page` query param.** `vi.stubGlobal("fetch", fn)` where `fn` parses the request URL, reads `page`, and returns an `ok: true` Response whose `.json()` yields `{ results }` varying per page — that makes dedup-across-pages meaningful. The raw items only need the fields `normalizeMovie` reads (id, title, genre_ids, vote_average, vote_count, popularity). `vi.unstubAllGlobals()` in `afterEach`.
+- **`fetch` stub keyed on the `page` query param.** `vi.stubGlobal("fetch", fn)` where `fn` parses the request URL, reads `page`, and returns an `ok: true` Response whose `.json()` yields `{ results }` varying per page — that makes dedup-across-pages meaningful. The raw items only need the fields `normalizeMovie` reads (id, title, genre_ids, vote_average, vote_count, popularity). `vi.unstubAllGlobals()` in `afterEach`. (Phase 1: `makeFetchStub`.)
 - **`astro:env/server` token shim, scoped to the file.** `vi.mock("astro:env/server", () => ({ TMDB_READ_ACCESS_TOKEN: "test-token", … }))` at the top (hoisted). Without a truthy token `createTmdbClient()` returns `null` and `recommendRun` short-circuits before the ladder. Export the other names that module owns too (ai.ts reads `OPENROUTER_API_KEY`/`AI_MODEL` at load). Keep this in the integration file only so the unit suite stays infra-free.
 - **Hand-rolled fake `SupabaseClient`** covering exactly the three calls: `from("watched").select(…).eq(…)` → `{ data }`; `from("recommendations").insert(…).select("id").single()` → `{ data: { id } }`; `from("recommendation_picks").insert(rows)` → `{ error }` (capture `rows` for assertions). Cast with `as unknown as Parameters<typeof recommendRun>[0]`.
 - **Assert supply, not scores:** persisted pick count + distinct `tmdb_movie_id` + valid roles, watched-id absence, and the two faces of R1 (2 films → `ok:true` 2 picks; 0 → `ok:false`).
+
+**Graceful-degradation recipe (Phase 2, no MSW).** To fail an external edge, use `makeNetworkStub` (not `makeFetchStub`) — one `fetch` stub that routes by URL substring to the three edges and injects a per-edge failure, returning `{ fetch, requests }`:
+
+- **Routing + failure modes.** `url.includes("openrouter.ai")` → AI, `/search/` → entity resolution, `/discover/movie` → discover (page-keyed). Each edge takes either healthy data or an `EdgeFailure`: `non-ok` (`{ ok:false, status }`), `throw` (the stub rejects), or `malformed` (`ok:true` whose `.json()` rejects). Healthy OpenRouter wraps the extraction as `{ choices:[{ message:{ content: JSON.stringify(extraction) } }] }`.
+- **Throw-to-simulate-timeout.** A `throw` reproduces the exact downstream branch a real 8 s/2.5 s abort hits (`fetchCandidates` catch → `[]`; `extract` catch → `null`) — deterministic and instant, **no fake timers, no real clock**. Don't assert the budget fires at exactly 8 s/2.5 s (observability, §2).
+- **Two files split by the env shim.** `vi.mock("astro:env/server", …)` is a hoisted static object, so the AI key can't be varied within one file. Fetch-failure cases (key truthy) live in `recommend-run.degradation.test.ts`; the unconfigured-client case (key `""`) lives in `recommend-run.unconfigured.test.ts`.
+- **Prove the genre-only RUNG positively, not just `ok:true`.** Assert on the captured `requests`: an `openrouter.ai` URL present (AI was _attempted_ then degraded — distinguishes it from "note was null"), **no** `/search/` URL, and every `/discover/movie` URL carries `with_genres` but neither `with_cast` nor `with_keywords`. That signature is what makes "fell back to genre-only" falsifiable.
+- **The TMDB/AI asymmetry.** TMDB is the _source_ → its failure can only yield a clean `{ ok:false, "Could not reach TMDB, try again" }`, nothing persisted (asserting "3 picks when TMDB is down" is unsatisfiable). OpenRouter is _augmentation_ → its failure degrades to genre-only and still persists three picks. Verify by deliberate break: flip a degrade return to a `throw`/`ok:true`, or inject a non-empty `castIds`, and watch the matching test go red.
 
 ### 6.3 Adding an own-data / authorization test
 
@@ -235,6 +243,23 @@ needs a note → the AI path → **deferred to Phase 2**; the no-note path colla
 the ladder to one genre-only rung. Selective mutation gate (ad hoc, not CI):
 `npx stryker run --mutate "src/lib/recommend/roles.ts"` after this phase, then
 kill only survived mutants that would hurt a user (per CLAUDE.md guidance).
+
+**Phase 2 — graceful degradation at the external edge (R2).** The degradation
+behavior already existed and was robust (every edge returns a value on failure,
+never throws) — this phase **characterized** it, it did not build it. Risk #2 is
+**asymmetric**: TMDB is the candidate _source_ (its failure can only degrade to a
+clean `ok:false`, nothing persisted — "still three picks" is physically
+impossible), while OpenRouter is _augmentation_ (its failure degrades to
+genre-only and still returns three picks). The genre-only rung is proven
+_positively_ from the captured request log (no `/search/`, no
+`with_cast`/`with_keywords` on discover), not merely inferred from `ok:true`.
+**MSW was deliberately not adopted** (the test plan had mandated it): the existing
+global-`fetch` stub gives the same failure-injection signal at lower cost
+(cost×signal, §1), so §3/§4 were reconciled to record that decision. The
+throw-to-simulate-timeout technique keeps every timeout case instant (no fake
+timers). All boundary assertions live at the `recommendRun` library boundary —
+the HTTP route is a 302-redirect form endpoint, so "no 500" is a property the
+library delivers, not something the route layer is tested for.
 
 **Phase 4 — E2E critical path (R3).** "Three picks render on screen" splits cleanly
 from the unit/integration "always three" layer: the E2E test proves the _rendered_
