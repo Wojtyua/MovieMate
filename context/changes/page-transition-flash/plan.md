@@ -280,9 +280,9 @@ one CSS line from `Layout.astro`.
 
 #### Automated
 
-- [x] 1.1 Type checking passes: `npm run typecheck`
-- [x] 1.2 Linting passes: `npm run lint`
-- [x] 1.3 Production build succeeds: `npm run build`
+- [x] 1.1 Type checking passes: `npm run typecheck` — 471640c
+- [x] 1.2 Linting passes: `npm run lint` — 471640c
+- [x] 1.3 Production build succeeds: `npm run build` — 471640c
 
 #### Manual
 
@@ -298,8 +298,8 @@ one CSS line from `Layout.astro`.
 
 #### Automated
 
-- [ ] 2.1 E2E suite passes: `npm run test:e2e`
-- [ ] 2.2 New spec asserts both invariants (sentinel survives nav; html bg ≠ white)
+- [x] 2.1 E2E suite passes: `npm run test:e2e`
+- [x] 2.2 New spec asserts both invariants (sentinel survives nav; html bg ≠ white)
 
 #### Manual
 
