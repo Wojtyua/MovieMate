@@ -1,10 +1,10 @@
 ---
 change_id: graceful-degradation-at-the-external-edge
 title: Graceful degradation — TMDB/OpenRouter failure falls back to genre-only, still three picks
-status: implemented
+status: archived
 created: 2026-06-13
 updated: 2026-06-13
-archived_at: null
+archived_at: 2026-06-13T14:06:42Z
 ---
 
 ## Notes
