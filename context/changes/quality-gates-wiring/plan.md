@@ -74,10 +74,10 @@ throwaway branch) and confirm each blocks with a readable message.
 - **Not** changing the existing pre-commit hook or `lint-staged` config.
 - **Not** adding typecheck/tests to CI (`.github/workflows/ci.yml`) — CI
   authoring is a different lesson; only the local half is wired here.
-- **Not** writing new unit/integration/E2E tests — hooks only *run* the suites
+- **Not** writing new unit/integration/E2E tests — hooks only _run_ the suites
   Phase 1 produced. No Playwright/MCP (Lesson 4).
-- **Not** changing §5 gate *definitions* or the §2 risk strategy (Lesson 1).
-  Only gate *status* and the §6.5/§6.6 cookbook records are touched.
+- **Not** changing §5 gate _definitions_ or the §2 risk strategy (Lesson 1).
+  Only gate _status_ and the §6.5/§6.6 cookbook records are touched.
 - **Not** putting the whole-project typecheck or the full suite on the per-edit
   layer — both are too slow for the agent loop and belong at pre-push.
 
@@ -270,7 +270,7 @@ proceeding to Phase 3.
 
 Make `test-plan.md` reflect what is now wired: flip the §5 gate statuses, fill
 the §6.5 cookbook entry, and append a §6.6 Phase-5 note. Status/cookbook records
-only — gate *definitions* and the §2 risk strategy are unchanged (Lesson 1's
+only — gate _definitions_ and the §2 risk strategy are unchanged (Lesson 1's
 domain). Also flip §3 Phase 5 status toward `implementing`/`complete` per the
 existing reconciliation lesson.
 
@@ -331,7 +331,7 @@ decision, CI-deferred boundary) and move the §3 Phase 5 row Status off
 - A reader of §5 + §6.5 can tell which gates are wired, at which layer, and how
   to run/extend them
 - §6.6 Phase-5 note accurately reflects the keep-Husky and CI-deferred decisions
-- No §5 gate *definition* or §2 risk wording was altered — only status/records
+- No §5 gate _definition_ or §2 risk wording was altered — only status/records
 
 **Implementation Note**: After completing this phase and all automated
 verification passes, pause for manual confirmation from the human. This is the
@@ -400,8 +400,8 @@ final phase.
 
 #### Manual
 
-- [ ] 1.7 Live session: error in `src/lib/recommend/` blocks and agent self-corrects
-- [ ] 1.8 Non-risk edit triggers no Vitest run, no perceptible slowdown
+- [x] 1.7 Live session: error in `src/lib/recommend/` blocks and agent self-corrects
+- [x] 1.8 Non-risk edit triggers no Vitest run, no perceptible slowdown
 - [ ] 1.9 Per-edit loop stays sub-2s on a normal risk-file edit
 
 ### Phase 2: Pre-push safety net
@@ -416,9 +416,9 @@ final phase.
 
 #### Manual
 
-- [ ] 2.6 `git push` with a failing test on a throwaway branch is aborted with a readable failure
-- [ ] 2.7 `git push` on a clean branch adds only a few seconds
-- [ ] 2.8 Normal `git commit` unaffected (pre-commit still lint-staged only)
+- [x] 2.6 `git push` with a failing test on a throwaway branch is aborted with a readable failure
+- [x] 2.7 `git push` on a clean branch adds only a few seconds
+- [x] 2.8 Normal `git commit` unaffected (pre-commit still lint-staged only)
 
 ### Phase 3: Test-plan reconciliation
 
@@ -430,6 +430,6 @@ final phase.
 
 #### Manual
 
-- [ ] 3.4 §5 + §6.5 make wired gates, layers, and how-to-run clear
-- [ ] 3.5 §6.6 Phase-5 note reflects keep-Husky + CI-deferred decisions
-- [ ] 3.6 No §5 gate definition or §2 risk wording altered — only status/records
+- [x] 3.4 §5 + §6.5 make wired gates, layers, and how-to-run clear
+- [x] 3.5 §6.6 Phase-5 note reflects keep-Husky + CI-deferred decisions
+- [x] 3.6 No §5 gate definition or §2 risk wording altered — only status/records
